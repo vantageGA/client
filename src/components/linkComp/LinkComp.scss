@@ -1,0 +1,13 @@
+@use '../../index.scss' as *;
+
+.link-comp {
+  color: $rating-colour;
+  text-transform: uppercase;
+  margin-right: 0.4em;
+  width: 100%;
+
+  &.link-comp:hover {
+    transition: opacity 0.6s ease-in-out;
+    color: $rating-colour;
+  }
+}
