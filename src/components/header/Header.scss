@@ -24,8 +24,21 @@ header {
     width: 100%;
     height: 50px;
     gap: 0.5rem;
-    .is-active {
+    cursor: pointer;
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 150ms ease, color 150ms ease;
+
+    &.is-active {
       color: $rating-colour;
+    }
+
+    a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
     }
   }
   .large-tabs:hover {
