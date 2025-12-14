@@ -56,7 +56,7 @@ const Header = () => {
                 `large-tabs ${nav.isActive ? 'is-active' : ''}`
               }
             >
-              <i className="fa-solid fa-info fa-xl"></i>
+              <span className="tab-label">Info</span>
             </NavLink>
 
             <NavLink
@@ -65,7 +65,7 @@ const Header = () => {
                 `large-tabs ${nav.isActive ? 'is-active' : ''}`
               }
             >
-              <i className="fa-solid fa-envelope-open fa-xl"></i>
+              <span className="tab-label">Contact</span>
             </NavLink>
 
             {userInfo ? (
@@ -112,13 +112,13 @@ const Header = () => {
             {!userInfo && !userReviewInfo ? (
               <NavLink
                 to="/login"
-                className={(nav) =>
-                  `large-tabs ${nav.isActive ? 'is-active' : ''}`
-                }
-              >
-                <i className="fa-solid fa-user-plus fa-xl"></i>
-              </NavLink>
-            ) : null}
+              className={(nav) =>
+                `large-tabs ${nav.isActive ? 'is-active' : ''}`
+              }
+            >
+              <span className="tab-label">Login</span>
+            </NavLink>
+          ) : null}
           </nav>
         </fieldset>
       </header>

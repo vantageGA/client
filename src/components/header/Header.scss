@@ -33,6 +33,12 @@ header {
       color: $rating-colour;
     }
 
+    .tab-label {
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
     a {
       display: flex;
       align-items: center;
