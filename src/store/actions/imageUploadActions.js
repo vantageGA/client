@@ -64,20 +64,19 @@ export const profileImageUploadAction =
         type: PROFILE_IMAGE_UPLOAD_REQUEST,
       });
 
-      const {
-        userLogin: { userInfo },
-      } = getState();
+    const {
+      userLogin: { userInfo },
+    } = getState();
 
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
 
-      const { data } = await axios.post(
-        '/api/profileUpload',
-        imageFormData,
+    const { data } = await axios.post(
+      '/api/profileUpload',
+      imageFormData,
         config,
       );
 
