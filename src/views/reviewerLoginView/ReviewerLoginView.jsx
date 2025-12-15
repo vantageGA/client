@@ -18,6 +18,7 @@ import {
 } from '../../store/actions/userReviewActions';
 
 import moment from 'moment';
+import DOMPurify from 'dompurify';
 
 const ReviewerLoginView = () => {
   const dispatch = useDispatch();
@@ -201,21 +202,21 @@ const ReviewerLoginView = () => {
                 <h1>My BIO</h1>
                 <p
                   dangerouslySetInnerHTML={{
-                    __html: profile?.description,
+                    __html: sanitize(profile?.description),
                   }}
                 ></p>
 
                 <h1>Specialisation</h1>
                 <p
                   dangerouslySetInnerHTML={{
-                    __html: profile?.specialisation,
+                    __html: sanitize(profile?.specialisation),
                   }}
                 ></p>
 
                 <h1>Qualifications</h1>
                 <p
                   dangerouslySetInnerHTML={{
-                    __html: profile?.qualifications,
+                    __html: sanitize(profile?.qualifications),
                   }}
                 ></p>
               </div>
@@ -385,3 +386,20 @@ const ReviewerLoginView = () => {
 };
 
 export default ReviewerLoginView;
+  const sanitize = (value) =>
+    DOMPurify.sanitize(value || '', {
+      ALLOWED_TAGS: [
+        'b',
+        'i',
+        'em',
+        'strong',
+        'p',
+        'br',
+        'ul',
+        'ol',
+        'li',
+        'a',
+        'span',
+      ],
+      ALLOWED_ATTR: ['href', 'target', 'rel'],
+    });

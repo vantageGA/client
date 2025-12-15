@@ -16,6 +16,7 @@ import Rating from '../../components/rating/Rating';
 import Review from '../../components/review/Review';
 
 import moment from 'moment';
+import DOMPurify from 'dompurify';
 
 import FaceBookComponent from '../../components/socialMedia/faceBook/FaceBookComponent';
 import InstagramComponent from '../../components/socialMedia/Instagram/InstagramComponent';
@@ -140,7 +141,7 @@ const FullProfileView = () => {
                   <h1>My BIO</h1>
                   <p
                     dangerouslySetInnerHTML={{
-                      __html: profile?.description,
+                      __html: sanitize(profile?.description),
                     }}
                   ></p>
 
@@ -173,14 +174,14 @@ const FullProfileView = () => {
                   <h1>Specialisation</h1>
                   <p
                     dangerouslySetInnerHTML={{
-                      __html: profile?.specialisation,
+                      __html: sanitize(profile?.specialisation),
                     }}
                   ></p>
 
                   <h1>Qualifications</h1>
                   <p
                     dangerouslySetInnerHTML={{
-                      __html: profile?.qualifications,
+                      __html: sanitize(profile?.qualifications),
                     }}
                   ></p>
 
@@ -328,3 +329,20 @@ const FullProfileView = () => {
 };
 
 export default FullProfileView;
+  const sanitize = (value) =>
+    DOMPurify.sanitize(value || '', {
+      ALLOWED_TAGS: [
+        'b',
+        'i',
+        'em',
+        'strong',
+        'p',
+        'br',
+        'ul',
+        'ol',
+        'li',
+        'a',
+        'span',
+      ],
+      ALLOWED_ATTR: ['href', 'target', 'rel'],
+    });

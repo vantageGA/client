@@ -23,10 +23,11 @@ import Rating from '../../components/rating/Rating';
 
 import moment from 'moment';
 import QuillEditor from '../../components/quillEditor/QuillEditor';
-
+import DOMPurify from 'dompurify';
 import FaceBookComponent from '../../components/socialMedia/faceBook/FaceBookComponent';
 import InstagramComponent from '../../components/socialMedia/Instagram/InstagramComponent';
 import InfoComponent from '../../components/info/InfoComponent';
+
 
 const ProfileEditView = () => {
   const emailRegEx =
@@ -370,11 +371,11 @@ const ProfileEditView = () => {
               <Button
                 type="submit"
                 colour="transparent"
-                text="Save changes"
-                className="btn"
-                title="Save changes"
+                text="Save profile basics"
+                className="btn sticky-save"
+                title="Save profile basics"
                 disabled={false}
-              ></Button>
+              />
               <div>
                 <h3>Description </h3>
                 {description?.length < 10 ? (
@@ -395,12 +396,13 @@ const ProfileEditView = () => {
                 <Button
                   type="submit"
                   colour="transparent"
-                  text="Save changes"
-                  className="btn"
-                  title="Save changes"
+                  text="Save description"
+                  className="btn sticky-save"
+                  title="Save description"
                   disabled={false}
-                ></Button>
+                />
               </div>
+              
               <div>
                 <h3>Search Keyword(s)</h3>
                 <div className="input-wrapper">
@@ -487,11 +489,11 @@ const ProfileEditView = () => {
                   <Button
                     type="submit"
                     colour="transparent"
-                    text="Save changes"
-                    className="btn"
-                    title="Save changes"
+                    text="Save keywords"
+                    className="btn sticky-save"
+                    title="Save keywords"
                     disabled={false}
-                  ></Button>
+                  />
                   <div>
                     <hr className="style-one" />
 
@@ -614,14 +616,6 @@ const ProfileEditView = () => {
                     }
                   />
                 </div>
-                <Button
-                  type="submit"
-                  colour="transparent"
-                  text="Save changes"
-                  className="btn"
-                  title="Save changes"
-                  disabled={false}
-                ></Button>
               </div>
               <div>
                 <h3>Specialisation</h3>
@@ -638,11 +632,11 @@ const ProfileEditView = () => {
                 <Button
                   type="submit"
                   colour="transparent"
-                  text="Save changes"
-                  className="btn"
-                  title="Save changes"
+                  text="Save specialisation"
+                  className="btn sticky-save"
+                  title="Save specialisation"
                   disabled={false}
-                ></Button>
+                />
               </div>
               <div>
                 <h3>Qualifications</h3>
@@ -659,11 +653,11 @@ const ProfileEditView = () => {
                 <Button
                   type="submit"
                   colour="transparent"
-                  text="Save changes"
-                  className="btn"
-                  title="Save changes"
+                  text="Save qualifications"
+                  className="btn sticky-save"
+                  title="Save qualifications"
                   disabled={false}
-                ></Button>
+                />
               </div>
               <div>
                 <h3>Location</h3>
@@ -686,11 +680,11 @@ const ProfileEditView = () => {
                 <Button
                   type="submit"
                   colour="transparent"
-                  text="Save changes"
-                  className="btn"
-                  title="Save changes"
+                  text="Save location"
+                  className="btn sticky-save"
+                  title="Save location"
                   disabled={false}
-                ></Button>
+                />
               </div>
               <InputField
                 label="Telephone Number"
@@ -711,14 +705,6 @@ const ProfileEditView = () => {
                     : null
                 }
               />
-              <Button
-                type="submit"
-                colour="transparent"
-                text="save changes"
-                className="btn"
-                title="Save changes"
-                disabled={false}
-              ></Button>
             </form>
           </fieldset>
 
@@ -818,7 +804,7 @@ const ProfileEditView = () => {
             <div className="summary-wrapper">
               <p
                 dangerouslySetInnerHTML={{
-                  __html: profile?.description,
+                  __html: sanitize(profile?.description),
                 }}
               ></p>
             </div>
@@ -830,7 +816,7 @@ const ProfileEditView = () => {
             <div className="summary-wrapper">
               <p
                 dangerouslySetInnerHTML={{
-                  __html: profile?.specialisation,
+                  __html: sanitize(profile?.specialisation),
                 }}
               ></p>
             </div>
@@ -838,7 +824,7 @@ const ProfileEditView = () => {
             <div className="summary-wrapper">
               <p
                 dangerouslySetInnerHTML={{
-                  __html: profile?.qualifications,
+                  __html: sanitize(profile?.qualifications),
                 }}
               ></p>
               <p>
@@ -874,3 +860,20 @@ const ProfileEditView = () => {
 };
 
 export default ProfileEditView;
+  const sanitize = (value) =>
+    DOMPurify.sanitize(value || '', {
+      ALLOWED_TAGS: [
+        'b',
+        'i',
+        'em',
+        'strong',
+        'p',
+        'br',
+        'ul',
+        'ol',
+        'li',
+        'a',
+        'span',
+      ],
+      ALLOWED_ATTR: ['href', 'target', 'rel'],
+    });
