@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
-import Quill from 'quill';
-import 'quill/dist/quill.snow.css';
+import React from 'react';
+import ReactQuill from 'react-quill';
+import DOMPurify from 'dompurify';
+import 'react-quill/dist/quill.snow.css';
 import './QuillEditor.scss';
 
 const modules = {
@@ -16,45 +17,38 @@ const modules = {
   ],
 };
 
+const formats = [
+  'header',
+  'bold',
+  'italic',
+  'underline',
+  'strike',
+  'blockquote',
+  'code-block',
+  'list',
+  'bullet',
+  'script',
+  'color',
+  'background',
+  'align',
+];
+
 function QuillEditor({ value = '', onChange, className }) {
-  const editorRef = useRef(null);
-  const quillInstance = useRef(null);
+  const handleChange = (content) => {
+    const clean = DOMPurify.sanitize(content || '');
+    onChange && onChange(clean);
+  };
 
-  // Initialize Quill once
-  useEffect(() => {
-    if (!editorRef.current) return;
-
-    quillInstance.current = new Quill(editorRef.current, {
-      theme: 'snow',
-      modules,
-    });
-
-    const handler = () => {
-      const html = quillInstance.current.root.innerHTML;
-      onChange && onChange(html);
-    };
-
-    quillInstance.current.on('text-change', handler);
-
-    // Set initial value
-    quillInstance.current.root.innerHTML = value || '';
-
-    return () => {
-      quillInstance.current?.off('text-change', handler);
-      quillInstance.current = null;
-    };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Keep external value in sync
-  useEffect(() => {
-    if (!quillInstance.current) return;
-    const currentHtml = quillInstance.current.root.innerHTML;
-    if (value !== currentHtml) {
-      quillInstance.current.root.innerHTML = value || '';
-    }
-  }, [value]);
-
-  return <div ref={editorRef} className={className} />;
+  return (
+    <ReactQuill
+      value={value || ''}
+      onChange={handleChange}
+      modules={modules}
+      formats={formats}
+      className={className}
+      theme="snow"
+    />
+  );
 }
 
 export default QuillEditor;

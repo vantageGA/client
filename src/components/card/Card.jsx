@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import Rating from '../rating/Rating';
 import Button from '../button/Button';
 
-import { profileByIdAction } from '../../store/actions/profileActions';
 import { profileClickCounterAction } from '../../store/actions/profileActions';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -29,24 +28,13 @@ const Card = ({
   profileClickCounter,
 }) => {
   const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(profileByIdAction(id));
-    return () => {
-      // console.log('Full Profile cleanup');
-    };
-  }, [dispatch, id]);
-
   const profilesState = useSelector((state) => state.profiles);
   const { profiles } = profilesState;
 
   // const [profileClickCounter] = useState(profile?.profileClickCounter);
   const handleProfileClickCounter = (_id, count) => {
-    profiles.filter((profile) => {
-      if (profile._id === _id) {
-        dispatch(profileClickCounterAction(_id, count));
-      }
-      return profile;
-    });
+    if (!_id) return;
+    dispatch(profileClickCounterAction(_id, count));
   };
 
   return (

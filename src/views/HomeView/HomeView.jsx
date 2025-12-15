@@ -19,39 +19,38 @@ const HomeView = () => {
   const { loading, error, profiles } = profilesState;
 
   const [keyword, setKeyword] = useState('');
-  const [rndInt] = useState(Math.floor(Math.random() * profiles?.length));
+  const [heroImage, setHeroImage] = useState(null);
 
-  const randImg = profiles ? profiles[rndInt]?.profileImage : null;
+  useEffect(() => {
+    if (profiles && profiles.length > 0) {
+      setHeroImage((current) => {
+        if (current) return current;
+        const randomIdx = Math.floor(Math.random() * profiles.length);
+        return profiles[randomIdx]?.profileImage || null;
+      });
+    }
+  }, [profiles]);
+
+  const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
   const searchedProfiles = profiles.filter((profile) => {
-    if (
-      profile?.name ||
-      profile?.description ||
-      profile?.location ||
-      profile?.specialisation ||
-      profile?.keyWordSearch
-    ) {
-      const description = profile?.description;
-      const name = profile?.name;
-      const location = profile?.location;
-      const specialisation = profile?.specialisation;
-      const keyWordSearch = profile?.keyWordSearch;
+    const description = profile?.description || '';
+    const name = profile?.name || '';
+    const location = Array.isArray(profile?.location)
+      ? profile.location.join(' ')
+      : profile?.location || '';
+    const specialisation = profile?.specialisation || '';
+    const keyWordSearch = profile?.keyWordSearch || '';
 
-      const search = description.concat(
-        ...location,
-        ...name,
-        ...specialisation,
-      );
+    const haystack = `${description} ${location} ${name} ${specialisation}`.toLowerCase();
+    const needle = keyword.trim().toLowerCase();
 
-      const found =
-        search.toLowerCase().includes(keyword.toLowerCase()) ||
-        keyWordSearch.toLowerCase().includes(keyword.toLowerCase());
+    if (!needle) return false;
 
-      if (found) {
-        return found;
-      }
-    }
-    return false;
+    return (
+      haystack.includes(needle) ||
+      keyWordSearch.toLowerCase().includes(needle)
+    );
   });
 
   const handleSearch = (e) => {
@@ -59,16 +58,34 @@ const HomeView = () => {
   };
 
   const highlightKeywordMatch = (current) => {
-    let reggie = new RegExp(keyword, 'ig');
-    let found = current.search(reggie) !== -1;
-    return !found
-      ? current
-      : current.replace(
-          reggie,
-          '<span style="color:rgba(255, 255, 255, .6); text-decoration:underline;" >' +
-            keyword +
-            '</span>',
-        );
+    const safeCurrent = current || '';
+    const trimmed = keyword.trim();
+    if (!trimmed) return safeCurrent;
+
+    const escaped = escapeRegex(trimmed);
+    const reggie = new RegExp(`(${escaped})`, 'ig');
+    const parts = safeCurrent.split(reggie);
+
+    return parts.map((part, idx) =>
+      part.toLowerCase() === trimmed.toLowerCase() ? (
+        <span
+          key={`hl-${idx}`}
+          style={{
+            color: 'rgba(255, 255, 255, 0.6)',
+            textDecoration: 'underline',
+          }}
+        >
+          {part}
+        </span>
+      ) : (
+        <span key={`txt-${idx}`}>{part}</span>
+      ),
+    );
+  };
+
+  const truncateDescription = (text) => {
+    if (!text) return '';
+    return text.length > 180 ? `${text.slice(0, 180)}...` : text;
   };
 
   return (
@@ -79,7 +96,8 @@ const HomeView = () => {
 
         <div
           style={{
-            backgroundImage: profiles.length > 0 ? `url(${randImg})` : null,
+            backgroundImage:
+              heroImage && profiles.length > 0 ? `url(${heroImage})` : null,
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
             backgroundSize: 'cover',
@@ -122,42 +140,33 @@ const HomeView = () => {
                     <div key={profile?._id}>
                       <Card
                         specialisationOne={
-                          profile?.specialisationOne.length
+                          profile?.specialisationOne?.length
                             ? profile?.specialisationOne
                             : 'Personal Trainer'
                         }
                         specialisationTwo={
-                          profile?.specialisationTwo.length
+                          profile?.specialisationTwo?.length
                             ? profile?.specialisationTwo
                             : 'Personal Trainer'
                         }
                         specialisationThree={
-                          profile?.specialisationThree.length
+                          profile?.specialisationThree?.length
                             ? profile?.specialisationThree
                             : 'Personal Trainer'
                         }
                         specialisationFour={
-                          profile?.specialisationFour.length
+                          profile?.specialisationFour?.length
                             ? profile?.specialisationFour
                             : 'Personal Trainer'
                         }
                         id={profile?._id}
                         name={
-                          <span
-                            dangerouslySetInnerHTML={{
-                              __html: highlightKeywordMatch(profile?.name),
-                            }}
-                          ></span>
+                          <>{highlightKeywordMatch(profile?.name || '')}</>
                         }
                         src={profile?.profileImage}
                         alt={profile?.name}
                         description={
-                          <p
-                            dangerouslySetInnerHTML={{
-                              __html:
-                                profile?.description.slice(0, 180) + '...',
-                            }}
-                          ></p>
+                          <p>{truncateDescription(profile?.description || '')}</p>
                         }
                         rating={profile?.rating}
                         number
