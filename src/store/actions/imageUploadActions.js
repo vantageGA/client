@@ -12,7 +12,10 @@ import {
 } from '../constants/uploadImageConstants';
 
 import { getUserDetailsAction } from './userActions';
-import { profileOfLoggedInUserAction } from './profileActions';
+import {
+  profileImagesAction,
+  profileOfLoggedInUserAction,
+} from './profileActions';
 
 // USER profile image action
 export const userProfileImageUploadAction =
@@ -119,6 +122,7 @@ export const deleteProfileImageAction = (id) => async (dispatch, getState) => {
     });
     dispatch({ type: PROFILE_IMAGES_DELETE_SUCCESS });
     dispatch(profileOfLoggedInUserAction());
+    dispatch(profileImagesAction());
   } catch (error) {
     dispatch({
       type: PROFILE_IMAGES_DELETE_FAILURE,

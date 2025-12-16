@@ -122,6 +122,24 @@ const ProfileEditView = () => {
     };
   }, [navigate, dispatch, userInfo, profile]);
 
+  // Keep displayed profile image aligned with the latest list.
+  useEffect(() => {
+    if (!profileImages) return;
+
+    if (profileImages.length === 0) {
+      setProfileImage('');
+      return;
+    }
+
+    const currentStillExists = profileImages.some(
+      (img) => img?.avatar && img.avatar === profileImage,
+    );
+
+    if (!currentStillExists) {
+      setProfileImage(profileImages[0]?.avatar ?? '');
+    }
+  }, [profileImages, profileImage]);
+
   const handleCreateProfile = () => {
     // Dispatch create profile action
     dispatch(createProfileAction());
