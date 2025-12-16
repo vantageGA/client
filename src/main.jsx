@@ -13,9 +13,9 @@ if (apiBaseUrl) {
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </React.StrictMode>,
+  // ReactQuill relies on findDOMNode, which triggers a warning in StrictMode.
+  // Drop StrictMode for now to keep the console clean until the dependency updates.
+  <Provider store={store}>
+    <App />
+  </Provider>,
 );
