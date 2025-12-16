@@ -22,13 +22,20 @@ const HomeView = () => {
   const [heroImage, setHeroImage] = useState(null);
 
   useEffect(() => {
-    if (profiles && profiles.length > 0) {
-      setHeroImage((current) => {
-        if (current) return current;
-        const randomIdx = Math.floor(Math.random() * profiles.length);
-        return profiles[randomIdx]?.profileImage || null;
-      });
+    if (!profiles || profiles.length === 0) {
+      setHeroImage(null);
+      return;
     }
+
+    const availableImages = profiles
+      .map((p) => p?.profileImage)
+      .filter(Boolean);
+
+    // If the current hero image was deleted/missing, pick the first available.
+    setHeroImage((current) => {
+      if (current && availableImages.includes(current)) return current;
+      return availableImages[0] ?? null;
+    });
   }, [profiles]);
 
   const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
