@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { profilesAction } from '../../store/actions/profileActions';
 import './HomeView.scss';
@@ -19,7 +19,11 @@ const HomeView = () => {
   const { loading, error, profiles } = profilesState;
 
   const [keyword, setKeyword] = useState('');
+  const defaultHero =
+    'linear-gradient(135deg, rgba(0,0,0,0.7), rgba(40,40,40,0.6))';
+  // Store only an image URL; default gradient is applied separately so we always have a backdrop.
   const [heroImage, setHeroImage] = useState(null);
+  const lastImagePoolKey = useRef('');
 
   useEffect(() => {
     if (!profiles || profiles.length === 0) {
@@ -31,12 +35,31 @@ const HomeView = () => {
       .map((p) => p?.profileImage)
       .filter(Boolean);
 
-    // If the current hero image was deleted/missing, pick the first available.
-    setHeroImage((current) => {
-      if (current && availableImages.includes(current)) return current;
-      return availableImages[0] ?? null;
-    });
-  }, [profiles]);
+    if (availableImages.length === 0) {
+      setHeroImage(null);
+      return;
+    }
+
+    const poolKey = availableImages.join('|');
+
+    // If the pool hasn't changed and the current hero is still valid, keep it.
+    if (
+      poolKey === lastImagePoolKey.current &&
+      heroImage &&
+      availableImages.includes(heroImage)
+    ) {
+      return;
+    }
+
+    const pool =
+      availableImages.length > 1
+          ? availableImages.filter((img) => img !== heroImage)
+          : availableImages;
+    const randomIdx = Math.floor(Math.random() * pool.length);
+    const pick = pool[randomIdx] ?? null;
+    lastImagePoolKey.current = poolKey;
+    setHeroImage(pick);
+  }, [profiles, heroImage]);
 
   const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -103,8 +126,10 @@ const HomeView = () => {
 
         <div
           style={{
-            backgroundImage:
-              heroImage && profiles.length > 0 ? `url(${heroImage})` : null,
+            // Always apply the gradient, and layer the hero image when present.
+            backgroundImage: heroImage
+              ? `${defaultHero}, url(${heroImage})`
+              : defaultHero,
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
             backgroundSize: 'cover',
