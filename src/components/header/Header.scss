@@ -31,6 +31,7 @@ header {
 
     &.is-active {
       color: $rating-colour;
+      border-color: $rating-colour;
     }
 
     .tab-label {
