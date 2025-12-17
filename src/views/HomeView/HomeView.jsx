@@ -24,8 +24,36 @@ const HomeView = () => {
   // Store only an image URL; default gradient is applied separately so we always have a backdrop.
   const [heroImage, setHeroImage] = useState(null);
   const lastImagePoolKey = useRef('');
+  const brokenImages = useRef(new Set());
+
+  // Function to validate if an image URL is loadable
+  const validateImage = (url) => {
+    return new Promise((resolve) => {
+      // Skip if we already know it's broken
+      if (brokenImages.current.has(url)) {
+        resolve(false);
+        return;
+      }
+
+      const img = new Image();
+      img.crossOrigin = 'anonymous'; // Handle CORS properly
+      img.onload = () => resolve(true);
+      img.onerror = () => {
+        // Catches 404s, CORS errors, and OpaqueResponseBlocking
+        brokenImages.current.add(url);
+        resolve(false);
+      };
+      img.src = url;
+    });
+  };
 
   useEffect(() => {
+    // Don't clear the image while still loading - wait for data
+    if (loading) {
+      return;
+    }
+
+    // Only clear if we know for certain there are no profiles
     if (!profiles || profiles.length === 0) {
       setHeroImage(null);
       return;
@@ -35,6 +63,7 @@ const HomeView = () => {
       .map((p) => p?.profileImage)
       .filter(Boolean);
 
+    // Only clear if we know for certain there are no images
     if (availableImages.length === 0) {
       setHeroImage(null);
       return;
@@ -42,24 +71,57 @@ const HomeView = () => {
 
     const poolKey = availableImages.join('|');
 
-    // If the pool hasn't changed and the current hero is still valid, keep it.
-    if (
-      poolKey === lastImagePoolKey.current &&
-      heroImage &&
-      availableImages.includes(heroImage)
-    ) {
+    // If the pool hasn't changed, keep the current image.
+    if (poolKey === lastImagePoolKey.current) {
       return;
     }
 
-    const pool =
-      availableImages.length > 1
-          ? availableImages.filter((img) => img !== heroImage)
-          : availableImages;
-    const randomIdx = Math.floor(Math.random() * pool.length);
-    const pick = pool[randomIdx] ?? null;
-    lastImagePoolKey.current = poolKey;
-    setHeroImage(pick);
-  }, [profiles, heroImage]);
+    // Validate images and pick a random valid one
+    const selectValidImage = async () => {
+      // Filter out known broken images first
+      const candidateImages = availableImages.filter(
+        (img) => !brokenImages.current.has(img)
+      );
+
+      if (candidateImages.length === 0) {
+        // All images are broken, clear hero image
+        setHeroImage(null);
+        lastImagePoolKey.current = poolKey;
+        return;
+      }
+
+      // Validate images in parallel
+      const validationResults = await Promise.all(
+        candidateImages.map(async (url) => ({
+          url,
+          valid: await validateImage(url),
+        }))
+      );
+
+      const validImages = validationResults
+        .filter((result) => result.valid)
+        .map((result) => result.url);
+
+      if (validImages.length === 0) {
+        // No valid images found
+        setHeroImage(null);
+      } else {
+        // Pick a random valid image, avoiding the previous one if possible
+        setHeroImage((prevImage) => {
+          const pool =
+            validImages.length > 1
+              ? validImages.filter((img) => img !== prevImage)
+              : validImages;
+          const randomIdx = Math.floor(Math.random() * pool.length);
+          return pool[randomIdx] ?? null;
+        });
+      }
+
+      lastImagePoolKey.current = poolKey;
+    };
+
+    selectValidImage();
+  }, [profiles, loading]);
 
   const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
