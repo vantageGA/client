@@ -44,7 +44,7 @@ export const userAdminReviewersDetailsAction =
         },
       };
 
-      const { data } = await axios.get(`/api/reviewers/admin/:id`, config);
+      const { data } = await axios.get(`/api/reviewers/admin`, config);
       dispatch({ type: USER_ADMIN_REVIEWER_DETAILS_SUCCESS, payload: data });
     } catch (error) {
       dispatch({

@@ -114,7 +114,7 @@ export const deleteProfileImageAction = (id) => async (dispatch, getState) => {
     // Note: This can only be done like this in axios delete body
     //https://stackoverflow.com/questions/51069552/axios-delete-request-with-body-and-headers
 
-    await axios.delete(`api/profile-image/${id}`, {
+    await axios.delete(`/api/profile-image/${id}`, {
       headers: {
         Authorization: `Bearer ${userInfo.token}`,
       },

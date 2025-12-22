@@ -28,6 +28,23 @@ import FaceBookComponent from '../../components/socialMedia/faceBook/FaceBookCom
 import InstagramComponent from '../../components/socialMedia/Instagram/InstagramComponent';
 import InfoComponent from '../../components/info/InfoComponent';
 
+const sanitize = (value) =>
+  DOMPurify.sanitize(value || '', {
+    ALLOWED_TAGS: [
+      'b',
+      'i',
+      'em',
+      'strong',
+      'p',
+      'br',
+      'ul',
+      'ol',
+      'li',
+      'a',
+      'span',
+    ],
+    ALLOWED_ATTR: ['href', 'target', 'rel'],
+  });
 
 const ProfileEditView = () => {
   const emailRegEx =
@@ -45,6 +62,10 @@ const ProfileEditView = () => {
   // Profile details in DB
   const profileState = useSelector((state) => state.profileOfLoggedInUser);
   const { loading, error, profile } = profileState;
+
+  // Profile creation state
+  const profileCreateState = useSelector((state) => state.profileCreate);
+  const { loading: createLoading, error: createError } = profileCreateState;
 
   // PROFILE image upload
   const profileImageStore = useSelector((state) => state.profileImage);
@@ -142,8 +163,9 @@ const ProfileEditView = () => {
 
   const handleCreateProfile = () => {
     // Dispatch create profile action
+    // After successful creation, the action will fetch the profile
+    // and the component will re-render to show the edit form
     dispatch(createProfileAction());
-    navigate('/user-profile-edit');
   };
 
   const handleSubmit = (e) => {
@@ -288,22 +310,29 @@ const ProfileEditView = () => {
   return (
     <>
       {error ? <Message message={error} /> : null}
+      {createError ? <Message message={createError} /> : null}
 
       {!profile ? (
         <>
           <fieldset className="fieldSet item">
             <legend>Create a profile</legend>
-            <p>Please click the button below to create a sample profile.</p>
-            <p>You will then be re-directed to your USER profile page.</p>
-            <Button
-              type="submit"
-              colour="transparent"
-              text="Create your profile"
-              className="btn"
-              title="Create your profile"
-              disabled={false}
-              onClick={handleCreateProfile}
-            ></Button>
+            {createLoading ? (
+              <LoadingSpinner />
+            ) : (
+              <>
+                <p>Please click the button below to create a sample profile.</p>
+                <p>You will then be able to edit your profile.</p>
+                <Button
+                  type="submit"
+                  colour="transparent"
+                  text="Create your profile"
+                  className="btn"
+                  title="Create your profile"
+                  disabled={false}
+                  onClick={handleCreateProfile}
+                ></Button>
+              </>
+            )}
           </fieldset>
         </>
       ) : loading ? (
@@ -878,20 +907,3 @@ const ProfileEditView = () => {
 };
 
 export default ProfileEditView;
-  const sanitize = (value) =>
-    DOMPurify.sanitize(value || '', {
-      ALLOWED_TAGS: [
-        'b',
-        'i',
-        'em',
-        'strong',
-        'p',
-        'br',
-        'ul',
-        'ol',
-        'li',
-        'a',
-        'span',
-      ],
-      ALLOWED_ATTR: ['href', 'target', 'rel'],
-    });

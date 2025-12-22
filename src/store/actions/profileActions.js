@@ -75,7 +75,7 @@ export const profilesAdminAction = () => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.get(`/api/profiles/admin/:id`, config);
+    const { data } = await axios.get(`/api/profiles/admin`, config);
     dispatch({ type: PROFILE_ADMIN_SUCCESS, payload: data });
   } catch (error) {
     dispatch({
@@ -120,17 +120,24 @@ export const profileOfLoggedInUserAction = () => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.get(`/api/profile/`, config);
+    const { data } = await axios.get(`/api/profile`, config);
 
     dispatch({ type: PROFILE_OF_LOGGED_IN_USER_SUCCESS, payload: data });
   } catch (error) {
-    dispatch({
-      type: PROFILE_OF_LOGGED_IN_USER_FAILURE,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
+    // If profile doesn't exist (404), that's expected - user hasn't created profile yet
+    // Don't treat it as an error, just set profile to null
+    if (error.response && error.response.status === 404) {
+      dispatch({ type: PROFILE_OF_LOGGED_IN_USER_SUCCESS, payload: null });
+    } else {
+      // For other errors (401, 500, etc.), dispatch failure
+      dispatch({
+        type: PROFILE_OF_LOGGED_IN_USER_FAILURE,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
   }
 };
 // Create a profile
@@ -153,6 +160,9 @@ export const createProfileAction = () => async (dispatch, getState) => {
 
     const { data } = await axios.post(`/api/profiles`, {}, config);
     dispatch({ type: PROFILE_CREATE_SUCCESS, payload: data });
+
+    // Fetch the newly created profile to update the logged-in user's profile state
+    dispatch(profileOfLoggedInUserAction());
   } catch (error) {
     dispatch({
       type: PROFILE_CREATE_FAILURE,
