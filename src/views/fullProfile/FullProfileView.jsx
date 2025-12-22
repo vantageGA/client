@@ -21,6 +21,24 @@ import DOMPurify from 'dompurify';
 import FaceBookComponent from '../../components/socialMedia/faceBook/FaceBookComponent';
 import InstagramComponent from '../../components/socialMedia/Instagram/InstagramComponent';
 
+const sanitize = (value) =>
+  DOMPurify.sanitize(value || '', {
+    ALLOWED_TAGS: [
+      'b',
+      'i',
+      'em',
+      'strong',
+      'p',
+      'br',
+      'ul',
+      'ol',
+      'li',
+      'a',
+      'span',
+    ],
+    ALLOWED_ATTR: ['href', 'target', 'rel'],
+  });
+
 const FullProfileView = () => {
   const [divHeight, setDivHeight] = useState(0);
   const [nameHeight, setNameHeight] = useState(0);
@@ -329,20 +347,3 @@ const FullProfileView = () => {
 };
 
 export default FullProfileView;
-  const sanitize = (value) =>
-    DOMPurify.sanitize(value || '', {
-      ALLOWED_TAGS: [
-        'b',
-        'i',
-        'em',
-        'strong',
-        'p',
-        'br',
-        'ul',
-        'ol',
-        'li',
-        'a',
-        'span',
-      ],
-      ALLOWED_ATTR: ['href', 'target', 'rel'],
-    });

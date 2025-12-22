@@ -310,7 +310,6 @@ export const updateUserPasswordAction =
         `/api/user-update-password`,
         userUpdatedInfo,
       );
-      console.log('DDD', data);
       dispatch({ type: USER_UPDATE_PASSWORD_SUCCESS, payload: data });
     } catch (error) {
       dispatch({
