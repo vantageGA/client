@@ -62,16 +62,15 @@ const UserProfileEditView = () => {
     if (!userInfo) {
       navigate('/login');
     } else {
-      if (user.isConfirmed === false) {
-        setMessage(
-          'In oder to update you profile you will need to confirm your email address. This can be done by referring back to the email you received when you first registered.',
-        );
-      }
-
       if (!user || !user.name) {
         dispatch({ type: USER_UPDATE_PROFILE_RESET });
         dispatch(getUserDetailsAction(userInfo._id));
       } else {
+        if (user.isConfirmed === false) {
+          setMessage(
+            'In oder to update you profile you will need to confirm your email address. This can be done by referring back to the email you received when you first registered.',
+          );
+        }
         setName(user.name);
         setEmail(user.email);
       }
@@ -81,7 +80,7 @@ const UserProfileEditView = () => {
     const abortConst = new AbortController();
     return () => {
       abortConst.abort();
-      console.log('useEffect cleaned');
+      console.log('useEffect cleaned UserProfileEditView');
     };
   }, [dispatch, navigate, user, userInfo]);
 
@@ -148,7 +147,7 @@ const UserProfileEditView = () => {
       {error ? <Message message={error} /> : null}
       {message ? <Message message={message} /> : null}
 
-      {loading ? (
+      {loading || !user ? (
         <LoadingSpinner />
       ) : (
         <>

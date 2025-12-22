@@ -122,22 +122,16 @@ export const profileOfLoggedInUserAction = () => async (dispatch, getState) => {
 
     const { data } = await axios.get(`/api/profile`, config);
 
+    // Backend now returns null if profile doesn't exist (instead of 404)
     dispatch({ type: PROFILE_OF_LOGGED_IN_USER_SUCCESS, payload: data });
   } catch (error) {
-    // If profile doesn't exist (404), that's expected - user hasn't created profile yet
-    // Don't treat it as an error, just set profile to null
-    if (error.response && error.response.status === 404) {
-      dispatch({ type: PROFILE_OF_LOGGED_IN_USER_SUCCESS, payload: null });
-    } else {
-      // For other errors (401, 500, etc.), dispatch failure
-      dispatch({
-        type: PROFILE_OF_LOGGED_IN_USER_FAILURE,
-        payload:
-          error.response && error.response.data.message
-            ? error.response.data.message
-            : error.message,
-      });
-    }
+    dispatch({
+      type: PROFILE_OF_LOGGED_IN_USER_FAILURE,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
   }
 };
 // Create a profile
@@ -228,7 +222,7 @@ export const deleteProfileAction = (id) => async (dispatch, getState) => {
       },
     };
 
-    await axios.delete(`/api/profiles/admin/${id}`, {}, config);
+    await axios.delete(`/api/profiles/admin/${id}`, config);
     dispatch({ type: PROFILE_DELETE_SUCCESS });
     dispatch(profilesAdminAction());
   } catch (error) {
