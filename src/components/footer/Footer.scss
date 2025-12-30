@@ -2,13 +2,38 @@
 @use '../../scssMixIn.scss' as *;
 
 footer {
-  // @include border-all(1px, solid, $light-orange);
-  height: $footer-height;
-  font-size: 0.6em;
+  min-height: $footer-height;
+  padding: 1rem;
+  font-family: 'Comfortaa', cursive;
+  font-size: 0.875rem;
+  color: $main-font-colour;
+  background-color: $fieldSet-bg-colour;
+  border: 1px solid $border-colour-light;
+  border-left: 1px solid $burnt-orange;
+  border-radius: 4px;
+
   .footer-wrapper {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-evenly;
+    gap: 1rem;
+  }
+
+  .footer-copyright {
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+  }
+}
+
+@media (max-width: 812px) {
+  footer {
+    padding: 0.75rem;
+    font-size: 0.75rem;
+
+    .footer-wrapper {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
   }
 }

@@ -35,11 +35,7 @@ const Header = () => {
     <>
       <BetaReleaseComponent />
 
-      <header>
-        <fieldset className="fieldSet">
-          {/* <legend>
-          <LinkComp route="" routeName="Body Vantage" />
-        </legend> */}
+      <header className="header-container">
           <nav className="nav-wrapper">
             <NavLink
               to="/"
@@ -47,7 +43,7 @@ const Header = () => {
                 `large-tabs ${nav.isActive ? 'is-active' : ''}`
               }
             >
-              <img className="image-wrapper" src={logo} alt="" />
+              <img className="image-wrapper" src={logo} alt="Body Vantage Logo - Home" />
             </NavLink>
 
             <NavLink
@@ -120,7 +116,6 @@ const Header = () => {
             </NavLink>
           ) : null}
           </nav>
-        </fieldset>
       </header>
     </>
   );

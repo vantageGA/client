@@ -2,40 +2,54 @@
 @use '../../scssMixIn.scss' as *;
 
 header {
-  // @include border-all(1px, solid, $light-orange);
-  height: clamp(1rem, $header-height, auto);
+  font-family: 'Comfortaa', cursive;
+  color: $main-font-colour;
+
   .image-wrapper {
-    width: 50px;
-    height: 50px;
+    height: 1.5rem;
+    width: auto;
   }
+
   .nav-wrapper {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: black;
+    gap: 0.5rem;
   }
+
   .large-tabs {
     border: 1px solid $border-colour-light;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 0.1em;
+    padding: 0.5rem 0.75rem;
     width: 100%;
-    height: 50px;
     gap: 0.5rem;
     cursor: pointer;
     color: inherit;
     text-decoration: none;
-    transition: background-color 150ms ease, color 150ms ease;
+    font-family: 'Bebas Neue', cursive;
+    transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
 
     &.is-active {
-      color: $rating-colour;
-      border-color: $rating-colour;
+      color: $burnt-orange;
+      border-color: $burnt-orange;
+    }
+
+    &:hover {
+      background-color: rgba(190, 79, 12, 0.15);
+      color: $burnt-orange;
+      border-color: $burnt-orange;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $burnt-orange;
+      outline-offset: 2px;
     }
 
     .tab-label {
-      font-size: 0.8rem;
+      font-size: 0.875rem;
       letter-spacing: 0.05em;
       text-transform: uppercase;
     }
@@ -47,9 +61,6 @@ header {
       width: 100%;
       height: 100%;
     }
-  }
-  .large-tabs:hover {
-    background-color: $fieldSet-bg-colour;
   }
   .btn {
     display: flex;
@@ -82,9 +93,19 @@ header {
 
 /* Responsive layout */
 @media (max-width: 812px) {
-  .nav-wrapper {
-    .large-tabs {
-      font-size: 0.75em;
+  header {
+
+    .nav-wrapper {
+      gap: 0.5rem;
+
+      .large-tabs {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.75rem;
+
+        .tab-label {
+          font-size: 0.75rem;
+        }
+      }
     }
   }
 }

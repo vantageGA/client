@@ -6,7 +6,7 @@
   text-align: center;
 
   .login-out-text {
-    color: $rating-colour;
+    color: $burnt-orange;
     font-weight: bold;
     position: relative;
     font-size: 0.5em;
@@ -15,15 +15,25 @@
 }
 
 .login-out-definition {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
   opacity: 0.8;
-  color: $rating-colour;
+  color: $burnt-orange;
   text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.6s ease-in-out, color 0.6s ease-in-out;
 
-  &.login-out-definition:hover {
-    cursor: pointer;
+  &:hover {
     opacity: 1;
-    transition: opacity 0.6s ease-in-out;
-    color: $rating-colour;
+    color: $burnt-orange;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $burnt-orange;
+    outline-offset: 2px;
   }
 }
 

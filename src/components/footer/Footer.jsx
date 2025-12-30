@@ -4,13 +4,11 @@ import DateTime from '../dateTime/DateTime';
 
 const Footer = () => {
   return (
-    <footer>
-      <fieldset className="fieldSet">
-        <div className="footer-wrapper">
-          <DateTime />
-          <div>CopyRight &copy; Body-Vantage</div>
-        </div>
-      </fieldset>
+    <footer className="footer-container">
+      <div className="footer-wrapper">
+        <DateTime />
+        <div className="footer-copyright">CopyRight &copy; Body-Vantage</div>
+      </div>
     </footer>
   );
 };
