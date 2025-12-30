@@ -1,6 +1,6 @@
 import './AboutView.scss';
 import BodyVantage from '../../components/bodyVantage/BodyVantage';
-
+import Button from '../../components/button/Button';
 import LinkComp from '../../components/linkComp/LinkComp';
 
 const AboutView = () => {
@@ -24,13 +24,12 @@ const AboutView = () => {
         </p>
 
         <p>
-          Act today by becoming a <BodyVantage /> member, this will enable you
-          to reach more potential clients while growing and taking ownership of
-          your industry profile.
+          Ready to grow your wellbeing business and reach more clients? Join{' '}
+          <BodyVantage /> today and take ownership of your industry profile.
         </p>
 
-        <div>
-          As a registered <BodyVantage /> member you:
+        <section className="member-benefits">
+          <h3>As a registered <BodyVantage /> member you:</h3>
           <ul>
             <li>
               can showcase your business to the public and convert enquiries
@@ -41,20 +40,30 @@ const AboutView = () => {
             <li>can personalise your profile</li>
             <li>can add client reviews</li>
           </ul>
-        </div>
-        <div>
-          <BodyVantage /> enables their visitors to search:
+          <div className="cta-section">
+            <Button
+              text="Become a Member Today"
+              colour="#BE4F0C"
+              disabled={false}
+              onClick={() => window.location.href = 'http://localhost:5173/registration'}
+              type="button"
+            />
+          </div>
+        </section>
+
+        <section className="visitor-features">
+          <h3><BodyVantage /> enables their visitors to search:</h3>
           <ul>
             <li>for vetted and recognised wellbeing members/providers</li>
             <li>in a location of their choice</li>
             <li>member wellbeing offerings and reviews</li>
             <li>for member contact details and make enquiries</li>
           </ul>
-        </div>
+        </section>
       </fieldset>
-      <div>
+      <div className="faq-link">
         <p>
-          Got any questions ? <LinkComp route="faq" routeName="FAQ's" />
+          Got any questions? <LinkComp route="faq" routeName="View our FAQ" />
         </p>
       </div>
     </div>
