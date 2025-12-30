@@ -10,7 +10,7 @@ import Button from '../../components/button/Button';
 import { registerAction } from '../../store/actions/userActions';
 
 const RegistrationView = () => {
-  const nameRegEx = /^([\w])+\s+([\w\s])+$/i;
+  const nameRegEx = /^[a-zA-Z\s'-]{2,}\s+[a-zA-Z\s'-]{2,}$/;
   const emailRegEx =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
   const passwordRegEx =
@@ -30,6 +30,12 @@ const RegistrationView = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState(null);
   const [registrationConfirmation, setRegistrationConfirmation] = useState('');
+  const [touched, setTouched] = useState({
+    name: false,
+    email: false,
+    password: false,
+    confirmPassword: false,
+  });
 
   useEffect(() => {
     if (userInfo && userInfo !== undefined) {
@@ -41,6 +47,10 @@ const RegistrationView = () => {
       setRegistrationConfirmation(warn);
     }
   }, [userInfo, navigate]);
+
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -67,24 +77,30 @@ const RegistrationView = () => {
         <LoadingSpinner />
       ) : (
         <fieldset className="fieldSet">
-          <legend>
-            Members <span>Registration</span> form
-          </legend>
-          <form onSubmit={handleSubmit}>
+          <legend>Members Registration form</legend>
+          <form onSubmit={handleSubmit} noValidate>
             <InputField
               label="Name"
               placeholder="Ben Smith"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              onBlur={() => handleBlur('name')}
               type="text"
               name="name"
               required
-              className={!nameRegEx.test(name) ? 'invalid' : 'entered'}
+              className={
+                touched.name && !nameRegEx.test(name) && name.length > 0
+                  ? 'invalid'
+                  : name.length > 0
+                  ? 'entered'
+                  : ''
+              }
               error={
-                !nameRegEx.test(name) && name.length !== 0
-                  ? `Name field must contain a first name and surname both of which must start with a capital letter.`
+                touched.name && !nameRegEx.test(name) && name.length !== 0
+                  ? `Please enter your full name (first and last name).`
                   : null
               }
+              aria-invalid={touched.name && !nameRegEx.test(name)}
             />
 
             <InputField
@@ -93,12 +109,20 @@ const RegistrationView = () => {
               name={email}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={!emailRegEx.test(email) ? 'invalid' : 'entered'}
+              onBlur={() => handleBlur('email')}
+              className={
+                touched.email && !emailRegEx.test(email) && email.length > 0
+                  ? 'invalid'
+                  : email.length > 0
+                  ? 'entered'
+                  : ''
+              }
               error={
-                !emailRegEx.test(email) && email.length !== 0
+                touched.email && !emailRegEx.test(email) && email.length !== 0
                   ? `Invalid email address.`
                   : null
               }
+              aria-invalid={touched.email && !emailRegEx.test(email)}
             />
             <InputField
               label="Password"
@@ -106,13 +130,25 @@ const RegistrationView = () => {
               name={password}
               value={password}
               required
-              className={!passwordRegEx.test(password) ? 'invalid' : 'entered'}
+              onBlur={() => handleBlur('password')}
+              className={
+                touched.password &&
+                !passwordRegEx.test(password) &&
+                password.length > 0
+                  ? 'invalid'
+                  : password.length > 0
+                  ? 'entered'
+                  : ''
+              }
               error={
-                !passwordRegEx.test(password) && password.length !== 0
-                  ? `Password must contain at least l Capital letter, 1 number and 1 special character.`
+                touched.password &&
+                !passwordRegEx.test(password) &&
+                password.length !== 0
+                  ? `Password must contain at least 1 capital letter, 1 number and 1 special character.`
                   : null
               }
               onChange={(e) => setPassword(e.target.value)}
+              aria-invalid={touched.password && !passwordRegEx.test(password)}
             />
 
             <InputField
@@ -121,19 +157,43 @@ const RegistrationView = () => {
               name={confirmPassword}
               value={confirmPassword}
               required
+              onBlur={() => handleBlur('confirmPassword')}
               className={
-                !passwordConfirmRegEx.test(confirmPassword)
+                touched.confirmPassword &&
+                !passwordConfirmRegEx.test(confirmPassword) &&
+                confirmPassword.length > 0
                   ? 'invalid'
-                  : 'entered'
+                  : confirmPassword.length > 0
+                  ? 'entered'
+                  : ''
               }
               error={
+                touched.confirmPassword &&
                 !passwordConfirmRegEx.test(confirmPassword) &&
                 confirmPassword.length !== 0
-                  ? `Password must contain at least l Capital letter, 1 number and 1 special character.`
+                  ? `Password must contain at least 1 capital letter, 1 number and 1 special character.`
                   : null
               }
               onChange={(e) => setConfirmPassword(e.target.value)}
+              aria-invalid={
+                touched.confirmPassword &&
+                !passwordConfirmRegEx.test(confirmPassword)
+              }
             />
+
+            {touched.confirmPassword && confirmPassword.length > 0 && (
+              <div
+                className={
+                  password === confirmPassword
+                    ? 'password-match'
+                    : 'password-mismatch'
+                }
+              >
+                {password === confirmPassword
+                  ? '\u2713 Passwords match'
+                  : '\u2717 Passwords do not match'}
+              </div>
+            )}
 
             <Button
               colour="transparent"

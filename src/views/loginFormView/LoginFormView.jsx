@@ -19,6 +19,10 @@ const LoginFormView = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [touched, setTouched] = useState({
+    email: false,
+    password: false,
+  });
   const dispatch = useDispatch();
   const userLogin = useSelector((state) => state.userLogin);
   const { loading, error, userInfo } = userLogin;
@@ -28,6 +32,10 @@ const LoginFormView = () => {
       navigate('/user-profile-edit');
     }
   }, [userInfo, navigate]);
+
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -42,22 +50,30 @@ const LoginFormView = () => {
         <LoadingSpinner />
       ) : (
         <fieldset className="fieldSet">
-          <legend>
-            Members <span>Login</span> form
-          </legend>
-          <form onSubmit={handleSubmit}>
+          <legend>Members Login form</legend>
+          <form onSubmit={handleSubmit} noValidate>
             <InputField
               label="Email"
               type="email"
               name={email}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={!emailRegEx.test(email) ? 'invalid' : 'entered'}
+              onBlur={() => handleBlur('email')}
+              className={
+                touched.email && email.length > 0 && !emailRegEx.test(email)
+                  ? 'invalid'
+                  : email.length > 0
+                  ? 'entered'
+                  : ''
+              }
               error={
-                !emailRegEx.test(email) && email.length !== 0
+                touched.email &&
+                !emailRegEx.test(email) &&
+                email.length !== 0
                   ? `Invalid email address.`
                   : null
               }
+              aria-invalid={touched.email && !emailRegEx.test(email)}
             />
             <InputField
               label="Password"
@@ -65,13 +81,23 @@ const LoginFormView = () => {
               name={password}
               value={password}
               required
-              className={!password.length ? 'invalid' : 'entered'}
+              onBlur={() => handleBlur('password')}
+              className={
+                touched.password && !password.length
+                  ? 'invalid'
+                  : password.length > 0
+                  ? 'entered'
+                  : ''
+              }
               error={
-                !passwordRegEx.test(password) && password.length !== 0
-                  ? `Password can not be empty`
+                touched.password &&
+                !passwordRegEx.test(password) &&
+                password.length !== 0
+                  ? `Password cannot be empty`
                   : null
               }
               onChange={(e) => setPassword(e.target.value)}
+              aria-invalid={touched.password && !passwordRegEx.test(password)}
             />
 
             <Button
