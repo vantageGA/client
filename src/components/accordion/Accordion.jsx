@@ -1,38 +1,36 @@
 import React from 'react';
 import './Accordion.scss';
 
-const Accordion = ({ question, answer, onClick }) => {
-  return (
-    <>
-      <div className="accordion-wrapper">
-        <div>
-          <div className="question" onClick={onClick}>
-            {question ? (
-              <div className="accordion-inner-wrapper">
-                <div>
-                  <h2 className="accordion-heading">{question}</h2>
-                </div>
+const Accordion = ({ question, answer, onClick, id }) => {
+  const answerId = `answer-${id}`;
+  const isExpanded = !!answer;
 
-                <div>
-                  {!answer ? (
-                    <i className="fas fa-chevron-circle-up"></i>
-                  ) : (
-                    <i className="fas fa-chevron-circle-down"></i>
-                  )}
-                </div>
-              </div>
-            ) : null}
-          </div>
-          <div className="answer">
+  return (
+    <div className="accordion-wrapper">
+      <button
+        type="button"
+        className="question"
+        onClick={onClick}
+        aria-expanded={isExpanded}
+        aria-controls={answerId}
+      >
+        {question ? (
+          <div className="accordion-inner-wrapper">
+            <h2 className="accordion-heading">{question}</h2>
             {answer ? (
-              <div className={!answer ? 'answer' : 'drop'}>
-                <p>{answer}</p>
-              </div>
-            ) : null}
+              <i className="fas fa-chevron-circle-up" aria-hidden="true"></i>
+            ) : (
+              <i className="fas fa-chevron-circle-down" aria-hidden="true"></i>
+            )}
           </div>
+        ) : null}
+      </button>
+      {answer && (
+        <div className="answer drop" id={answerId}>
+          <p>{answer}</p>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 

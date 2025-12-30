@@ -5,33 +5,27 @@ import { faqs } from './faqs';
 import Accordion from '../../components/accordion/Accordion';
 
 const FaqsView = () => {
-  const [openAccordion, setOpenAccordion] = useState(false);
-  const [id, setId] = useState(1);
+  const [openId, setOpenId] = useState(null);
 
-  const handleOpen = (id) => {
-    setId(id);
-    if (id) {
-      setOpenAccordion(!openAccordion);
-    }
+  const handleOpen = (faqId) => {
+    setOpenId((prev) => (prev === faqId ? null : faqId));
   };
 
   return (
-    <>
-      <div className="faqs-wrapper">
-        <fieldset className="fieldSet">
-          <legend>FAQ's</legend>
-          {faqs.map((faq) => (
-            <div key={faq.id}>
-              <Accordion
-                question={faq.question}
-                answer={id === faq.id ? faq.answer : null}
-                onClick={() => handleOpen(faq.id)}
-              />
-            </div>
-          ))}
-        </fieldset>
-      </div>
-    </>
+    <div className="faqs-wrapper">
+      <fieldset className="fieldSet">
+        <legend>FAQ's</legend>
+        {faqs.map((faq) => (
+          <Accordion
+            key={faq.id}
+            id={faq.id}
+            question={faq.question}
+            answer={openId === faq.id ? faq.answer : null}
+            onClick={() => handleOpen(faq.id)}
+          />
+        ))}
+      </fieldset>
+    </div>
   );
 };
 
