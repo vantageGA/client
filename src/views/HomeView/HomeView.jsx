@@ -160,13 +160,7 @@ const HomeView = () => {
 
     return parts.map((part, idx) =>
       part.toLowerCase() === trimmed.toLowerCase() ? (
-        <span
-          key={`hl-${idx}`}
-          style={{
-            color: 'rgba(255, 255, 255, 0.6)',
-            textDecoration: 'underline',
-          }}
-        >
+        <span key={`hl-${idx}`} className="search-highlight">
           {part}
         </span>
       ) : (
@@ -182,9 +176,13 @@ const HomeView = () => {
 
   return (
     <>
-      <fieldset className="fieldSet">
-        <legend>{keyword.length > 0 ? null : 'Find a trainer near you'}</legend>
-        {error ? <Message message={error} /> : null}
+      <section className="home-hero-section" aria-label="Trainer Search">
+        <h1 className="sr-only">Find a trainer near you</h1>
+        {error && (
+          <div role="alert" aria-live="assertive">
+            <Message message={error} />
+          </div>
+        )}
 
         <div
           style={{
@@ -209,28 +207,42 @@ const HomeView = () => {
 
           <div className="search-input-position">
             <SearchInput
+              id="trainer-search"
               type="search"
               value={keyword}
               handleSearch={handleSearch}
               placeholder="Search 'fat loss Guildford' for example"
+              ariaLabel="Search for trainers by specialty or location"
+              ariaDescribedBy="search-hint"
             />
+            <div id="search-hint" className="sr-only">
+              Enter keywords like 'fat loss', 'strength training' or location names
+            </div>
             {keyword.length > 0 ? (
-              <div className="keyword-length">
+              <div
+                className="keyword-length"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
                 <span className="keyword-length-highlight">
                   {searchedProfiles.length}
                 </span>{' '}
-                profile[s] found that match your search criteria.
+                {searchedProfiles.length === 1 ? 'profile' : 'profiles'} found that match your search criteria.
               </div>
             ) : null}
           </div>
 
           <div className="home-view">
-            {keyword.length > 0 ? (
+            {keyword.length > 0 && (
               <div className="card-wrapper">
-                {searchedProfiles.map((profile) =>
-                  loading ? (
+                {loading ? (
+                  <div className="loading-container">
                     <LoadingSpinner />
-                  ) : (
+                    <p>Loading trainers...</p>
+                  </div>
+                ) : searchedProfiles.length > 0 ? (
+                  searchedProfiles.map((profile) => (
                     <div key={profile?._id}>
                       <Card
                         specialisationOne={
@@ -268,13 +280,18 @@ const HomeView = () => {
                         reviews={profile?.numReviews}
                       />
                     </div>
-                  ),
+                  ))
+                ) : (
+                  <div className="no-results">
+                    <p>No trainers found matching "{keyword}"</p>
+                    <p>Try adjusting your search criteria</p>
+                  </div>
                 )}
               </div>
-            ) : null}
+            )}
           </div>
         </div>
-      </fieldset>
+      </section>
     </>
   );
 };

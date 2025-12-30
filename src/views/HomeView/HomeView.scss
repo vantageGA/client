@@ -36,15 +36,66 @@
   // width: auto;
 }
 .keyword-length {
-  font-size: 0.8em;
-  background-color: $main-bg-colour;
+  font-size: 1rem;
+  background: rgba(196, 166, 36, 0.15);
+  border: 1px solid rgba(196, 166, 36, 0.4);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+  text-align: center;
 
   .keyword-length-highlight {
     color: $rating-colour;
-    font-size: 1.2em;
-    padding: 0.2em;
+    font-size: 1.3em;
+    font-weight: bold;
+    padding: 0 0.3em;
   }
 }
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+
+  p {
+    color: $main-font-colour;
+    font-size: 1.1rem;
+  }
+}
+
+.no-results {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(196, 166, 36, 0.1);
+  border: 1px solid rgba(196, 166, 36, 0.3);
+  border-radius: 8px;
+  margin: 1rem auto;
+  max-width: 600px;
+
+  p:first-child {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: $rating-colour;
+  }
+
+  p:last-child {
+    font-size: 1rem;
+    color: $main-font-colour;
+  }
+}
+
+.search-highlight {
+  color: $rating-colour;
+  font-weight: bold;
+  background-color: rgba(196, 166, 36, 0.25);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
 input[type='search']::placeholder {
   text-align: center;
 }
@@ -75,7 +126,7 @@ input[type='search']::placeholder {
       flex-wrap: wrap;
       flex-direction: column;
       .card {
-        width: 100vw; /* and this */
+        width: 100%;
       }
     }
   }

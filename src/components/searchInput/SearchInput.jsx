@@ -9,16 +9,22 @@ const SearchInput = ({
   className,
   value,
   label,
+  id,
+  ariaLabel,
+  ariaDescribedBy,
 }) => {
   return (
     <>
       <div className="search-input-wrapper">
         <input
+          id={id}
           type={type}
           className={className}
           placeholder={placeholder}
           onChange={handleSearch}
           value={value}
+          aria-label={ariaLabel}
+          aria-describedby={ariaDescribedBy}
           multiple
           required
         />
