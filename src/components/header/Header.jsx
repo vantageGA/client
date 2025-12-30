@@ -1,4 +1,3 @@
-import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, NavLink } from 'react-router-dom';
 import './Header.scss';
@@ -36,16 +35,15 @@ const Header = () => {
       <BetaReleaseComponent />
 
       <header className="header-container">
-          <nav className="nav-wrapper">
-            <NavLink
-              to="/"
-              className={(nav) =>
-                `large-tabs ${nav.isActive ? 'is-active' : ''}`
-              }
-            >
-              <img className="image-wrapper" src={logo} alt="Body Vantage Logo - Home" />
-            </NavLink>
+        <div className="header-content-wrapper">
+          <NavLink
+            to="/"
+            className="header-logo"
+          >
+            <img className="image-wrapper" src={logo} alt="Body Vantage Logo - Home" />
+          </NavLink>
 
+          <nav className="nav-wrapper">
             <NavLink
               to="/about"
               className={(nav) =>
@@ -116,6 +114,7 @@ const Header = () => {
             </NavLink>
           ) : null}
           </nav>
+        </div>
       </header>
     </>
   );
