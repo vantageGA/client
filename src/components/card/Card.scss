@@ -3,10 +3,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 
 .card-inner-wrapper {
-  padding: 0.4em;
-  background-color: rgba(0, 0, 0, 1);
-  width: 600px;
-  border-top: 1px solid $rating-colour;
+  padding: 1rem;
+  background-color: rgba(51, 51, 51, 0.3);
+  flex: 1 1 calc(50% - 0.75rem);
+  max-width: 600px;
+  border: 1px solid $border-colour-light;
+  border-left: 4px solid $burnt-orange;
+  border-radius: 4px;
   margin-bottom: 1rem;
 
   .item {
@@ -33,16 +36,28 @@
     }
     .card-name {
       font-family: 'Bebas Neue', cursive;
-      font-size: 2.6em;
+      font-size: 1.5rem;
       text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: $light-orange;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  .link {
+    &:focus-visible {
+      outline: 2px solid $burnt-orange;
+      outline-offset: 4px;
+      border-radius: 2px;
     }
   }
 }
 /* Responsive layout */
-@media (max-width: 1024px) {
+@media (max-width: 812px) {
   .card-inner-wrapper {
-    flex-wrap: wrap;
-    width: 100%;
+    flex: 1 1 100%;
+    max-width: 100%;
+
     .item {
       .card-profile-image {
         width: 140px;

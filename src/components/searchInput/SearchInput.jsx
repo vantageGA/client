@@ -25,10 +25,7 @@ const SearchInput = ({
           value={value}
           aria-label={ariaLabel}
           aria-describedby={ariaDescribedBy}
-          multiple
-          required
         />
-        {/* <span className="highlight"></span> */}
         <span className="bar"></span>
         <label>{label}</label>
       </div>
