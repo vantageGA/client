@@ -2,26 +2,183 @@
 @use '../../scssMixIn.scss' as *;
 
 .contact-form-view-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
   display: flex;
-  gap: 10px;
-  .fieldSet {
-    flex: 1;
-  }
-  label {
-    font-size: 1em;
-  }
-  textarea {
-    min-height: 250px;
+  gap: 2rem;
+
+  // Success and error message containers
+  .success-message-container,
+  .error-message-container {
+    margin-bottom: 2rem;
   }
 
-  .small-text-message {
-    font-size: 0.6em;
+  // Fieldset styling following AboutView pattern
+  .fieldSet {
+    flex: 1;
+    padding: 1.5rem;
+    background-color: rgba(51, 51, 51, 0.3);
+    border-radius: 4px;
+    border: 1px solid $border-colour-light;
+
+    legend {
+      font-family: 'Bebas Neue', cursive;
+      letter-spacing: 0.1em;
+      font-size: 1.5rem;
+      color: $light-orange;
+      padding: 0 0.5rem;
+    }
+  }
+
+  // Form fieldset - primary accent color
+  .form-fieldset {
+    border-left: 4px solid $burnt-orange;
+  }
+
+  // Contact details fieldset - secondary accent color
+  .contact-details-fieldset {
+    border-left: 4px solid $light-orange;
+  }
+
+  // Form styling
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  label {
+    font-size: 1em;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: $main-font-colour;
+  }
+
+  textarea {
+    min-height: 250px;
+    padding: 0.75rem;
+    font-family: 'Comfortaa', cursive;
+    font-size: 1rem;
+    background-color: rgba(51, 51, 51, 0.5);
+    border: 1px solid $border-colour;
+    border-radius: 4px;
+    color: $main-font-colour;
+    resize: vertical;
+    transition: border-color 0.2s ease, outline 0.2s ease;
+
+    &:focus {
+      outline: 2px solid $burnt-orange;
+      outline-offset: 4px;
+      border-color: $burnt-orange;
+    }
+
+    &.invalid {
+      border-color: $danger;
+    }
+
+    &.entered {
+      border-color: $success;
+    }
+  }
+
+  // Field hint text (character counter, etc.)
+  .field-hint {
+    display: block;
+    font-size: 0.85em;
+    color: $warning;
+    margin-top: 0.5rem;
+    line-height: 1.4;
+  }
+
+  // Validation error message
+  .validation-error {
+    color: $danger;
+    font-size: 0.85em;
+    margin-top: 0.5rem;
+    font-weight: 500;
+  }
+
+  // Form valid message
+  .form-valid-message {
+    display: block;
+    font-size: 0.85em;
+    color: $success;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  // Contact details styling with semantic address
+  .contact-details {
+    font-style: normal;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    line-height: 1.6;
+
+    .contact-detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      strong {
+        color: $light-orange;
+        font-weight: 600;
+        font-size: 0.95em;
+        letter-spacing: 0.05em;
+      }
+
+      span {
+        color: $main-font-colour;
+      }
+
+      a {
+        color: $link-colour;
+        text-decoration: none;
+        transition: color 0.2s ease;
+        display: inline-block;
+
+        &:hover {
+          color: $light-orange;
+          text-decoration: underline;
+        }
+
+        &:focus {
+          outline: 2px solid $burnt-orange;
+          outline-offset: 4px;
+          border-radius: 2px;
+        }
+      }
+    }
+  }
+
+  // Button styling adjustments
+  .btn {
+    margin-top: 1rem;
+    min-height: 48px; // Touch target minimum
+    text-align: center;
+
+    &:focus {
+      outline: 2px solid $burnt-orange;
+      outline-offset: 4px;
+    }
   }
 }
 
-/* Responsive layout - makes a one column layout (100%) instead of a two-column layout (50%) */
+// Responsive layout - makes a one column layout (100%) instead of a two-column layout (50%)
 @media (max-width: 812px) {
   .contact-form-view-wrapper {
     flex-direction: column;
+    padding: 1.5rem;
+    gap: 1.5rem;
+
+    .fieldSet {
+      padding: 1rem;
+    }
   }
 }

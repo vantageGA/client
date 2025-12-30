@@ -14,6 +14,10 @@ const InputField = ({
   error,
   className,
   onChange,
+  onBlur,
+  required,
+  'aria-invalid': ariaInvalid,
+  'aria-describedby': ariaDescribedby,
 }) => {
   const inputFocus = useRef(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -38,10 +42,17 @@ const InputField = ({
     }
   };
 
+  const errorId = `${id || name}-error`;
+
   return (
     <div className="input-field-wrapper">
       <div className="input-icon-wrapper">
-        {label && <label htmlFor="input-field">{label}</label>}
+        {label && (
+          <label htmlFor={id || name}>
+            {label}
+            {required && <span aria-label="required"> *</span>}
+          </label>
+        )}
         {onlyPassword ? (
           <div
             onClick={() => handleShowHidePw()}
@@ -56,17 +67,24 @@ const InputField = ({
         ) : null}
       </div>
       <input
-        id={id}
+        id={id || name}
         ref={inputFocus}
         type={type}
         name={name}
         value={value}
         placeholder={placeholder}
-        error={error}
         className={className}
         onChange={onChange}
+        onBlur={onBlur}
+        required={required}
+        aria-invalid={ariaInvalid}
+        aria-describedby={error ? `${ariaDescribedby || ''} ${errorId}`.trim() : ariaDescribedby}
       />
-      {error && <p className="validation-error">{error}</p>}
+      {error && (
+        <p id={errorId} className="validation-error" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 };
