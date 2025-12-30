@@ -61,6 +61,7 @@ const AboutView = () => {
           </ul>
         </section>
       </fieldset>
+
       <div className="faq-link">
         <p>
           Got any questions? <LinkComp route="faq" routeName="View our FAQ" />

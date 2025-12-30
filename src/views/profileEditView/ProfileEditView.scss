@@ -21,7 +21,7 @@
     background-color: rgba(255, 255, 255, 0.6);
   }
   .quill.invalid {
-    border-left: $rating-colour 4px solid;
+    border-left: $rating-colour 1px solid;
     min-height: 120px;
   }
   .ql-editor:focus {

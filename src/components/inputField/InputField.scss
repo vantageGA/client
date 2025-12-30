@@ -36,37 +36,37 @@
     font-weight: bold;
   }
   input[type='text'].entered {
-    border-left: greenyellow 4px solid;
+    border-left: greenyellow 1px solid;
   }
   input[type='email'].entered {
-    border-left: greenyellow 4px solid;
+    border-left: greenyellow 1px solid;
   }
   input[type='text'].invalid {
-    border-left: $rating-colour 4px solid;
+    border-left: $rating-colour 1px solid;
   }
   input[type='email'].invalid {
-    border-left: $rating-colour 4px solid;
+    border-left: $rating-colour 1px solid;
   }
   input[type='password'].entered {
-    border-left: greenyellow 4px solid;
+    border-left: greenyellow 1px solid;
   }
   input[type='password'].invalid {
-    border-left: $rating-colour 4px solid;
+    border-left: $rating-colour 1px solid;
   }
   input[type='search'].entered {
-    border-left: greenyellow 4px solid;
+    border-left: greenyellow 1px solid;
   }
   input[type='search'].invalid {
-    border-left: $rating-colour 4px solid;
+    border-left: $rating-colour 1px solid;
   }
   input[type='search']::placeholder {
     text-align: center;
   }
   input[type='tel'].entered {
-    border-left: greenyellow 4px solid;
+    border-left: greenyellow 1px solid;
   }
   input[type='tel'].invalid {
-    border-left: $rating-colour 4px solid;
+    border-left: $rating-colour 1px solid;
   }
   .input-icon-wrapper {
     text-transform: uppercase;

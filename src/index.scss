@@ -149,11 +149,11 @@ textarea {
 }
 
 textarea.invalid {
-  border-left: $rating-colour 4px solid;
+  border-left: $rating-colour 1px solid;
   min-height: 50px;
 }
 textarea.entered {
-  border-left: greenyellow 4px solid;
+  border-left: greenyellow 1px solid;
   min-height: 50px;
 }
 textarea:focus {
