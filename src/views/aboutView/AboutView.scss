@@ -104,3 +104,18 @@
     }
   }
 }
+
+@media (max-width: 812px) {
+  .about-wrapper {
+    padding: 0.75rem;
+
+    .fieldSet {
+      padding: 1rem;
+    }
+
+    .member-benefits,
+    .visitor-features {
+      padding: 1rem;
+    }
+  }
+}
