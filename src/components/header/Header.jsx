@@ -69,7 +69,7 @@ const Header = () => {
                   `large-tabs ${nav.isActive ? 'is-active' : ''}`
                 }
               >
-                <i className="fa-solid fa-screwdriver-wrench fa-xl"></i>
+                <span className="tab-label">Settings</span>
               </NavLink>
             ) : null}
 

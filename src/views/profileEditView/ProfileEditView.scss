@@ -39,25 +39,52 @@
     justify-content: flex-start;
     align-items: center;
     gap: 0.1em;
+
+    .profile-image-container {
+      position: relative;
+      display: inline-block;
+    }
+
     .profile-image-size {
       width: 160px;
       height: 160px;
     }
+
     .profile-image-delete {
-      position: relative;
-      top: 14px;
-      color: $danger;
-      background-color: $main-font-colour;
-      text-transform: capitalize;
-      text-align: center;
-      opacity: 0.8;
+      all: unset;
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      min-height: 32px;
+      color: white;
+      background-color: $danger;
       border-radius: 50%;
-      padding: 0.2em;
-      font-size: 1.2em;
+      cursor: pointer;
+      opacity: 0.9;
+      transition: opacity 150ms ease, transform 150ms ease;
+
+      i {
+        font-size: 1rem;
+      }
+
       &:hover {
-        cursor: pointer;
-        font-weight: bold;
         opacity: 1;
+        transform: scale(1.1);
+      }
+
+      &:focus {
+        outline: 2px solid $burnt-orange;
+        outline-offset: 2px;
+      }
+
+      &:active {
+        transform: scale(0.95);
       }
     }
   }
@@ -78,6 +105,175 @@
   .fieldSet.item textarea {
     height: 100px;
   }
+
+  // Status indicators for verification badges
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .status-icon {
+    font-size: 1.25rem;
+
+    &.confirmed {
+      color: $success;
+    }
+
+    &.not-confirmed {
+      color: $danger;
+    }
+  }
+
+  .status-text {
+    font-weight: 500;
+
+    .confirmed + & {
+      color: $success;
+    }
+
+    .not-confirmed + & {
+      color: $danger;
+    }
+  }
+
+  // Textarea wrapper with error display
+  .textarea-wrapper {
+    margin-bottom: 1rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-family: 'Comfortaa', cursive;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: $main-font-colour;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem 1rem;
+      font-family: 'Comfortaa', cursive;
+      font-size: 1rem;
+      color: $main-font-colour;
+      background-color: rgba(25, 25, 25, 1);
+      border: 1px solid rgba(75, 75, 75, 1);
+      border-radius: 4px;
+      resize: vertical;
+
+      &:focus {
+        border-color: $burnt-orange;
+        border-left: 3px solid $burnt-orange;
+        outline: 2px solid rgba($burnt-orange, 0.3);
+        outline-offset: 2px;
+      }
+
+      &.invalid {
+        border: 1px solid $danger;
+        border-left: 3px solid $danger;
+      }
+
+      &.entered {
+        border-bottom: 2px solid $success;
+      }
+    }
+
+    .validation-error {
+      display: block;
+      color: $danger;
+      background-color: rgba($danger, 0.1);
+      padding: 0.5rem 0.75rem;
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-left: 3px solid $danger;
+      border-radius: 2px;
+    }
+  }
+
+  // Image preview wrapper
+  .image-preview-wrapper {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: rgba(51, 51, 51, 0.3);
+    border-radius: 4px;
+    border: 1px solid $border-colour;
+
+    p {
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    img {
+      display: block;
+      margin: 1rem auto;
+      border-radius: 4px;
+      border: 2px solid $border-colour;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1rem;
+
+      @media (max-width: 812px) {
+        flex-direction: column;
+      }
+    }
+  }
+
+  // File input wrapper
+  .file-input-wrapper {
+    margin-bottom: 1rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-family: 'Comfortaa', cursive;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: $main-font-colour;
+    }
+
+    input[type='file'] {
+      width: 100%;
+      padding: 0.5rem;
+      font-family: 'Comfortaa', cursive;
+      color: $main-font-colour;
+      background-color: rgba(25, 25, 25, 1);
+      border: 1px solid rgba(75, 75, 75, 1);
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:focus {
+        outline: 2px solid $burnt-orange;
+        outline-offset: 2px;
+      }
+    }
+
+    .field-hint {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.875rem;
+      color: rgba($main-font-colour, 0.7);
+      font-style: italic;
+    }
+  }
+
+  // Screen reader only
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
 }
 
 /* Responsive layout - makes a one column layout (100%) instead of a two-column layout (50%) */
@@ -85,7 +281,7 @@
   .profile-edit-wrapper {
     flex-wrap: wrap;
     .item {
-      width: 100vw; /* and this */
+      width: 100%; /* Fixed: was 100vw which caused horizontal scroll */
     }
   }
 }

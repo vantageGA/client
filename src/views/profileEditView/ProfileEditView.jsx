@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import './ProfileEditView.scss';
@@ -102,6 +102,31 @@ const ProfileEditView = () => {
 
   const [showHelp, setShowHelp] = useState(false);
 
+  // Refs
+  const fileInputRef = useRef(null);
+
+  // Notification state for centralized message management
+  const [notification, setNotification] = useState({
+    message: '',
+    variant: 'error',
+  });
+
+  // Touched state for blur-triggered validation
+  const [touched, setTouched] = useState({
+    name: false,
+    email: false,
+    telephoneNumber: false,
+    keyWordSearchOne: false,
+    keyWordSearchTwo: false,
+    keyWordSearchThree: false,
+    keyWordSearchFour: false,
+    keyWordSearchFive: false,
+    specialisationOne: false,
+    specialisationTwo: false,
+    specialisationThree: false,
+    specialisationFour: false,
+  });
+
   useEffect(() => {
     if (!userInfo) {
       navigate('/login');
@@ -171,6 +196,62 @@ const ProfileEditView = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Validate all required fields before processing
+    if (!name || name.trim().length === 0) {
+      showNotification('Name is required', 'error');
+      return;
+    }
+
+    if (!emailRegEx.test(email)) {
+      showNotification('Valid email address is required', 'error');
+      return;
+    }
+
+    if (!telephoneNumberRegEx.test(telephoneNumber)) {
+      showNotification('Valid UK telephone number is required', 'error');
+      return;
+    }
+
+    if (description.length < 10) {
+      showNotification('Description must be at least 10 characters', 'error');
+      return;
+    }
+
+    if (location.length <= 10) {
+      showNotification('Location must be at least 10 characters', 'error');
+      return;
+    }
+
+    // Validate keywords
+    const keywords = [
+      keyWordSearchOne,
+      keyWordSearchTwo,
+      keyWordSearchThree,
+      keyWordSearchFour,
+      keyWordSearchFive,
+    ];
+    const invalidKeywords = keywords.filter((k) => k.length < 3);
+    if (invalidKeywords.length > 0) {
+      showNotification('All keyword fields must be at least 3 characters', 'error');
+      return;
+    }
+
+    // Validate specializations
+    const specializations = [
+      specialisationOne,
+      specialisationTwo,
+      specialisationThree,
+      specialisationFour,
+    ];
+    const invalidSpecs = specializations.filter((s) => s.length < 3);
+    if (invalidSpecs.length > 0) {
+      showNotification(
+        'All specialisation fields must be at least 3 characters',
+        'error',
+      );
+      return;
+    }
+
     // Keyword search Algo
     // Created a promise in order to resolve first
     let prom = new Promise((resolve, reject) => {
@@ -238,9 +319,10 @@ const ProfileEditView = () => {
             specialisationFour,
           }),
         );
+        showNotification('Profile updated successfully', 'success');
       })
       .catch((message) => {
-        console.log(message);
+        showNotification('Failed to update profile: ' + message, 'error');
       });
     // Keyword search Algo
 
@@ -286,8 +368,11 @@ const ProfileEditView = () => {
   };
 
   const handleCancelImageUpload = () => {
-    document.querySelector('#profileImage').value = '';
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
     setPreviewImage('');
+    setPreviewImageFile('');
   };
 
   // USER Profile image
@@ -307,10 +392,41 @@ const ProfileEditView = () => {
     setShowHelp(!showHelp);
   };
 
+  const showNotification = (message, variant = 'error') => {
+    setNotification({ message, variant });
+  };
+
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  // Validation helpers
+  const isNameValid = name && name.length > 0;
+  const isEmailValid = emailRegEx.test(email);
+  const isTelephoneValid = telephoneNumberRegEx.test(telephoneNumber);
+
+  // Show errors only after blur
+  const showNameError = touched.name && !isNameValid;
+  const showEmailError = touched.email && !isEmailValid;
+  const showTelephoneError = touched.telephoneNumber && !isTelephoneValid;
+
   return (
     <>
-      {error ? <Message message={error} /> : null}
-      {createError ? <Message message={createError} /> : null}
+      {(error || createError) && (
+        <Message
+          message={error || createError}
+          variant="error"
+          onDismiss={() => setNotification({ message: '', variant: 'error' })}
+        />
+      )}
+
+      {notification.message && (
+        <Message
+          message={notification.message}
+          variant={notification.variant}
+          onDismiss={() => setNotification({ message: '', variant: 'error' })}
+        />
+      )}
 
       {!profile ? (
         <>
@@ -363,57 +479,72 @@ const ProfileEditView = () => {
                 <InfoComponent description="Name that the public will see." />
               ) : null}
               <InputField
+                id="profile-name"
                 label="Name"
                 onChange={(e) => setName(e.target.value)}
+                onBlur={() => handleBlur('name')}
                 type="text"
                 name="name"
                 placeholder="Ben Smith"
                 value={name}
                 required
-                className={name?.length === 0 ? 'invalid' : 'entered'}
-                error={name?.length === 0 ? `Name field cant be empty!` : null}
+                hint="Your full professional name as it will appear publicly"
+                className={showNameError ? 'invalid' : isNameValid ? 'entered' : ''}
+                error={showNameError ? `Name field cannot be empty` : null}
+                aria-invalid={showNameError}
+                aria-describedby={showNameError ? 'profile-name-error' : undefined}
               />
               {showHelp ? (
                 <InfoComponent description="Email address the public will see." />
               ) : null}{' '}
               <InputField
+                id="profile-email"
                 label="Email"
                 type="email"
                 name="email"
                 placeholder="ben@mail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={!emailRegEx.test(email) ? 'invalid' : 'entered'}
-                error={
-                  !emailRegEx.test(email) ? `Invalid email address.` : null
-                }
+                onBlur={() => handleBlur('email')}
+                required
+                hint="Valid email format required (example@domain.com)"
+                className={showEmailError ? 'invalid' : isEmailValid ? 'entered' : ''}
+                error={showEmailError ? `Invalid email address` : null}
+                aria-invalid={showEmailError}
+                aria-describedby={showEmailError ? 'profile-email-error' : undefined}
               />
               <InputField
+                id="profile-facebook"
                 label="Facebook USERNAME"
                 type="text"
                 name="faceBook"
                 value={faceBook}
                 placeholder="fiscalfitness"
                 onChange={(e) => setFaceBook(e.target.value)}
-                className="entered"
+                hint="Your Facebook username (optional)"
+                className={faceBook.length > 0 ? 'entered' : ''}
               />
               <InputField
+                id="profile-instagram"
                 label="Instagram USERNAME"
                 type="text"
                 name="instagram"
                 value={instagram}
                 placeholder="zachfiscalfitness"
                 onChange={(e) => setInstagram(e.target.value)}
-                className="entered"
+                hint="Your Instagram username (optional)"
+                className={instagram.length > 0 ? 'entered' : ''}
               />
               <InputField
+                id="profile-website"
                 label="Website URL"
                 type="text"
                 name="websiteUrl"
                 value={websiteUrl}
                 placeholder="zachfiscalfitness.co.uk"
                 onChange={(e) => setWebsiteUrl(e.target.value)}
-                className="entered"
+                hint="Your professional website URL (optional)"
+                className={websiteUrl.length > 0 ? 'entered' : ''}
               />
               <Button
                 type="submit"
@@ -454,84 +585,129 @@ const ProfileEditView = () => {
                 <h3>Search Keyword(s)</h3>
                 <div className="input-wrapper">
                   <InputField
-                    placeholder="keyword"
+                    id="keyword-one"
+                    label="Keyword 1"
+                    placeholder="e.g., Personal Training"
                     value={keyWordSearchOne}
                     onChange={(e) => setkeyWordSearchOne(e.target.value)}
+                    onBlur={() => handleBlur('keyWordSearchOne')}
                     type="text"
                     name="keyWordSearchOne"
                     required
+                    hint="Primary search keyword (minimum 3 characters)"
                     className={
-                      keyWordSearchOne?.length < 3 ? 'invalid' : 'entered'
+                      touched.keyWordSearchOne && keyWordSearchOne?.length < 3
+                        ? 'invalid'
+                        : keyWordSearchOne?.length >= 3
+                        ? 'entered'
+                        : ''
                     }
                     error={
-                      keyWordSearchOne?.length < 3
-                        ? `keyWord Search field must contain at least 3 characters!`
+                      touched.keyWordSearchOne && keyWordSearchOne?.length < 3
+                        ? `Keyword must contain at least 3 characters`
                         : null
                     }
+                    aria-invalid={touched.keyWordSearchOne && keyWordSearchOne?.length < 3}
                   />
                   <InputField
-                    placeholder="keyword"
+                    id="keyword-two"
+                    label="Keyword 2"
+                    placeholder="e.g., Strength Training"
                     value={keyWordSearchTwo}
                     onChange={(e) => setkeyWordSearchTwo(e.target.value)}
+                    onBlur={() => handleBlur('keyWordSearchTwo')}
                     type="text"
                     name="keyWordSearchTwo"
                     required
+                    hint="Secondary search keyword (minimum 3 characters)"
                     className={
-                      keyWordSearchTwo?.length < 3 ? 'invalid' : 'entered'
+                      touched.keyWordSearchTwo && keyWordSearchTwo?.length < 3
+                        ? 'invalid'
+                        : keyWordSearchTwo?.length >= 3
+                        ? 'entered'
+                        : ''
                     }
                     error={
-                      keyWordSearchTwo?.length < 3
-                        ? `keyWord Search field must contain at least 3 characters!`
+                      touched.keyWordSearchTwo && keyWordSearchTwo?.length < 3
+                        ? `Keyword must contain at least 3 characters`
                         : null
                     }
+                    aria-invalid={touched.keyWordSearchTwo && keyWordSearchTwo?.length < 3}
                   />
                   <InputField
-                    placeholder="keyword"
+                    id="keyword-three"
+                    label="Keyword 3"
+                    placeholder="e.g., Nutrition"
                     value={keyWordSearchThree}
                     onChange={(e) => setkeyWordSearchThree(e.target.value)}
+                    onBlur={() => handleBlur('keyWordSearchThree')}
                     type="text"
                     name="keyWordSearchThree"
                     required
+                    hint="Additional search keyword (minimum 3 characters)"
                     className={
-                      keyWordSearchThree?.length < 3 ? 'invalid' : 'entered'
+                      touched.keyWordSearchThree && keyWordSearchThree?.length < 3
+                        ? 'invalid'
+                        : keyWordSearchThree?.length >= 3
+                        ? 'entered'
+                        : ''
                     }
                     error={
-                      keyWordSearchThree?.length < 3
-                        ? `keyWord Search field must contain at least 3 characters!`
+                      touched.keyWordSearchThree && keyWordSearchThree?.length < 3
+                        ? `Keyword must contain at least 3 characters`
                         : null
                     }
+                    aria-invalid={touched.keyWordSearchThree && keyWordSearchThree?.length < 3}
                   />
                   <InputField
-                    placeholder="keyword"
+                    id="keyword-four"
+                    label="Keyword 4"
+                    placeholder="e.g., Weight Loss"
                     value={keyWordSearchFour}
                     onChange={(e) => setkeyWordSearchFour(e.target.value)}
+                    onBlur={() => handleBlur('keyWordSearchFour')}
                     type="text"
                     name="keyWordSearchFour"
                     required
+                    hint="Additional search keyword (minimum 3 characters)"
                     className={
-                      keyWordSearchFour?.length < 3 ? 'invalid' : 'entered'
+                      touched.keyWordSearchFour && keyWordSearchFour?.length < 3
+                        ? 'invalid'
+                        : keyWordSearchFour?.length >= 3
+                        ? 'entered'
+                        : ''
                     }
                     error={
-                      keyWordSearchFour?.length < 3
-                        ? `keyWord Search field must contain at least 3 characters!`
+                      touched.keyWordSearchFour && keyWordSearchFour?.length < 3
+                        ? `Keyword must contain at least 3 characters`
                         : null
                     }
+                    aria-invalid={touched.keyWordSearchFour && keyWordSearchFour?.length < 3}
                   />
                   <InputField
-                    placeholder="keyword"
+                    id="keyword-five"
+                    label="Keyword 5"
+                    placeholder="e.g., Fitness"
                     value={keyWordSearchFive}
                     onChange={(e) => setkeyWordSearchFive(e.target.value)}
+                    onBlur={() => handleBlur('keyWordSearchFive')}
                     type="text"
                     name="keyWordSearchFive"
                     required
+                    hint="Additional search keyword (minimum 3 characters)"
                     className={
-                      keyWordSearchFive?.length < 3 ? 'invalid' : 'entered'
+                      touched.keyWordSearchFive && keyWordSearchFive?.length < 3
+                        ? 'invalid'
+                        : keyWordSearchFive?.length >= 3
+                        ? 'entered'
+                        : ''
                     }
                     error={
-                      keyWordSearchFive?.length < 3
-                        ? `keyWord Search field must contain at least 3 characters!`
+                      touched.keyWordSearchFive && keyWordSearchFive?.length < 3
+                        ? `Keyword must contain at least 3 characters`
                         : null
                     }
+                    aria-invalid={touched.keyWordSearchFive && keyWordSearchFive?.length < 3}
                   />
                   <Button
                     type="submit"
@@ -566,27 +742,31 @@ const ProfileEditView = () => {
                         onClick={handleShowCombinations}
                       ></Button>
                       {show ? (
-                        <>
-                          <label>READ ONLY: </label>
+                        <div className="textarea-wrapper">
+                          <label htmlFor="keyword-search-display">
+                            Generated Keywords (Read Only)
+                          </label>
                           <textarea
+                            id="keyword-search-display"
                             readOnly
                             value={keyWordSearch}
-                            onChange={(e) => setkeyWordSearch(e.target.value)}
-                            type="text"
                             name="keyWordSearch"
-                            required
                             className={
-                              keyWordSearch?.length <= 10
-                                ? 'invalid'
-                                : 'entered'
+                              keyWordSearch?.length <= 10 ? 'invalid' : 'entered'
                             }
-                            error={
+                            aria-invalid={keyWordSearch?.length <= 10}
+                            aria-describedby={
                               keyWordSearch?.length <= 10
-                                ? `keyWord Search field must contain at least 10 characters!`
-                                : null
+                                ? 'keyword-error'
+                                : undefined
                             }
                           />
-                        </>
+                          {keyWordSearch?.length <= 10 && (
+                            <p id="keyword-error" className="validation-error" role="alert">
+                              Keyword search field must contain at least 10 characters
+                            </p>
+                          )}
+                        </div>
                       ) : null}
                     </div>
                   </div>
@@ -596,71 +776,107 @@ const ProfileEditView = () => {
                 <h3>Specialisation Keyword(s)</h3>
                 <div className="input-wrapper">
                   <InputField
-                    placeholder="Specialisation"
+                    id="specialisation-one"
+                    label="Specialisation 1"
+                    placeholder="e.g., Bodybuilding"
                     value={specialisationOne}
                     onChange={(e) => setSpecialisationOne(e.target.value)}
+                    onBlur={() => handleBlur('specialisationOne')}
                     type="text"
                     name="specialisationOne"
                     required
+                    hint="Primary area of expertise (minimum 3 characters)"
                     className={
-                      specialisationOne?.length < 3 ? 'invalid' : 'entered'
+                      touched.specialisationOne && specialisationOne?.length < 3
+                        ? 'invalid'
+                        : specialisationOne?.length >= 3
+                        ? 'entered'
+                        : ''
                     }
                     error={
-                      specialisationOne?.length < 3
-                        ? `Specialisation field must contain at least 3 characters!`
+                      touched.specialisationOne && specialisationOne?.length < 3
+                        ? `Specialisation must contain at least 3 characters`
                         : null
                     }
+                    aria-invalid={touched.specialisationOne && specialisationOne?.length < 3}
                   />
 
                   <InputField
-                    placeholder="Specialisation"
+                    id="specialisation-two"
+                    label="Specialisation 2"
+                    placeholder="e.g., Sports Performance"
                     value={specialisationTwo}
                     onChange={(e) => setSpecialisationTwo(e.target.value)}
+                    onBlur={() => handleBlur('specialisationTwo')}
                     type="text"
                     name="specialisationTwo"
                     required
+                    hint="Secondary area of expertise (minimum 3 characters)"
                     className={
-                      specialisationTwo?.length < 3 ? 'invalid' : 'entered'
+                      touched.specialisationTwo && specialisationTwo?.length < 3
+                        ? 'invalid'
+                        : specialisationTwo?.length >= 3
+                        ? 'entered'
+                        : ''
                     }
                     error={
-                      specialisationTwo?.length < 3
-                        ? `Specialisation field must contain at least 3 characters!`
+                      touched.specialisationTwo && specialisationTwo?.length < 3
+                        ? `Specialisation must contain at least 3 characters`
                         : null
                     }
+                    aria-invalid={touched.specialisationTwo && specialisationTwo?.length < 3}
                   />
 
                   <InputField
-                    placeholder="Specialisation"
+                    id="specialisation-three"
+                    label="Specialisation 3"
+                    placeholder="e.g., Rehabilitation"
                     value={specialisationThree}
                     onChange={(e) => setSpecialisationThree(e.target.value)}
+                    onBlur={() => handleBlur('specialisationThree')}
                     type="text"
                     name="specialisationThree"
                     required
+                    hint="Additional area of expertise (minimum 3 characters)"
                     className={
-                      specialisationThree?.length < 3 ? 'invalid' : 'entered'
+                      touched.specialisationThree && specialisationThree?.length < 3
+                        ? 'invalid'
+                        : specialisationThree?.length >= 3
+                        ? 'entered'
+                        : ''
                     }
                     error={
-                      specialisationThree?.length < 3
-                        ? `Specialisation field must contain at least 3 characters!`
+                      touched.specialisationThree && specialisationThree?.length < 3
+                        ? `Specialisation must contain at least 3 characters`
                         : null
                     }
+                    aria-invalid={touched.specialisationThree && specialisationThree?.length < 3}
                   />
 
                   <InputField
-                    placeholder="Specialisation"
+                    id="specialisation-four"
+                    label="Specialisation 4"
+                    placeholder="e.g., Youth Training"
                     value={specialisationFour}
                     onChange={(e) => setSpecialisationFour(e.target.value)}
+                    onBlur={() => handleBlur('specialisationFour')}
                     type="text"
                     name="specialisationFour"
                     required
+                    hint="Additional area of expertise (minimum 3 characters)"
                     className={
-                      specialisationFour?.length < 3 ? 'invalid' : 'entered'
+                      touched.specialisationFour && specialisationFour?.length < 3
+                        ? 'invalid'
+                        : specialisationFour?.length >= 3
+                        ? 'entered'
+                        : ''
                     }
                     error={
-                      specialisationFour?.length < 3
-                        ? `Specialisation field must contain at least 3 characters!`
+                      touched.specialisationFour && specialisationFour?.length < 3
+                        ? `Specialisation must contain at least 3 characters`
                         : null
                     }
+                    aria-invalid={touched.specialisationFour && specialisationFour?.length < 3}
                   />
                 </div>
               </div>
@@ -708,21 +924,26 @@ const ProfileEditView = () => {
               </div>
               <div>
                 <h3>Location</h3>
-                <div className="input-border">
-                  <label>Location</label>
+                <div className="textarea-wrapper">
+                  <label htmlFor="location">Location</label>
                   <textarea
+                    id="location"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    type="text"
                     name="location"
                     required
+                    placeholder="Enter your detailed location (city, region, etc.)"
                     className={location?.length <= 10 ? 'invalid' : 'entered'}
-                    error={
-                      location?.length <= 10
-                        ? `Location field must contain at least 10 characters!`
-                        : null
+                    aria-invalid={location?.length <= 10}
+                    aria-describedby={
+                      location?.length <= 10 ? 'location-error' : undefined
                     }
                   />
+                  {location?.length <= 10 && location.length > 0 && (
+                    <p id="location-error" className="validation-error" role="alert">
+                      Location must be at least 10 characters ({location.length} entered)
+                    </p>
+                  )}
                 </div>
                 <Button
                   type="submit"
@@ -734,22 +955,25 @@ const ProfileEditView = () => {
                 />
               </div>
               <InputField
+                id="profile-telephone"
                 label="Telephone Number"
                 value={telephoneNumber}
                 onChange={(e) => setTelephoneNumber(e.target.value)}
-                type="text"
+                onBlur={() => handleBlur('telephoneNumber')}
+                type="tel"
                 name="telephoneNumber"
+                placeholder="07xxx xxxxxx"
                 required
-                className={
-                  !telephoneNumberRegEx.test(telephoneNumber)
-                    ? 'invalid'
-                    : 'entered'
-                }
+                hint="UK mobile: 07xxx xxxxxx or 447xxx xxxxxx"
+                className={showTelephoneError ? 'invalid' : isTelephoneValid ? 'entered' : ''}
                 error={
-                  !telephoneNumberRegEx.test(telephoneNumber) ||
-                  telephoneNumber?.length === 0
-                    ? `Invalid mobile number`
+                  showTelephoneError
+                    ? `Invalid UK mobile number. Use format: 07xxx xxxxxx or 447xxx xxxxxx`
                     : null
+                }
+                aria-invalid={showTelephoneError}
+                aria-describedby={
+                  showTelephoneError ? 'profile-telephone-error' : undefined
                 }
               />
             </form>
@@ -797,26 +1021,47 @@ const ProfileEditView = () => {
                 <p>'No profile image'</p>
               )}
               <form onSubmit={handleProfileImageUpdate}>
-                <InputField
-                  id="profileImage"
-                  label="Change PROFILE Image"
-                  type="file"
-                  name="profileImage"
-                  onChange={uploadFileHandler}
-                />
+                <div className="file-input-wrapper">
+                  <label htmlFor="profileImage">Change Profile Image</label>
+                  <input
+                    ref={fileInputRef}
+                    id="profileImage"
+                    type="file"
+                    name="profileImage"
+                    onChange={uploadFileHandler}
+                    accept="image/jpeg,image/png,image/webp"
+                    aria-describedby="image-requirements"
+                  />
+                  <span id="image-requirements" className="field-hint">
+                    Supported formats: JPG, PNG, WebP. Maximum size: 5MB
+                  </span>
+                </div>
                 {previewImage ? (
-                  <>
-                    Image Preview
+                  <div className="image-preview-wrapper">
+                    <p>Image Preview</p>
                     <img
                       src={previewImage}
-                      alt="profile"
+                      alt="Profile preview"
                       style={{ width: '120px' }}
                     />
-                    <button>I Like it</button>
-                    <button type="button" onClick={handleCancelImageUpload}>
-                      I Dont Like it
-                    </button>
-                  </>
+                    <div className="button-group">
+                      <Button
+                        colour="transparent"
+                        text="Upload Image"
+                        className="btn"
+                        type="submit"
+                        disabled={profileImageLoading}
+                      />
+                      <Button
+                        colour="transparent"
+                        text="Cancel"
+                        className="btn"
+                        type="button"
+                        onClick={handleCancelImageUpload}
+                        disabled={profileImageLoading}
+                      />
+                    </div>
+                  </div>
                 ) : null}
               </form>
             </div>
@@ -828,18 +1073,20 @@ const ProfileEditView = () => {
               ) : null}
               {profileImages ? (
                 profileImages.map((image) => (
-                  <div key={image?._id}>
-                    <span
+                  <div key={image?._id} className="profile-image-container">
+                    <button
+                      type="button"
                       className="profile-image-delete"
                       onClick={() => handleProfileImageDelete(image?._id)}
-                      title="Delete"
+                      aria-label={`Delete image ${image?._id}`}
+                      title="Delete this image"
                     >
-                      X
-                    </span>
+                      <i className="fa fa-times" aria-hidden="true"></i>
+                    </button>
                     <img
                       src={image?.avatar}
                       className="profile-image-size"
-                      alt=""
+                      alt={`Profile image ${image?._id}`}
                     />
                   </div>
                 ))
@@ -874,21 +1121,18 @@ const ProfileEditView = () => {
                   __html: sanitize(profile?.qualifications),
                 }}
               ></p>
-              <p>
+              <p className="status-item">
                 QualificationsVerified:{' '}
                 {profile.isQualificationsVerified === true ? (
-                  <i
-                    className="fa fa-check"
-                    style={{
-                      fontSize: 20 + 'px',
-                      color: 'rgba(92, 184, 92, 1)',
-                    }}
-                  ></i>
+                  <>
+                    <i className="fa fa-check status-icon confirmed" aria-hidden="true"></i>
+                    <span className="status-text">Verified</span>
+                  </>
                 ) : (
-                  <i
-                    className="fa fa-times"
-                    style={{ fontSize: 20 + 'px', color: 'crimson' }}
-                  ></i>
+                  <>
+                    <i className="fa fa-times status-icon not-confirmed" aria-hidden="true"></i>
+                    <span className="status-text">Not Verified</span>
+                  </>
                 )}
               </p>
             </div>
