@@ -16,6 +16,8 @@ import Button from '../../components/button/Button';
 import Message from '../../components/message/Message';
 import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
 import LinkComp from '../../components/linkComp/LinkComp';
+import PasswordStrength from '../../components/passwordStrength/PasswordStrength';
+import { isValidName, isValidEmail, isValidPassword } from '../../utils/validation';
 
 const UserProfileEditView = () => {
   const nameRegEx = /^([\w])+\s+([\w\s])+$/i;
@@ -48,14 +50,17 @@ const UserProfileEditView = () => {
   // Form state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [hidePassword, setHidePassword] = useState(true);
+  const [emailChanged, setEmailChanged] = useState(false);
 
   // Touched state for blur-triggered validation
   const [touched, setTouched] = useState({
     name: false,
     email: false,
+    currentPassword: false,
     password: false,
     confirmPassword: false,
   });
@@ -131,20 +136,29 @@ const UserProfileEditView = () => {
     e.preventDefault();
 
     // Validate all fields before submit
-    if (!nameRegEx.test(name)) {
-      showNotification('Please enter a valid name (first and last name)', 'error');
+    if (!isValidName(name)) {
+      showNotification('Please enter a valid name (2-100 characters, letters, spaces, hyphens and apostrophes only)', 'error');
       return;
     }
 
-    if (!emailRegEx.test(email)) {
+    if (!isValidEmail(email)) {
       showNotification('Please enter a valid email address', 'error');
       return;
     }
 
+    // Check if email has changed
+    const emailHasChanged = email !== user.email;
+
     // Only validate password if password section is shown and password is entered
     if (!hidePassword && (password.length > 0 || confirmPassword.length > 0)) {
-      if (!passwordRegEx.test(password)) {
-        showNotification('Password must contain at least 6 characters with uppercase letter, lowercase letter, and a number. Special characters are not allowed.', 'error');
+      // Require current password when changing password
+      if (!currentPassword || currentPassword.length === 0) {
+        showNotification('Current password is required to change your password', 'error');
+        return;
+      }
+
+      if (!isValidPassword(password)) {
+        showNotification('Password must be at least 8 characters and contain uppercase, lowercase, number, and special character (@$!%*?&)', 'error');
         return;
       }
 
@@ -163,19 +177,33 @@ const UserProfileEditView = () => {
       return;
     }
 
-    // Dispatch only if validation passes
-    dispatch(
-      updateUserProfileAction({
-        id: user._id,
-        name,
-        email,
-        password: hidePassword || password.length === 0 ? undefined : password,
-      }),
-    );
+    // Build update object
+    const updateData = {
+      id: user._id,
+      name,
+      email,
+    };
 
-    // Show success message and clear password fields
-    showNotification('Profile updated successfully!', 'success');
+    // Add password fields if changing password
+    if (!hidePassword && password.length > 0) {
+      updateData.password = password;
+      updateData.currentPassword = currentPassword;
+    }
+
+    // Dispatch update
+    dispatch(updateUserProfileAction(updateData));
+
+    // Show appropriate success message
+    if (emailHasChanged) {
+      showNotification('Profile updated. Please check your email to verify your new email address.', 'success');
+      setEmailChanged(true);
+    } else {
+      showNotification('Profile updated successfully!', 'success');
+    }
+
+    // Clear password fields
     if (!hidePassword) {
+      setCurrentPassword('');
       setPassword('');
       setConfirmPassword('');
       setHidePassword(true);
@@ -292,46 +320,59 @@ const UserProfileEditView = () => {
               {!hidePassword ? (
                 <div id="password-section" role="region" aria-labelledby="password-toggle">
                   <InputField
+                    id="user-current-password"
+                    label="Current Password"
+                    type="password"
+                    name="currentPassword"
+                    value={currentPassword}
+                    required={!hidePassword}
+                    hint="Enter your current password to change it"
+                    className={currentPassword.length > 0 ? 'entered' : ''}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    onBlur={() => handleBlur('currentPassword')}
+                  />
+
+                  <InputField
                     id="user-password"
-                    label="Password"
+                    label="New Password"
                     type="password"
                     name="password"
                     value={password}
                     required={!hidePassword}
-                    hint="6+ characters: uppercase, lowercase, and number (no special characters)"
-                    className={showPasswordError ? 'invalid' : isPasswordValid && password.length > 0 ? 'entered' : ''}
-                    error={
-                      showPasswordError
-                        ? `Password must contain at least 6 characters with uppercase letter, lowercase letter, and a number. Special characters are not allowed.`
-                        : null
-                    }
+                    hint="8+ characters: uppercase, lowercase, number, and special character (@$!%*?&)"
+                    className={password.length > 0 && !isValidPassword(password) ? 'invalid' : password.length > 0 ? 'entered' : ''}
                     onChange={(e) => setPassword(e.target.value)}
                     onBlur={() => handleBlur('password')}
-                    aria-invalid={showPasswordError}
-                    aria-describedby={showPasswordError ? 'user-password-error' : undefined}
                   />
+
+                  {password.length > 0 && <PasswordStrength password={password} />}
 
                   <InputField
                     id="user-confirm-password"
-                    label="Confirm Password"
+                    label="Confirm New Password"
                     type="password"
                     name="confirmPassword"
                     value={confirmPassword}
                     required={!hidePassword}
-                    hint="Must match password field exactly"
-                    className={showConfirmError ? 'invalid' : isConfirmValid && confirmPassword.length > 0 ? 'entered' : ''}
-                    error={
-                      showConfirmError
-                        ? password !== confirmPassword
-                          ? 'Passwords do not match'
-                          : `Password must contain at least 6 characters with uppercase letter, lowercase letter, and a number. Special characters are not allowed.`
-                        : null
-                    }
+                    hint="Must match new password field exactly"
+                    className={confirmPassword.length > 0 && !isValidPassword(confirmPassword) ? 'invalid' : confirmPassword.length > 0 ? 'entered' : ''}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     onBlur={() => handleBlur('confirmPassword')}
-                    aria-invalid={showConfirmError}
-                    aria-describedby={showConfirmError ? 'user-confirm-password-error' : undefined}
                   />
+
+                  {confirmPassword.length > 0 && (
+                    <div
+                      className={
+                        password === confirmPassword
+                          ? 'password-match'
+                          : 'password-mismatch'
+                      }
+                    >
+                      {password === confirmPassword
+                        ? '\u2713 Passwords match'
+                        : '\u2717 Passwords do not match'}
+                    </div>
+                  )}
                 </div>
               ) : null}
               <Button

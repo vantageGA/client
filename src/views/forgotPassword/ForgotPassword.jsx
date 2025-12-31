@@ -27,11 +27,11 @@ const ForgotPassword = () => {
 
   return (
     <div className="forgot-password-wrapper">
-      {error ? <Message message={error} /> : null}
+      {error ? <Message message={error} variant="error" /> : null}
       {success ? (
         <Message
-          message="Please check you email and follow the instructions therein."
-          success
+          message="If that email exists in our system, a password reset link has been sent. Please check your email and follow the instructions."
+          variant="success"
         />
       ) : null}
 

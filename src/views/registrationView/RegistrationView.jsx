@@ -7,17 +7,11 @@ import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
 import Message from '../../components/message/Message';
 import InputField from '../../components/inputField/InputField';
 import Button from '../../components/button/Button';
+import PasswordStrength from '../../components/passwordStrength/PasswordStrength';
 import { registerAction } from '../../store/actions/userActions';
+import { isValidName, isValidEmail, isValidPassword } from '../../utils/validation';
 
 const RegistrationView = () => {
-  const nameRegEx = /^[a-zA-Z\s'-]{2,}\s+[a-zA-Z\s'-]{2,}$/;
-  const emailRegEx =
-    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
-  const passwordRegEx =
-    /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!"£$%^&*()#~@])[A-Za-z\d!"£$%^&*()#~@]{6,}$/;
-  const passwordConfirmRegEx =
-    /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!"£$%^&*()#~@])[A-Za-z\d!"£$%^&*()#~@]{6,}$/;
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -40,10 +34,11 @@ const RegistrationView = () => {
   useEffect(() => {
     if (userInfo && userInfo !== undefined) {
       const warn =
+        userInfo.message ||
         userInfo.name +
-        ' your profile is created.' +
-        ' You should have received an email with a link asking to confirm your email address.' +
-        ' Please do this before logging in, in order to give you full functionality.';
+          ' your profile is created.' +
+          ' You should have received an email with a link asking to confirm your email address.' +
+          ' Please do this before logging in, in order to give you full functionality.';
       setRegistrationConfirmation(warn);
     }
   }, [userInfo, navigate]);
@@ -88,19 +83,20 @@ const RegistrationView = () => {
               type="text"
               name="name"
               required
+              hint="2-100 characters, letters, spaces, hyphens and apostrophes only"
               className={
-                touched.name && !nameRegEx.test(name) && name.length > 0
+                touched.name && !isValidName(name) && name.length > 0
                   ? 'invalid'
                   : name.length > 0
                   ? 'entered'
                   : ''
               }
               error={
-                touched.name && !nameRegEx.test(name) && name.length !== 0
-                  ? `Please enter your full name (first and last name).`
+                touched.name && !isValidName(name) && name.length !== 0
+                  ? `Name must be 2-100 characters using only letters, spaces, hyphens and apostrophes.`
                   : null
               }
-              aria-invalid={touched.name && !nameRegEx.test(name)}
+              aria-invalid={touched.name && !isValidName(name)}
             />
 
             <InputField
@@ -111,19 +107,20 @@ const RegistrationView = () => {
               onChange={(e) => setEmail(e.target.value)}
               onBlur={() => handleBlur('email')}
               className={
-                touched.email && !emailRegEx.test(email) && email.length > 0
+                touched.email && !isValidEmail(email) && email.length > 0
                   ? 'invalid'
                   : email.length > 0
                   ? 'entered'
                   : ''
               }
               error={
-                touched.email && !emailRegEx.test(email) && email.length !== 0
+                touched.email && !isValidEmail(email) && email.length !== 0
                   ? `Invalid email address.`
                   : null
               }
-              aria-invalid={touched.email && !emailRegEx.test(email)}
+              aria-invalid={touched.email && !isValidEmail(email)}
             />
+
             <InputField
               label="Password"
               type="password"
@@ -133,23 +130,18 @@ const RegistrationView = () => {
               onBlur={() => handleBlur('password')}
               className={
                 touched.password &&
-                !passwordRegEx.test(password) &&
+                !isValidPassword(password) &&
                 password.length > 0
                   ? 'invalid'
                   : password.length > 0
                   ? 'entered'
                   : ''
               }
-              error={
-                touched.password &&
-                !passwordRegEx.test(password) &&
-                password.length !== 0
-                  ? `Password must contain at least 1 capital letter, 1 number and 1 special character.`
-                  : null
-              }
               onChange={(e) => setPassword(e.target.value)}
-              aria-invalid={touched.password && !passwordRegEx.test(password)}
+              aria-invalid={touched.password && !isValidPassword(password)}
             />
+
+            {password.length > 0 && <PasswordStrength password={password} />}
 
             <InputField
               label="Confirm Password"
@@ -160,24 +152,17 @@ const RegistrationView = () => {
               onBlur={() => handleBlur('confirmPassword')}
               className={
                 touched.confirmPassword &&
-                !passwordConfirmRegEx.test(confirmPassword) &&
+                !isValidPassword(confirmPassword) &&
                 confirmPassword.length > 0
                   ? 'invalid'
                   : confirmPassword.length > 0
                   ? 'entered'
                   : ''
               }
-              error={
-                touched.confirmPassword &&
-                !passwordConfirmRegEx.test(confirmPassword) &&
-                confirmPassword.length !== 0
-                  ? `Password must contain at least 1 capital letter, 1 number and 1 special character.`
-                  : null
-              }
               onChange={(e) => setConfirmPassword(e.target.value)}
               aria-invalid={
                 touched.confirmPassword &&
-                !passwordConfirmRegEx.test(confirmPassword)
+                !isValidPassword(confirmPassword)
               }
             />
 
@@ -200,10 +185,11 @@ const RegistrationView = () => {
               text="submit"
               className="btn"
               disabled={
-                !nameRegEx.test(name) ||
-                !passwordRegEx.test(password) ||
-                !passwordConfirmRegEx.test(confirmPassword) ||
-                !emailRegEx.test(email)
+                !isValidName(name) ||
+                !isValidPassword(password) ||
+                !isValidPassword(confirmPassword) ||
+                !isValidEmail(email) ||
+                password !== confirmPassword
               }
             ></Button>
           </form>

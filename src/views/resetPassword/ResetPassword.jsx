@@ -7,16 +7,14 @@ import Message from '../../components/message/Message';
 import InputField from '../../components/inputField/InputField';
 import Button from '../../components/button/Button';
 import LinkComp from '../../components/linkComp/LinkComp';
+import PasswordStrength from '../../components/passwordStrength/PasswordStrength';
 
 import { updateUserPasswordAction } from '../../store/actions/userActions';
+import { isValidPassword } from '../../utils/validation';
 
 const ResetPassword = () => {
   const params = useParams();
   const dispatch = useDispatch();
-  const passwordRegEx =
-    /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!"£$%^&*()#~@])[A-Za-z\d!"£$%^&*()#~@]{6,}$/;
-  const passwordConfirmRegEx =
-    /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!"£$%^&*()#~@])[A-Za-z\d!"£$%^&*()#~@]{6,}$/;
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -63,14 +61,11 @@ const ResetPassword = () => {
               name={password}
               value={password}
               required
-              className={!passwordRegEx.test(password) ? 'invalid' : 'entered'}
-              error={
-                !passwordRegEx.test(password) && password.length !== 0
-                  ? `Password must contain at least l Capital letter, 1 number and 1 special character.`
-                  : null
-              }
+              className={!isValidPassword(password) && password.length > 0 ? 'invalid' : password.length > 0 ? 'entered' : ''}
               onChange={(e) => setPassword(e.target.value)}
             />
+
+            {password.length > 0 && <PasswordStrength password={password} />}
 
             <InputField
               label="Confirm Password"
@@ -79,26 +74,37 @@ const ResetPassword = () => {
               value={confirmPassword}
               required
               className={
-                !passwordConfirmRegEx.test(confirmPassword)
+                !isValidPassword(confirmPassword) && confirmPassword.length > 0
                   ? 'invalid'
-                  : 'entered'
-              }
-              error={
-                !passwordConfirmRegEx.test(confirmPassword) &&
-                confirmPassword.length !== 0
-                  ? `Password must contain at least l Capital letter, 1 number and 1 special character.`
-                  : null
+                  : confirmPassword.length > 0
+                  ? 'entered'
+                  : ''
               }
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
+
+            {confirmPassword.length > 0 && (
+              <div
+                className={
+                  password === confirmPassword
+                    ? 'password-match'
+                    : 'password-mismatch'
+                }
+              >
+                {password === confirmPassword
+                  ? '\u2713 Passwords match'
+                  : '\u2717 Passwords do not match'}
+              </div>
+            )}
 
             <Button
               colour="transparent"
               text="submit"
               className="btn"
               disabled={
-                !passwordRegEx.test(password) ||
-                !passwordConfirmRegEx.test(confirmPassword)
+                !isValidPassword(password) ||
+                !isValidPassword(confirmPassword) ||
+                password !== confirmPassword
               }
             ></Button>
           </form>

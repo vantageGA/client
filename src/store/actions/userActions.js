@@ -31,6 +31,12 @@ import {
   USER_UPDATE_PROFILE_FAILURE,
   USER_UPDATE_PROFILE_REQUEST,
   USER_UPDATE_PROFILE_SUCCESS,
+  USER_EMAIL_VERIFY_REQUEST,
+  USER_EMAIL_VERIFY_SUCCESS,
+  USER_EMAIL_VERIFY_FAILURE,
+  USER_EMAIL_CHANGE_VERIFY_REQUEST,
+  USER_EMAIL_CHANGE_VERIFY_SUCCESS,
+  USER_EMAIL_CHANGE_VERIFY_FAILURE,
 } from '../constants/userConstants';
 
 // Get all USERS for admin only
@@ -150,7 +156,8 @@ export const getUserDetailsAction = (id) => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.get(`/api/users/${id}`, config);
+    // Use the self-profile endpoint instead of the admin-protected user by ID endpoint
+    const { data } = await axios.get(`/api/users/profile`, config);
 
     dispatch({ type: USER_DETAILS_SUCCESS, payload: data });
   } catch (error) {
@@ -321,3 +328,43 @@ export const updateUserPasswordAction =
       });
     }
   };
+
+// Verify email with token
+export const verifyEmailAction = (token) => async (dispatch) => {
+  try {
+    dispatch({
+      type: USER_EMAIL_VERIFY_REQUEST,
+    });
+
+    const { data } = await axios.get(`/api/verify?token=${token}`);
+    dispatch({ type: USER_EMAIL_VERIFY_SUCCESS, payload: data });
+  } catch (error) {
+    dispatch({
+      type: USER_EMAIL_VERIFY_FAILURE,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+
+// Verify email change with token
+export const verifyEmailChangeAction = (token) => async (dispatch) => {
+  try {
+    dispatch({
+      type: USER_EMAIL_CHANGE_VERIFY_REQUEST,
+    });
+
+    const { data } = await axios.get(`/api/verify-email-change?token=${token}`);
+    dispatch({ type: USER_EMAIL_CHANGE_VERIFY_SUCCESS, payload: data });
+  } catch (error) {
+    dispatch({
+      type: USER_EMAIL_CHANGE_VERIFY_FAILURE,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};

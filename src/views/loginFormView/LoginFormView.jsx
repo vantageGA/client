@@ -8,14 +8,12 @@ import InputField from '../../components/inputField/InputField';
 import Button from '../../components/button/Button';
 import LinkComp from '../../components/linkComp/LinkComp';
 import { loginAction } from '../../store/actions/userActions';
+import { isValidEmail } from '../../utils/validation';
 import './LoginFormView.scss';
 
 const LoginFormView = () => {
   const navigate = useNavigate();
-
-  const passwordRegEx = /([^\s])/;
-  const emailRegEx =
-    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+  const dispatch = useDispatch();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,15 +21,26 @@ const LoginFormView = () => {
     email: false,
     password: false,
   });
-  const dispatch = useDispatch();
+
   const userLogin = useSelector((state) => state.userLogin);
   const { loading, error, userInfo } = userLogin;
+
+  const [showEmailVerificationMessage, setShowEmailVerificationMessage] = useState(false);
 
   useEffect(() => {
     if (userInfo && userInfo !== undefined) {
       navigate('/user-profile-edit');
     }
   }, [userInfo, navigate]);
+
+  // Check if error is related to email verification
+  useEffect(() => {
+    if (error && error.toLowerCase().includes('verify your email')) {
+      setShowEmailVerificationMessage(true);
+    } else {
+      setShowEmailVerificationMessage(false);
+    }
+  }, [error]);
 
   const handleBlur = (field) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
@@ -45,7 +54,15 @@ const LoginFormView = () => {
 
   return (
     <div className="login-form-wrapper">
-      {error ? <Message message={error} /> : null}
+      {error ? <Message message={error} variant="error" /> : null}
+
+      {showEmailVerificationMessage && (
+        <Message
+          message="Please check your email and click the verification link to activate your account before logging in."
+          variant="warning"
+        />
+      )}
+
       {loading ? (
         <LoadingSpinner />
       ) : (
@@ -60,7 +77,7 @@ const LoginFormView = () => {
               onChange={(e) => setEmail(e.target.value)}
               onBlur={() => handleBlur('email')}
               className={
-                touched.email && email.length > 0 && !emailRegEx.test(email)
+                touched.email && email.length > 0 && !isValidEmail(email)
                   ? 'invalid'
                   : email.length > 0
                   ? 'entered'
@@ -68,12 +85,12 @@ const LoginFormView = () => {
               }
               error={
                 touched.email &&
-                !emailRegEx.test(email) &&
+                !isValidEmail(email) &&
                 email.length !== 0
                   ? `Invalid email address.`
                   : null
               }
-              aria-invalid={touched.email && !emailRegEx.test(email)}
+              aria-invalid={touched.email && !isValidEmail(email)}
             />
             <InputField
               label="Password"
@@ -90,21 +107,19 @@ const LoginFormView = () => {
                   : ''
               }
               error={
-                touched.password &&
-                !passwordRegEx.test(password) &&
-                password.length !== 0
+                touched.password && password.length === 0
                   ? `Password cannot be empty`
                   : null
               }
               onChange={(e) => setPassword(e.target.value)}
-              aria-invalid={touched.password && !passwordRegEx.test(password)}
+              aria-invalid={touched.password && !password.length}
             />
 
             <Button
               colour="transparent"
               text="submit"
               className="btn"
-              disabled={!password.length || !emailRegEx.test(email)}
+              disabled={!password.length || !isValidEmail(email)}
             ></Button>
           </form>
         </fieldset>

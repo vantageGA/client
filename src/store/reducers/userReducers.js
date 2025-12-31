@@ -33,6 +33,12 @@ import {
   USER_UPDATE_PROFILE_REQUEST,
   USER_UPDATE_PROFILE_RESET,
   USER_UPDATE_PROFILE_SUCCESS,
+  USER_EMAIL_VERIFY_REQUEST,
+  USER_EMAIL_VERIFY_SUCCESS,
+  USER_EMAIL_VERIFY_FAILURE,
+  USER_EMAIL_CHANGE_VERIFY_REQUEST,
+  USER_EMAIL_CHANGE_VERIFY_SUCCESS,
+  USER_EMAIL_CHANGE_VERIFY_FAILURE,
 } from '../constants/userConstants';
 
 //Get all user details
@@ -207,6 +213,44 @@ export const userUpdatePasswordReducer = (state = {}, action) => {
         message: action.payload,
       };
     case USER_UPDATE_PASSWORD_FAILURE:
+      return { ...state, loading: false, error: action.payload };
+    default:
+      return { ...state };
+  }
+};
+
+// Email verification
+export const userEmailVerifyReducer = (state = {}, action) => {
+  switch (action.type) {
+    case USER_EMAIL_VERIFY_REQUEST:
+      return { ...state, loading: true };
+    case USER_EMAIL_VERIFY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: true,
+        message: action.payload.message,
+      };
+    case USER_EMAIL_VERIFY_FAILURE:
+      return { ...state, loading: false, error: action.payload };
+    default:
+      return { ...state };
+  }
+};
+
+// Email change verification
+export const userEmailChangeVerifyReducer = (state = {}, action) => {
+  switch (action.type) {
+    case USER_EMAIL_CHANGE_VERIFY_REQUEST:
+      return { ...state, loading: true };
+    case USER_EMAIL_CHANGE_VERIFY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: true,
+        message: action.payload.message,
+      };
+    case USER_EMAIL_CHANGE_VERIFY_FAILURE:
       return { ...state, loading: false, error: action.payload };
     default:
       return { ...state };

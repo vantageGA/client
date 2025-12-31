@@ -7,6 +7,8 @@ import ContactFormView from './views/contactFormView/ContactFormView';
 import LoginFormView from './views/loginFormView/LoginFormView';
 import ForgotPassword from './views/forgotPassword/ForgotPassword';
 import ResetPassword from './views/resetPassword/ResetPassword';
+import VerifyEmail from './views/verifyEmail/VerifyEmail';
+import VerifyEmailChange from './views/verifyEmailChange/VerifyEmailChange';
 import ErrorView from './views/errorView/ErrorView';
 import RegistrationView from './views/registrationView/RegistrationView';
 import FullProfileView from './views/fullProfile/FullProfileView';
@@ -54,6 +56,8 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/registration" element={<RegistrationView />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/verify-email-change" element={<VerifyEmailChange />} />
             <Route path="/admin-users" element={<AdminUserView />} />
             <Route path="/admin-profiles" element={<AdminProfileView />} />
             <Route path="/admin-reviewers" element={<AdminReviewersView />} />
