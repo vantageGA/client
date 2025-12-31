@@ -66,7 +66,7 @@ const ContactFormView = ({ type }) => {
         <div className="contact-form-view-wrapper" aria-busy="false">
           {success && (
             <div className="success-message-container">
-              <Message message="Form successfully submitted" success={success} />
+              <Message message="Form successfully submitted" variant="success" autoClose={5000} />
             </div>
           )}
           {error && (

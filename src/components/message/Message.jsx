@@ -1,35 +1,94 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import './Message.scss';
 
-const Message = ({ message, success }) => {
-  const [showMessage, setShowMessage] = useState(true);
+const Message = ({
+  message,
+  variant = 'error',
+  onDismiss,
+  autoClose = null,
+  isVisible = undefined,
+  success, // Deprecated: for backward compatibility
+}) => {
+  const [internalVisible, setInternalVisible] = useState(true);
+  const messageRef = useRef(null);
+
+  // Backward compatibility: convert success boolean to variant
+  const actualVariant = success ? 'success' : variant;
+
+  // Support both controlled and uncontrolled patterns
+  const controlled = isVisible !== undefined;
+  const visible = controlled ? isVisible : internalVisible;
+
+  // Auto-close effect
+  useEffect(() => {
+    if (!visible || !autoClose) return;
+
+    const timer = setTimeout(() => {
+      if (!controlled) {
+        setInternalVisible(false);
+      }
+      onDismiss?.();
+    }, autoClose);
+
+    return () => clearTimeout(timer);
+  }, [visible, autoClose, controlled, onDismiss]);
+
+  // Focus management for accessibility
+  useEffect(() => {
+    if (visible && messageRef.current) {
+      messageRef.current.focus();
+    }
+  }, [visible]);
+
+  if (!visible) return null;
+
+  const handleDismiss = () => {
+    if (!controlled) {
+      setInternalVisible(false);
+    }
+    onDismiss?.();
+  };
 
   return (
-    <>
-      {showMessage ? (
-        <div className="message-wrapper">
-          <div className={success ? 'success' : 'error'}>
-            {message}
-            <span className="message-icon">
-              <i
-                className="fa fa-times"
-                aria-hidden="true"
-                title="close"
-                onClick={() => setShowMessage(false)}
-              ></i>
-            </span>
-          </div>
-        </div>
-      ) : null}
-    </>
+    <div
+      ref={messageRef}
+      className={`message-wrapper message-${actualVariant}`}
+      role="alert"
+      aria-live="polite"
+      aria-atomic="true"
+      tabIndex={-1}
+    >
+      <div className="message-content">
+        <span className="message-text">{message}</span>
+        <button
+          type="button"
+          className="message-close-btn"
+          onClick={handleDismiss}
+          aria-label={`Close ${actualVariant} notification`}
+        >
+          <i className="fa fa-times" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
   );
 };
 
 Message.propTypes = {
-  optionalMessage: PropTypes.string,
-  success: PropTypes.bool,
-  onClick: PropTypes.func,
+  message: PropTypes.string.isRequired,
+  variant: PropTypes.oneOf(['success', 'error', 'warning']),
+  onDismiss: PropTypes.func,
+  autoClose: PropTypes.number,
+  isVisible: PropTypes.bool,
+  success: PropTypes.bool, // Deprecated: use variant="success" instead
+};
+
+Message.defaultProps = {
+  variant: 'error',
+  onDismiss: null,
+  autoClose: null,
+  isVisible: undefined,
+  success: undefined,
 };
 
 export default Message;

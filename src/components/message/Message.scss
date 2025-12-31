@@ -2,35 +2,145 @@
 
 .message-wrapper {
   width: 100%;
-  padding: 1rem;
   border-radius: 4px;
-  .error {
-    display: flex;
-    justify-content: space-between;
-    background-color: $danger;
-    width: 100%;
-    padding: inherit;
-    border-radius: 4px;
-  }
-  .success {
-    display: flex;
-    justify-content: space-between;
-    background-color: $success;
-    color: $main-bg-colour;
-    width: 100%;
-    padding: inherit;
-    border-radius: 4px;
+  animation: slideIn 300ms ease-out forwards;
+
+  &:focus {
+    outline: 2px solid $burnt-orange;
+    outline-offset: 2px;
   }
 
-  .warning {
-    display: flex;
-    justify-content: space-between;
-    background-color: $warning;
-    width: 100%;
-    padding: inherit;
-    border-radius: 4px;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
-  .message-icon {
-    cursor: pointer;
+}
+
+.message-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 4px;
+  word-break: break-word;
+}
+
+.message-text {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.5;
+}
+
+/* Error variant */
+.message-error {
+  .message-content {
+    background-color: $danger;
+    color: white;
+    border-left: 4px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .message-close-btn {
+    color: white;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &:focus {
+      outline: 2px solid white;
+      outline-offset: -6px;
+    }
+
+    &:active {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+  }
+}
+
+/* Success variant */
+.message-success {
+  .message-content {
+    background-color: $success;
+    color: $main-bg-colour;
+    border-left: 4px solid rgba(12, 12, 12, 0.3);
+  }
+
+  .message-close-btn {
+    color: $main-bg-colour;
+
+    &:hover {
+      background-color: rgba(12, 12, 12, 0.1);
+    }
+
+    &:focus {
+      outline: 2px solid $main-bg-colour;
+      outline-offset: -6px;
+    }
+
+    &:active {
+      background-color: rgba(12, 12, 12, 0.15);
+    }
+  }
+}
+
+/* Warning variant */
+.message-warning {
+  .message-content {
+    background-color: $warning;
+    color: $main-bg-colour;
+    border-left: 4px solid rgba(12, 12, 12, 0.3);
+  }
+
+  .message-close-btn {
+    color: $main-bg-colour;
+
+    &:hover {
+      background-color: rgba(12, 12, 12, 0.1);
+    }
+
+    &:focus {
+      outline: 2px solid $main-bg-colour;
+      outline-offset: -6px;
+    }
+
+    &:active {
+      background-color: rgba(12, 12, 12, 0.15);
+    }
+  }
+}
+
+/* Close button */
+.message-close-btn {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  transition: background-color 150ms ease, outline 150ms ease;
+
+  i {
+    font-size: 1.25rem;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* Animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

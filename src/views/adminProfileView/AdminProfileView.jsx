@@ -114,7 +114,7 @@ const AdminProfileView = () => {
         <legend>Profiles</legend>
         {error ? <Message message={error} /> : null}
         {success ? (
-          <Message message="Profile has been successfully deleted" />
+          <Message message="Profile has been successfully deleted" variant="success" autoClose={4000} />
         ) : null}
         {loading ? (
           <LoadingSpinner />

@@ -68,7 +68,7 @@ const ReviewerRegisterView = () => {
     <div className="reviewer-register-wrapper">
       {error ? <Message message={error} /> : null}
       {message ? <Message message={message} /> : null}
-      {success ? <Message message={registrationConfirmation} success /> : null}
+      {success ? <Message message={registrationConfirmation} variant="success" autoClose={5000} /> : null}
 
       {userReviewerInfo ? (
         <LinkComp

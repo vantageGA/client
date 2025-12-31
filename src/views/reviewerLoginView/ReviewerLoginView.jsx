@@ -164,10 +164,10 @@ const ReviewerLoginView = () => {
           <div className="reviewer-wrapper">
             {reviewError ? <Message message={reviewError} /> : null}
             {reviewer?.isConfirmed === false ? (
-              <Message message="PLEASE CONFIRM YOUR EMAIL ADDRESS" />
+              <Message message="PLEASE CONFIRM YOUR EMAIL ADDRESS" variant="warning" />
             ) : null}
             {success ? (
-              <Message message="Your review has been sent." success />
+              <Message message="Your review has been sent." variant="success" autoClose={5000} />
             ) : null}
             <fieldset
               className="fieldSet item"

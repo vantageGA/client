@@ -71,7 +71,7 @@ const RegistrationView = () => {
     <div className="registrationView-wrapper">
       {error ? <Message message={error} /> : null}
       {message ? <Message message={message} /> : null}
-      {success ? <Message message={registrationConfirmation} success /> : null}
+      {success ? <Message message={registrationConfirmation} variant="success" autoClose={5000} /> : null}
 
       {!userInfo && loading ? (
         <LoadingSpinner />

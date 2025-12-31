@@ -48,7 +48,7 @@ const ResetPassword = () => {
       {message ? <Message message={message} /> : null}
       {success ? (
         <>
-          <Message message={SuccessMessage} success />
+          <Message message={SuccessMessage} variant="success" autoClose={5000} />
           <LinkComp route="login" routeName="Navigate to login form" />
         </>
       ) : (
