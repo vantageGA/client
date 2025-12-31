@@ -111,6 +111,8 @@ const ReviewerLoginView = () => {
                   type="email"
                   name={email}
                   value={email}
+                  required
+                  hint="Example: user@domain.com"
                   onChange={(e) => setEmail(e.target.value)}
                   className={!emailRegEx.test(email) ? 'invalid' : 'entered'}
                   error={
@@ -125,6 +127,7 @@ const ReviewerLoginView = () => {
                   name={password}
                   value={password}
                   required
+                  hint="Password must not be empty"
                   className={
                     !passwordRegEx.test(password) ? 'invalid' : 'entered'
                   }
@@ -328,40 +331,48 @@ const ReviewerLoginView = () => {
                         name in the review.
                       </label>
                     </div>
-                    <div>
-                      <label>Rating </label>
-
-                      <div>
-                        <select
-                          value={rating}
-                          onChange={(e) => setRating(e.target.value)}
-                        >
-                          <option value="5">5 Stars</option>
-                          <option value="4">4 Stars</option>
-                          <option value="3">3 Stars</option>
-                          <option value="2">2 Stars</option>
-                          <option value="1">1 Star</option>
-                        </select>
-                      </div>
+                    <div className="select-wrapper">
+                      <label htmlFor="rating-select">Rating</label>
+                      <select
+                        id="rating-select"
+                        value={rating}
+                        onChange={(e) => setRating(e.target.value)}
+                        aria-describedby="rating-hint"
+                      >
+                        <option value="5">5 Stars</option>
+                        <option value="4">4 Stars</option>
+                        <option value="3">3 Stars</option>
+                        <option value="2">2 Stars</option>
+                        <option value="1">1 Star</option>
+                      </select>
+                      <span id="rating-hint" className="field-hint">
+                        Select the star rating for your review
+                      </span>
                     </div>
 
-                    <div>
-                      <label>Review</label>
+                    <div className="form-group">
+                      <label htmlFor="review-comment">Review</label>
                       <textarea
+                        id="review-comment"
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
-                        type="text"
                         name="comment"
                         required
                         className={
                           comment?.length <= 10 ? 'invalid' : 'entered'
                         }
-                        error={
-                          comment?.length <= 10
-                            ? `comment field must contain at least 10 characters!`
-                            : null
-                        }
+                        aria-invalid={comment?.length <= 10 && comment.length > 0}
+                        aria-describedby="comment-hint comment-error"
+                        aria-required="true"
                       />
+                      <span id="comment-hint" className="field-hint">
+                        Minimum 10 characters required
+                      </span>
+                      {comment?.length <= 10 && comment.length > 0 && (
+                        <p id="comment-error" className="validation-error" role="alert">
+                          Comment must contain at least 10 characters
+                        </p>
+                      )}
                     </div>
                     <Button
                       colour="transparent"

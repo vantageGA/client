@@ -22,6 +22,14 @@
     border-radius: 4px;
     text-align: center;
   }
+
+  // Select focus styles for accessibility
+  select:focus,
+  select:focus-visible {
+    outline: 2px solid $burnt-orange;
+    outline-offset: 2px;
+    border: 2px solid $burnt-orange;
+  }
 }
 
 .reviewer-wrapper {
@@ -63,6 +71,13 @@
     padding: 2em;
     border-radius: 4px;
     cursor: pointer;
+
+    // Checkbox focus styles for accessibility
+    &:focus,
+    &:focus-visible {
+      outline: 2px solid $burnt-orange;
+      outline-offset: 2px;
+    }
   }
 
   .userReviewInfo {
@@ -71,6 +86,189 @@
     color: $rating-colour;
     font-weight: bold;
   }
+
+  // Select wrapper styles for proper layout and accessibility
+  .select-wrapper {
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+
+    label {
+      display: block;
+      font-family: 'Comfortaa', cursive;
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: $main-font-colour;
+      margin-bottom: 0.5rem;
+    }
+
+    select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-family: 'Comfortaa', cursive;
+      font-size: 1rem;
+      background-color: rgba(25, 25, 25, 1);
+      border: 1px solid rgba(75, 75, 75, 1);
+      border-radius: 4px;
+      color: $main-font-colour;
+      transition: border-color 150ms ease, background-color 150ms ease;
+
+      &:hover {
+        background-color: rgba(35, 35, 35, 1);
+        border-color: rgba(100, 100, 100, 1);
+      }
+
+      &:focus {
+        background-color: rgba(45, 45, 45, 1);
+        border-color: $burnt-orange;
+        outline: 2px solid rgba($burnt-orange, 0.3);
+        outline-offset: 2px;
+      }
+    }
+
+    // Override browser autocomplete styling for select
+    select:-webkit-autofill,
+    select:-webkit-autofill:hover,
+    select:-webkit-autofill:focus,
+    select:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px rgba(25, 25, 25, 1) inset !important;
+      -webkit-text-fill-color: $main-font-colour !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    .field-hint {
+      display: block;
+      font-size: 0.85em;
+      color: rgba(245, 190, 110, 1); // WCAG compliant hint color
+      margin-top: 0.5rem;
+      line-height: 1.4;
+    }
+  }
+
+  // Form-group styles for textarea wrapper
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+
+    label {
+      font-family: 'Comfortaa', cursive;
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      color: $main-font-colour;
+      line-height: 1.4;
+    }
+
+    textarea {
+      min-height: 150px;
+      padding: 0.75rem 1rem;
+      font-family: 'Comfortaa', cursive;
+      font-size: 1rem;
+      color: $main-font-colour;
+      line-height: 1.5;
+      background-color: rgba(25, 25, 25, 1);
+      border: 1px solid rgba(75, 75, 75, 1);
+      border-radius: 4px;
+      resize: vertical;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+
+      &::placeholder {
+        color: rgba(190, 190, 190, 1); // WCAG compliant
+        font-style: italic;
+        opacity: 1;
+      }
+
+      &:hover:not(:focus) {
+        background-color: rgba(35, 35, 35, 1);
+        border-color: rgba(100, 100, 100, 1);
+      }
+
+      &:focus {
+        background-color: rgba(45, 45, 45, 1);
+        border-color: $burnt-orange;
+        border-left: 3px solid $burnt-orange;
+        outline: 2px solid rgba($burnt-orange, 0.3);
+        outline-offset: 2px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3),
+          0 0 0 3px rgba($burnt-orange, 0.1);
+      }
+
+      &.invalid {
+        border: 1px solid $danger;
+        border-left: 3px solid $danger;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2),
+          0 0 8px rgba($danger, 0.3);
+
+        &:focus {
+          outline: 2px solid rgba($danger, 0.3);
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3),
+            0 0 0 3px rgba($danger, 0.15),
+            0 0 8px rgba($danger, 0.4);
+        }
+      }
+
+      &.entered {
+        border-bottom: 2px solid $success;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2),
+          0 2px 4px rgba($success, 0.2);
+
+        &:focus {
+          border-left: 3px solid $burnt-orange;
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3),
+            0 0 0 3px rgba($burnt-orange, 0.1),
+            0 2px 4px rgba($success, 0.3);
+        }
+      }
+    }
+
+    // Override browser autocomplete styling for textarea
+    textarea:-webkit-autofill,
+    textarea:-webkit-autofill:hover,
+    textarea:-webkit-autofill:focus,
+    textarea:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px rgba(25, 25, 25, 1) inset !important;
+      -webkit-text-fill-color: $main-font-colour !important;
+      caret-color: $main-font-colour !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    .field-hint {
+      display: block;
+      font-size: 0.85em;
+      color: rgba(245, 190, 110, 1); // WCAG compliant
+      margin-top: 0.5rem;
+      line-height: 1.4;
+    }
+
+    .validation-error {
+      display: block;
+      color: $danger;
+      background-color: rgba($danger, 0.1);
+      padding: 0.5rem 0.75rem;
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-left: 3px solid $danger;
+      border-radius: 2px;
+      animation: slideIn 200ms ease-out;
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    }
+  }
 }
 /* Responsive layout - makes a one column layout (100%) instead of a two-column layout (50%) */
 @media (max-width: 812px) {
@@ -78,6 +276,25 @@
     flex-wrap: wrap;
     .item {
       width: 100vw; /* and this */
+    }
+  }
+}
+
+// Respect reduced motion preference for accessibility
+@media (prefers-reduced-motion: reduce) {
+  .reviewer-wrapper {
+    .form-group {
+      textarea {
+        transition: none;
+      }
+
+      .validation-error {
+        animation: none;
+      }
+    }
+
+    .select-wrapper select {
+      transition: none;
     }
   }
 }

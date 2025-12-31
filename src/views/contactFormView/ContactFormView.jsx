@@ -59,9 +59,11 @@ const ContactFormView = ({ type }) => {
   return (
     <>
       {loading ? (
-        <LoadingSpinner />
+        <div role="status" aria-live="polite" aria-busy="true">
+          <LoadingSpinner />
+        </div>
       ) : (
-        <div className="contact-form-view-wrapper">
+        <div className="contact-form-view-wrapper" aria-busy="false">
           {success && (
             <div className="success-message-container">
               <Message message="Form successfully submitted" success={success} />
@@ -84,6 +86,7 @@ const ContactFormView = ({ type }) => {
                   name="name"
                   value={name}
                   required
+                  hint="Minimum 2 characters"
                   className={showNameError ? 'invalid' : isNameValid ? 'entered' : ''}
                   error={showNameError ? 'Name must contain at least 2 characters.' : null}
                   onChange={(e) => setName(e.target.value)}
@@ -101,6 +104,7 @@ const ContactFormView = ({ type }) => {
                   name="email"
                   value={email}
                   required
+                  hint="Valid email format required"
                   onChange={(e) => setEmail(e.target.value)}
                   onBlur={() => handleBlur('email')}
                   className={showEmailError ? 'invalid' : isEmailValid ? 'entered' : ''}
@@ -111,7 +115,9 @@ const ContactFormView = ({ type }) => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="message">Message</label>
+                <label htmlFor="message">
+                  Message <span className="required-asterisk" aria-label="required">*</span>
+                </label>
                 <textarea
                   id="message"
                   value={message}
@@ -121,7 +127,7 @@ const ContactFormView = ({ type }) => {
                   className={showMessageError ? 'invalid' : isMessageValid ? 'entered' : ''}
                   aria-required="true"
                   aria-invalid={showMessageError}
-                  aria-describedby="message-hint message-error"
+                  aria-describedby={`message-hint${showMessageError ? ' message-error' : ''}`}
                 />
                 <span id="message-hint" className="field-hint">
                   {message.length < 10
@@ -134,12 +140,6 @@ const ContactFormView = ({ type }) => {
                   </p>
                 )}
               </div>
-
-              {isFormValid && (
-                <span className="form-valid-message">
-                  The form is now valid and can be submitted.
-                </span>
-              )}
 
               <Button
                 colour="transparent"

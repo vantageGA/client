@@ -84,6 +84,7 @@ const ReviewerRegisterView = () => {
             <InputField
               label="Name"
               value={name}
+              hint="First and last name required"
               onChange={(e) => setName(e.target.value)}
               type="text"
               name="name"
@@ -101,6 +102,8 @@ const ReviewerRegisterView = () => {
               type="email"
               name={email}
               value={email}
+              required
+              hint="Example: user@domain.com"
               onChange={(e) => setEmail(e.target.value)}
               className={!emailRegEx.test(email) ? 'invalid' : 'entered'}
               error={
@@ -115,10 +118,11 @@ const ReviewerRegisterView = () => {
               name={password}
               value={password}
               required
+              hint="Minimum 6 characters: 1 uppercase, 1 lowercase, 1 number, 1 special character"
               className={!passwordRegEx.test(password) ? 'invalid' : 'entered'}
               error={
                 !passwordRegEx.test(password) && password.length !== 0
-                  ? `Password must contain at least l Capital letter, 1 number and 1 special character.`
+                  ? `Password must contain at least 1 Capital letter, 1 number and 1 special character.`
                   : null
               }
               onChange={(e) => setPassword(e.target.value)}
@@ -130,6 +134,7 @@ const ReviewerRegisterView = () => {
               name={confirmPassword}
               value={confirmPassword}
               required
+              hint="Must match the password above"
               className={
                 !passwordConfirmRegEx.test(confirmPassword)
                   ? 'invalid'
@@ -138,7 +143,7 @@ const ReviewerRegisterView = () => {
               error={
                 !passwordConfirmRegEx.test(confirmPassword) &&
                 confirmPassword.length !== 0
-                  ? `Password must contain at least l Capital letter, 1 number and 1 special character.`
+                  ? `Password must contain at least 1 Capital letter, 1 number and 1 special character.`
                   : null
               }
               onChange={(e) => setConfirmPassword(e.target.value)}

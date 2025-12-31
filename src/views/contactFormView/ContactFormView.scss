@@ -54,63 +54,141 @@
   }
 
   label {
-    font-size: 1em;
+    font-family: 'Comfortaa', cursive;
+    font-size: 0.95rem;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     margin-bottom: 0.5rem;
     color: $main-font-colour;
+    line-height: 1.4;
+
+    // Required asterisk styling (matching InputField pattern)
+    .required-asterisk {
+      color: $burnt-orange;
+      margin-left: 0.25em;
+    }
   }
 
   textarea {
     min-height: 250px;
-    padding: 0.75rem;
+    padding: 0.75rem 1rem;
     font-family: 'Comfortaa', cursive;
     font-size: 1rem;
-    background-color: rgba(51, 51, 51, 0.5);
-    border: 1px solid $border-colour;
-    border-radius: 4px;
     color: $main-font-colour;
+    line-height: 1.5;
+
+    // Dark aesthetic styling to match input fields
+    background-color: rgba(25, 25, 25, 1);
+    border: 1px solid rgba(75, 75, 75, 1);
+    border-radius: 4px;
     resize: vertical;
-    transition: border-color 0.2s ease, outline 0.2s ease;
 
+    // Subtle depth with inset shadow
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+
+    // Smooth transitions
+    transition: background-color 150ms ease, border-color 150ms ease,
+      box-shadow 150ms ease;
+
+    // Placeholder styling - WCAG AA compliant contrast (4.5:1)
+    &::placeholder {
+      color: rgba(190, 190, 190, 1);
+      font-style: italic;
+      opacity: 1;
+    }
+
+    // Hover state
+    &:hover:not(:focus) {
+      background-color: rgba(35, 35, 35, 1);
+      border-color: rgba(100, 100, 100, 1);
+    }
+
+    // Focus state with burnt-orange accent
     &:focus {
-      outline: 2px solid $burnt-orange;
-      outline-offset: 4px;
+      background-color: rgba(45, 45, 45, 1);
       border-color: $burnt-orange;
+      border-left: 3px solid $burnt-orange;
+      outline: 2px solid rgba($burnt-orange, 0.3);
+      outline-offset: 2px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3),
+        0 0 0 3px rgba($burnt-orange, 0.1);
     }
 
+    // Invalid state - red border with 3px left accent
     &.invalid {
-      border-color: $danger;
+      border: 1px solid $danger;
+      border-left: 3px solid $danger;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2),
+        0 0 8px rgba($danger, 0.3);
+
+      &:focus {
+        outline: 2px solid rgba($danger, 0.3);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3),
+          0 0 0 3px rgba($danger, 0.15),
+          0 0 8px rgba($danger, 0.4);
+      }
     }
 
+    // Valid/Entered state - subtle green bottom border
     &.entered {
-      border-color: $success;
+      border-bottom: 2px solid $success;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2),
+        0 2px 4px rgba($success, 0.2);
+
+      &:focus {
+        border-left: 3px solid $burnt-orange;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3),
+          0 0 0 3px rgba($burnt-orange, 0.1),
+          0 2px 4px rgba($success, 0.3);
+      }
     }
   }
 
-  // Field hint text (character counter, etc.)
+  // Override browser autocomplete styling for textarea
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  textarea:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px rgba(25, 25, 25, 1) inset !important;
+    -webkit-text-fill-color: $main-font-colour !important;
+    caret-color: $main-font-colour !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  // Field hint text (character counter, etc.) - WCAG AA compliant contrast
   .field-hint {
     display: block;
     font-size: 0.85em;
-    color: $warning;
+    color: rgba(245, 190, 110, 1); // Lighter than $warning for 4.5:1+ contrast
     margin-top: 0.5rem;
     line-height: 1.4;
   }
 
-  // Validation error message
+  // Validation error message with animation (matching InputField)
   .validation-error {
-    color: $danger;
-    font-size: 0.85em;
-    margin-top: 0.5rem;
-    font-weight: 500;
-  }
-
-  // Form valid message
-  .form-valid-message {
     display: block;
-    font-size: 0.85em;
-    color: $success;
-    font-weight: 500;
-    text-align: center;
+    color: $danger;
+    background-color: rgba($danger, 0.1);
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-left: 3px solid $danger;
+    border-radius: 2px;
+    animation: slideIn 200ms ease-out;
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   }
 
   // Contact details styling with semantic address
@@ -179,6 +257,36 @@
 
     .fieldSet {
       padding: 1rem;
+    }
+
+    textarea {
+      padding: 0.875rem 1rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-form-view-wrapper {
+    textarea {
+      padding: 1rem;
+      font-size: 1rem; // Prevents iOS zoom on focus
+    }
+
+    label {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Accessibility: Respect reduced motion preference
+@media (prefers-reduced-motion: reduce) {
+  .contact-form-view-wrapper {
+    textarea {
+      transition: none;
+    }
+
+    .validation-error {
+      animation: none;
     }
   }
 }

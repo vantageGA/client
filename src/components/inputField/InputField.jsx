@@ -12,6 +12,7 @@ const InputField = ({
   value,
   placeholder,
   error,
+  hint,
   className,
   onChange,
   onBlur,
@@ -43,6 +44,7 @@ const InputField = ({
   };
 
   const errorId = `${id || name}-error`;
+  const hintId = `${id || name}-hint`;
 
   return (
     <div className="input-field-wrapper">
@@ -78,8 +80,17 @@ const InputField = ({
         onBlur={onBlur}
         required={required}
         aria-invalid={ariaInvalid}
-        aria-describedby={error ? `${ariaDescribedby || ''} ${errorId}`.trim() : ariaDescribedby}
+        aria-describedby={
+          [hint && hintId, error && errorId, ariaDescribedby]
+            .filter(Boolean)
+            .join(' ') || undefined
+        }
       />
+      {hint && (
+        <span id={hintId} className="field-hint">
+          {hint}
+        </span>
+      )}
       {error && (
         <p id={errorId} className="validation-error" role="alert">
           {error}
@@ -95,6 +106,7 @@ InputField.propTypes = {
   value: PropTypes.string,
   placeholder: PropTypes.string,
   error: PropTypes.string,
+  hint: PropTypes.string,
   onChange: PropTypes.func,
 };
 

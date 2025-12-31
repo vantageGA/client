@@ -5,7 +5,7 @@
   background: rgba(51, 51, 51, 0.2);
   border-radius: 4px;
   border: 1px solid $border-colour-light;
-  border-left: 1px solid $light-orange;
+  border-left: 1px solid $burnt-orange;
 
   .question {
     // Button reset styles
@@ -71,13 +71,13 @@
     text-transform: uppercase;
     font-size: 1.5rem;
     letter-spacing: 0.1em;
-    color: $light-orange;
+    color: $main-font-colour;
     margin: 0;
   }
 
   // Icon styling
   i {
-    color: $light-orange;
+    color: $burnt-orange;
     font-size: 1.2rem;
     flex-shrink: 0;
   }
