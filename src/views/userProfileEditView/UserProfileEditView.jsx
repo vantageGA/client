@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import './UserProfileEditView.scss';
@@ -21,6 +21,7 @@ const UserProfileEditView = () => {
   const nameRegEx = /^([\w])+\s+([\w\s])+$/i;
   const emailRegEx =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+  // Fixed: Password regex now matches error message - alphanumeric only
   const passwordRegEx = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{6,}$/;
   const passwordConfirmRegEx =
     /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{6,}$/;
@@ -37,9 +38,6 @@ const UserProfileEditView = () => {
   const { loading, error, user } = userDetails;
 
   // Profile details in DB
-  useSelector((state) => state.profileOfLoggedInUser);
-
-  // Profile details in DB
   const profileState = useSelector((state) => state.profileOfLoggedInUser);
   const { profile } = profileState;
 
@@ -47,16 +45,60 @@ const UserProfileEditView = () => {
   const userProfileImage = useSelector((state) => state.userProfileImage);
   const { loading: userProfileImageLoading } = userProfileImage;
 
+  // Form state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [hidePassword, setHidePassword] = useState(true);
-  const [message, setMessage] = useState('');
 
+  // Touched state for blur-triggered validation
+  const [touched, setTouched] = useState({
+    name: false,
+    email: false,
+    password: false,
+    confirmPassword: false,
+  });
+
+  // Consolidated message state with variant support
+  const [notification, setNotification] = useState({
+    text: '',
+    variant: 'error',
+    visible: false,
+  });
+
+  // Image upload state
   const [previewImage, setPreviewImage] = useState('');
   const [previewImageFile, setPreviewImageFile] = useState('');
+
+  // Ref for file input (replaces document.querySelector)
+  const fileInputRef = useRef(null);
+
+  // Helper function to show notifications
+  const showNotification = (text, variant = 'error') => {
+    setNotification({
+      text,
+      variant,
+      visible: true,
+    });
+  };
+
+  // Helper function to handle blur events
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  // Validation helpers
+  const isNameValid = nameRegEx.test(name);
+  const isEmailValid = emailRegEx.test(email);
+  const isPasswordValid = !hidePassword && password.length > 0 ? passwordRegEx.test(password) : true;
+  const isConfirmValid = !hidePassword && confirmPassword.length > 0 ? password === confirmPassword && passwordRegEx.test(confirmPassword) : true;
+
+  // Show errors only after blur
+  const showNameError = touched.name && !isNameValid && name.length !== 0;
+  const showEmailError = touched.email && !isEmailValid && email.length !== 0;
+  const showPasswordError = touched.password && !isPasswordValid && password.length > 0;
+  const showConfirmError = touched.confirmPassword && !isConfirmValid && confirmPassword.length > 0;
 
   useEffect(() => {
     if (!userInfo) {
@@ -67,8 +109,9 @@ const UserProfileEditView = () => {
         dispatch(getUserDetailsAction(userInfo._id));
       } else {
         if (user.isConfirmed === false) {
-          setMessage(
-            'In oder to update you profile you will need to confirm your email address. This can be done by referring back to the email you received when you first registered.',
+          showNotification(
+            'In order to update your profile you will need to confirm your email address. This can be done by referring back to the email you received when you first registered.',
+            'warning'
           );
         }
         setName(user.name);
@@ -86,25 +129,56 @@ const UserProfileEditView = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Contact form action
-    if (password !== confirmPassword) {
-      setMessage('Passwords do not match');
-    } else {
-      // Dispatch UPDATED PROFILE
-      if (user.isConfirmed === true) {
-        dispatch(
-          updateUserProfileAction({
-            id: user._id,
-            name,
-            email,
-            password,
-          }),
-        );
-      } else {
-        setMessage(
-          'You have not yet confirmed your email. Please check you emails.',
-        );
+
+    // Validate all fields before submit
+    if (!nameRegEx.test(name)) {
+      showNotification('Please enter a valid name (first and last name)', 'error');
+      return;
+    }
+
+    if (!emailRegEx.test(email)) {
+      showNotification('Please enter a valid email address', 'error');
+      return;
+    }
+
+    // Only validate password if password section is shown and password is entered
+    if (!hidePassword && (password.length > 0 || confirmPassword.length > 0)) {
+      if (!passwordRegEx.test(password)) {
+        showNotification('Password must contain at least 6 characters with uppercase letter, lowercase letter, and a number. Special characters are not allowed.', 'error');
+        return;
       }
+
+      if (password !== confirmPassword) {
+        showNotification('Passwords do not match', 'error');
+        return;
+      }
+    }
+
+    // Check user confirmation
+    if (user.isConfirmed !== true) {
+      showNotification(
+        'You have not yet confirmed your email. Please check your emails.',
+        'warning'
+      );
+      return;
+    }
+
+    // Dispatch only if validation passes
+    dispatch(
+      updateUserProfileAction({
+        id: user._id,
+        name,
+        email,
+        password: hidePassword || password.length === 0 ? undefined : password,
+      }),
+    );
+
+    // Show success message and clear password fields
+    showNotification('Profile updated successfully!', 'success');
+    if (!hidePassword) {
+      setPassword('');
+      setConfirmPassword('');
+      setHidePassword(true);
     }
   };
 
@@ -133,8 +207,11 @@ const UserProfileEditView = () => {
   };
 
   const handleCancelImageUpload = () => {
-    document.querySelector('#userProfileImage').value = '';
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
     setPreviewImage('');
+    setPreviewImageFile('');
   };
 
   // USER Profile image
@@ -144,11 +221,21 @@ const UserProfileEditView = () => {
 
   return (
     <div className="user-profile-wrapper">
-      {error ? <Message message={error} /> : null}
-      {message ? <Message message={message} /> : null}
+      {error && <Message message={error} variant="error" />}
+      {notification.visible && (
+        <Message
+          message={notification.text}
+          variant={notification.variant}
+          isVisible={notification.visible}
+          onDismiss={() => setNotification((prev) => ({ ...prev, visible: false }))}
+        />
+      )}
 
       {loading || !user ? (
-        <LoadingSpinner />
+        <div role="status" aria-live="polite" aria-busy="true">
+          <LoadingSpinner />
+          <span className="sr-only">Loading user profile...</span>
+        </div>
       ) : (
         <>
           <fieldset className="fieldSet item">
@@ -157,90 +244,104 @@ const UserProfileEditView = () => {
             </legend>
             <form onSubmit={handleSubmit}>
               <InputField
+                id="user-name"
                 label="Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                onBlur={() => handleBlur('name')}
                 type="text"
                 name="name"
                 required
-                className={!nameRegEx.test(name) ? 'invalid' : 'entered'}
-                error={
-                  !nameRegEx.test(name) && name.length !== 0
-                    ? `Name field must contain a first name and surname both of which must start with a capital letter.`
-                    : null
-                }
+                hint="First and last name required"
+                className={showNameError ? 'invalid' : isNameValid && name.length > 0 ? 'entered' : ''}
+                error={showNameError ? `Name must contain a first name and surname both of which must start with a capital letter.` : null}
+                aria-invalid={showNameError}
+                aria-describedby={showNameError ? 'user-name-error' : undefined}
               />
               <InputField
+                id="user-email"
                 label="Email"
                 type="email"
                 name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={!emailRegEx.test(email) ? 'invalid' : 'entered'}
-                error={
-                  !emailRegEx.test(email) && email.length !== 0
-                    ? `Invalid email address.`
-                    : null
-                }
+                onBlur={() => handleBlur('email')}
+                required
+                hint="Valid email format required"
+                className={showEmailError ? 'invalid' : isEmailValid && email.length > 0 ? 'entered' : ''}
+                error={showEmailError ? `Invalid email address.` : null}
+                aria-invalid={showEmailError}
+                aria-describedby={showEmailError ? 'user-email-error' : undefined}
               />
 
-              <label>
-                <input
-                  type="checkbox"
-                  defaultChecked={!hidePassword}
-                  onChange={() => setHidePassword(!hidePassword)}
-                />
-                {!hidePassword
-                  ? 'Hide Password Settings'
-                  : 'Show Password Settings'}
-              </label>
+              <div className="password-toggle-wrapper">
+                <label htmlFor="password-toggle">
+                  <input
+                    id="password-toggle"
+                    type="checkbox"
+                    checked={!hidePassword}
+                    onChange={() => setHidePassword(!hidePassword)}
+                    aria-controls="password-section"
+                    aria-expanded={!hidePassword}
+                  />
+                  {!hidePassword
+                    ? 'Hide Password Settings'
+                    : 'Show Password Settings'}
+                </label>
+              </div>
               {!hidePassword ? (
-                <div>
+                <div id="password-section" role="region" aria-labelledby="password-toggle">
                   <InputField
+                    id="user-password"
                     label="Password"
                     type="password"
-                    name={password}
+                    name="password"
                     value={password}
-                    required
-                    className={
-                      !passwordRegEx.test(password) ? 'invalid' : 'entered'
-                    }
+                    required={!hidePassword}
+                    hint="6+ characters: uppercase, lowercase, and number (no special characters)"
+                    className={showPasswordError ? 'invalid' : isPasswordValid && password.length > 0 ? 'entered' : ''}
                     error={
-                      !passwordRegEx.test(password) && password.length !== 0
-                        ? `Password must contain at least 1 uppercase letter and a number`
+                      showPasswordError
+                        ? `Password must contain at least 6 characters with uppercase letter, lowercase letter, and a number. Special characters are not allowed.`
                         : null
                     }
                     onChange={(e) => setPassword(e.target.value)}
+                    onBlur={() => handleBlur('password')}
+                    aria-invalid={showPasswordError}
+                    aria-describedby={showPasswordError ? 'user-password-error' : undefined}
                   />
 
                   <InputField
+                    id="user-confirm-password"
                     label="Confirm Password"
                     type="password"
-                    name={confirmPassword}
+                    name="confirmPassword"
                     value={confirmPassword}
-                    required
-                    className={
-                      !passwordConfirmRegEx.test(confirmPassword)
-                        ? 'invalid'
-                        : 'entered'
-                    }
+                    required={!hidePassword}
+                    hint="Must match password field exactly"
+                    className={showConfirmError ? 'invalid' : isConfirmValid && confirmPassword.length > 0 ? 'entered' : ''}
                     error={
-                      !passwordConfirmRegEx.test(confirmPassword) &&
-                      confirmPassword.length !== 0
-                        ? `Password must contain at least 1 uppercase letter and a number`
+                      showConfirmError
+                        ? password !== confirmPassword
+                          ? 'Passwords do not match'
+                          : `Password must contain at least 6 characters with uppercase letter, lowercase letter, and a number. Special characters are not allowed.`
                         : null
                     }
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    onBlur={() => handleBlur('confirmPassword')}
+                    aria-invalid={showConfirmError}
+                    aria-describedby={showConfirmError ? 'user-confirm-password-error' : undefined}
                   />
                 </div>
               ) : null}
               <Button
+                type="submit"
                 colour="transparent"
-                text="submit"
+                text="Update Profile"
                 className="btn"
-                title={!user.isConfirmed ? 'User must be confirmed' : null}
+                title={!user.isConfirmed ? 'You must confirm your email before updating your profile' : null}
                 disabled={!user.isConfirmed}
-              ></Button>
+              />
             </form>
           </fieldset>
 
@@ -258,64 +359,77 @@ const UserProfileEditView = () => {
             )}
 
             <form onSubmit={handleUserProfileImageUpdate}>
-              <InputField
-                id="userProfileImage"
-                label="Change USER Profile Image"
-                type="file"
-                name="userProfileImage"
-                onChange={uploadFileHandler}
-              />
+              <div className="file-input-wrapper">
+                <label htmlFor="userProfileImage" className="file-input-label">
+                  Change User Profile Image
+                </label>
+                <input
+                  ref={fileInputRef}
+                  id="userProfileImage"
+                  type="file"
+                  name="userProfileImage"
+                  onChange={uploadFileHandler}
+                  accept="image/jpeg,image/png,image/webp"
+                  aria-describedby="image-requirements"
+                />
+                <span id="image-requirements" className="field-hint">
+                  Supported formats: JPG, PNG, WebP. Maximum size: 5MB
+                </span>
+              </div>
               {previewImage ? (
-                <>
-                  Image Preview
+                <div className="image-preview-wrapper">
+                  <h3>Image Preview</h3>
                   <img
                     src={previewImage}
-                    alt="profile"
-                    style={{ width: '120px' }}
+                    alt="Preview of new profile image"
+                    className="preview-image"
                   />
-                  <button>I Like it</button>
-                  <button type="button" onClick={handleCancelImageUpload}>
-                    I Dont Like it
-                  </button>
-                </>
+                  <div className="button-group">
+                    <Button
+                      type="submit"
+                      colour="transparent"
+                      text="Upload Image"
+                      className="btn"
+                      disabled={userProfileImageLoading}
+                    />
+                    <Button
+                      type="button"
+                      colour="transparent"
+                      text="Cancel"
+                      className="btn"
+                      onClick={handleCancelImageUpload}
+                      disabled={userProfileImageLoading}
+                    />
+                  </div>
+                </div>
               ) : null}
             </form>
 
             <p>Name: {user.name}</p>
             <p>Email address: {user.email}</p>
-            <p>
-              Confirmed User:{' '}
-              {user.isConfirmed === true ? (
+            <p className="status-item">
+              <span className="label">Confirmed User:</span>
+              <span className={`status-indicator ${user.isConfirmed ? 'confirmed' : 'not-confirmed'}`}>
                 <i
-                  className="fa fa-check"
-                  style={{
-                    fontSize: 20 + 'px',
-                    color: 'rgba(92, 184, 92, 1)',
-                  }}
-                ></i>
-              ) : (
-                <i
-                  className="fa fa-times"
-                  style={{ fontSize: 20 + 'px', color: 'crimson' }}
-                ></i>
-              )}
+                  className={user.isConfirmed ? 'fa fa-check' : 'fa fa-times'}
+                  aria-hidden="true"
+                />
+                <span className="status-text">
+                  {user.isConfirmed ? 'Confirmed' : 'Not Confirmed'}
+                </span>
+              </span>
             </p>
-            <p>
-              Admin:{' '}
-              {user.isAdmin === true ? (
+            <p className="status-item">
+              <span className="label">Admin:</span>
+              <span className={`status-indicator ${user.isAdmin ? 'confirmed' : 'not-confirmed'}`}>
                 <i
-                  className="fa fa-check"
-                  style={{
-                    fontSize: 20 + 'px',
-                    color: 'rgba(92, 184, 92, 1)',
-                  }}
-                ></i>
-              ) : (
-                <i
-                  className="fa fa-times"
-                  style={{ fontSize: 20 + 'px', color: 'crimson' }}
-                ></i>
-              )}
+                  className={user.isAdmin ? 'fa fa-check' : 'fa fa-times'}
+                  aria-hidden="true"
+                />
+                <span className="status-text">
+                  {user.isAdmin ? 'Administrator' : 'User'}
+                </span>
+              </span>
             </p>
           </fieldset>
 

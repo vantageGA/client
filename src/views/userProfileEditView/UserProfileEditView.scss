@@ -11,22 +11,268 @@
   }
 
   .item {
-    width: calc(50% - #{10px}); /* and this */
+    width: calc(50% - #{10px});
+
     .profile-click-count {
       color: $rating-colour;
     }
   }
+
   .image {
     width: 120px;
     height: 120px;
+    border-radius: 4px;
+    object-fit: cover;
+  }
+
+  // Screen reader only text
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  // Password toggle checkbox styling
+  .password-toggle-wrapper {
+    margin-bottom: 1rem;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-family: 'Comfortaa', cursive;
+      font-size: 0.95rem;
+      font-weight: 500;
+
+      input[type='checkbox'] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: $burnt-orange;
+
+        &:focus {
+          outline: 2px solid $burnt-orange;
+          outline-offset: 2px;
+        }
+      }
+    }
+  }
+
+  // Password fields section
+  #password-section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: rgba(25, 25, 25, 0.3);
+    border-left: 3px solid $burnt-orange;
+    border-radius: 4px;
+  }
+
+  // Status indicators (Confirmed User, Admin)
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.5rem 0;
+
+    .label {
+      font-weight: 600;
+      min-width: 140px;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      i {
+        font-size: 1.25rem;
+      }
+
+      .status-text {
+        font-weight: 600;
+      }
+
+      &.confirmed {
+        color: $success;
+      }
+
+      &.not-confirmed {
+        color: $danger;
+      }
+    }
+  }
+
+  // File input wrapper
+  .file-input-wrapper {
+    margin-bottom: 1rem;
+
+    .file-input-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-family: 'Comfortaa', cursive;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: $main-font-colour;
+    }
+
+    input[type='file'] {
+      display: block;
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      font-family: 'Comfortaa', cursive;
+      font-size: 0.9rem;
+      color: $main-font-colour;
+      background-color: rgba(51, 51, 51, 0.3);
+      border: 1px solid $border-colour-light;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:focus {
+        outline: 2px solid $burnt-orange;
+        outline-offset: 2px;
+      }
+
+      &:hover {
+        background-color: rgba(51, 51, 51, 0.5);
+      }
+    }
+
+    .field-hint {
+      display: block;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-style: italic;
+    }
+  }
+
+  // Image preview wrapper
+  .image-preview-wrapper {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: rgba(51, 51, 51, 0.3);
+    border-radius: 4px;
+    border: 1px solid $border-colour-light;
+
+    h3 {
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+      color: $burnt-orange;
+    }
+
+    .preview-image {
+      display: block;
+      width: 120px;
+      height: 120px;
+      margin: 1rem auto;
+      border-radius: 4px;
+      object-fit: cover;
+      border: 2px solid $border-colour-light;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+
+      button {
+        min-width: 44px;
+        min-height: 44px;
+      }
+    }
+  }
+
+  // Ensure consistent fieldset spacing
+  .fieldSet {
+    margin-bottom: 1rem;
+
+    legend {
+      span {
+        color: $burnt-orange;
+      }
+    }
   }
 }
+
 /* Responsive layout - makes a one column layout (100%) instead of a two-column layout (50%) */
 @media (max-width: 812px) {
   .user-profile-wrapper {
     flex-wrap: wrap;
+    gap: 0.5rem;
+
     .item {
-      width: 100vw; /* and this */
+      width: 100%; // Fixed: was 100vw which caused horizontal scroll
+      padding: 0 1rem;
+      box-sizing: border-box;
+    }
+
+    .image {
+      width: 100px;
+      height: 100px;
+    }
+
+    .status-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+
+      .label {
+        min-width: auto;
+      }
+    }
+
+    .image-preview-wrapper {
+      .preview-image {
+        width: 100px;
+        height: 100px;
+      }
+    }
+  }
+}
+
+/* Additional small screen optimizations */
+@media (max-width: 480px) {
+  .user-profile-wrapper {
+    gap: 0.5rem;
+
+    .item {
+      width: 100%;
+      padding: 0 0.75rem;
+    }
+
+    .image {
+      width: 80px;
+      height: 80px;
+    }
+
+    // Ensure buttons have adequate touch targets
+    button,
+    .btn {
+      min-height: 48px;
+      padding: 0.875rem 1rem;
+    }
+
+    .image-preview-wrapper {
+      .preview-image {
+        width: 80px;
+        height: 80px;
+      }
+
+      .button-group {
+        flex-direction: column;
+
+        button {
+          width: 100%;
+        }
+      }
     }
   }
 }
