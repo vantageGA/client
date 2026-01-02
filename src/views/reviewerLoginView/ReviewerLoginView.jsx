@@ -20,6 +20,24 @@ import {
 import moment from 'moment';
 import DOMPurify from 'dompurify';
 
+const sanitize = (value) =>
+  DOMPurify.sanitize(value || '', {
+    ALLOWED_TAGS: [
+      'b',
+      'i',
+      'em',
+      'strong',
+      'p',
+      'br',
+      'ul',
+      'ol',
+      'li',
+      'a',
+      'span',
+    ],
+    ALLOWED_ATTR: ['href', 'target', 'rel'],
+  });
+
 const ReviewerLoginView = () => {
   const dispatch = useDispatch();
   const passwordRegEx = /([^\s])/;
@@ -79,6 +97,11 @@ const ReviewerLoginView = () => {
   const handleReviewSubmit = (e) => {
     e.preventDefault();
 
+    if (reviewer?.isConfirmed !== true) {
+      alert('Please confirm your email address before submitting a review.');
+      return;
+    }
+
     // Ensure acceptConditions is boolean true, not string or truthy value
     if (acceptConditions !== true) {
       alert('You must accept the review conditions before submitting.');
@@ -115,7 +138,7 @@ const ReviewerLoginView = () => {
                 <InputField
                   label="Email"
                   type="email"
-                  name={email}
+                  name="email"
                   value={email}
                   required
                   hint="Example: user@domain.com"
@@ -130,7 +153,7 @@ const ReviewerLoginView = () => {
                 <InputField
                   label="Password"
                   type="password"
-                  name={password}
+                  name="password"
                   value={password}
                   required
                   hint="Password must not be empty"
@@ -236,7 +259,7 @@ const ReviewerLoginView = () => {
                     {profile.reviews.map((review) => (
                       <div key={review._id}>
                         <Review
-                          reviewer={review.name}
+                          reviewer={review.showName ? review.name : 'ANONYMOUS'}
                           review={review.comment}
                           reviewedOn={moment(review.createdAt).fromNow()}
                         />
@@ -328,7 +351,7 @@ const ReviewerLoginView = () => {
                         <input
                           type="checkbox"
                           checked={showName}
-                          onChange={() => setShowName((showName = !showName))}
+                          onChange={() => setShowName(!showName)}
                         />
                         <span className="userReviewInfo">
                           {userReviewInfo?.name}
@@ -386,9 +409,8 @@ const ReviewerLoginView = () => {
                       className="btn"
                       disabled={
                         !rating ||
-                        (comment.length <= 10 &&
-                          success &&
-                          !reviewer?.isConfirmed)
+                        comment.length <= 10 ||
+                        reviewer?.isConfirmed !== true
                       }
                     ></Button>
                   </form>
@@ -403,20 +425,3 @@ const ReviewerLoginView = () => {
 };
 
 export default ReviewerLoginView;
-  const sanitize = (value) =>
-    DOMPurify.sanitize(value || '', {
-      ALLOWED_TAGS: [
-        'b',
-        'i',
-        'em',
-        'strong',
-        'p',
-        'br',
-        'ul',
-        'ol',
-        'li',
-        'a',
-        'span',
-      ],
-      ALLOWED_ATTR: ['href', 'target', 'rel'],
-    });
