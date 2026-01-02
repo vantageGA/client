@@ -42,8 +42,8 @@ import {
   PROFILE_VERIFY_QUALIFICATION_SUCCESS,
 } from '../constants/profileConstants';
 
-// Get all profiles
-export const profilesReducer = (state = { profiles: [] }, action) => {
+// Get all profiles - with pagination support
+export const profilesReducer = (state = { profiles: [], page: 1, pages: 1, total: 0 }, action) => {
   switch (action.type) {
     case PROFILE_REQUEST:
       return { ...state, loading: true };
@@ -51,18 +51,21 @@ export const profilesReducer = (state = { profiles: [] }, action) => {
       return {
         ...state,
         loading: false,
-        profiles: action.payload,
+        profiles: action.payload.profiles,
+        page: action.payload.page,
+        pages: action.payload.pages,
+        total: action.payload.total
       };
     case PROFILE_FAILURE:
       return { ...state, loading: false, error: action.payload };
     case PROFILE_RESET:
-      return { profiles: [] };
+      return { profiles: [], page: 1, pages: 1, total: 0 };
     default:
       return { ...state };
   }
 };
-// Get all profiles
-export const profilesAdminReducer = (state = { profilesAdmin: [] }, action) => {
+// Get all profiles admin - with pagination support
+export const profilesAdminReducer = (state = { profilesAdmin: [], page: 1, pages: 1, total: 0 }, action) => {
   switch (action.type) {
     case PROFILE_ADMIN_REQUEST:
       return { ...state, loading: true };
@@ -70,12 +73,15 @@ export const profilesAdminReducer = (state = { profilesAdmin: [] }, action) => {
       return {
         ...state,
         loading: false,
-        profilesAdmin: action.payload,
+        profilesAdmin: action.payload.profiles,
+        page: action.payload.page,
+        pages: action.payload.pages,
+        total: action.payload.total
       };
     case PROFILE_ADMIN_FAILURE:
       return { ...state, loading: false, error: action.payload };
     case PROFILE_ADMIN_RESET:
-      return { profilesAdmin: [] };
+      return { profilesAdmin: [], page: 1, pages: 1, total: 0 };
     default:
       return { ...state };
   }
@@ -220,8 +226,8 @@ export const profileClickCounterReducer = (state = {}, action) => {
       return { ...state };
   }
 };
-// Get Profile Images for ProfileImage model
-export const profileImagesReducer = (state = { profileImages: [] }, action) => {
+// Get Profile Images for ProfileImage model - with pagination support
+export const profileImagesReducer = (state = { profileImages: [], page: 1, pages: 1, total: 0 }, action) => {
   switch (action.type) {
     case PROFILE_IMAGES_REQUEST:
       return { ...state, loading: true };
@@ -229,20 +235,23 @@ export const profileImagesReducer = (state = { profileImages: [] }, action) => {
       return {
         ...state,
         loading: false,
-        profileImages: action.payload,
+        profileImages: action.payload.images,
+        page: action.payload.page,
+        pages: action.payload.pages,
+        total: action.payload.total
       };
     case PROFILE_IMAGES_FAILURE:
       return { ...state, loading: false, error: action.payload };
     case PROFILE_IMAGES_RESET:
-      return { profileImages: [] };
+      return { profileImages: [], page: 1, pages: 1, total: 0 };
     default:
       return { ...state };
   }
 };
 
-// Get Profile Images for ProfileImage model 'PUBLIC'
+// Get Profile Images for ProfileImage model 'PUBLIC' - with pagination support
 export const profileImagesPublicReducer = (
-  state = { profileImages: [] },
+  state = { profileImages: [], page: 1, pages: 1, total: 0 },
   action,
 ) => {
   switch (action.type) {
@@ -252,7 +261,10 @@ export const profileImagesPublicReducer = (
       return {
         ...state,
         loading: false,
-        profileImages: action.payload,
+        profileImages: action.payload.images,
+        page: action.payload.page,
+        pages: action.payload.pages,
+        total: action.payload.total
       };
     case PROFILE_IMAGES__PUBLIC_FAILURE:
       return { ...state, loading: false, error: action.payload };

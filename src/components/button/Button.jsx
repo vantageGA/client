@@ -5,7 +5,7 @@ import './Button.scss';
 const Button = ({
   colour = 'yellow',
   text,
-  disabled = true,
+  disabled = false,
   title,
   onClick,
   type,

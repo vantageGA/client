@@ -38,15 +38,31 @@ import {
   PROFILE_VERIFY_QUALIFICATION_SUCCESS,
 } from '../constants/profileConstants';
 
-// Get all profiles public
-export const profilesAction = () => async (dispatch, getState) => {
+// Get all profiles public - with pagination support
+export const profilesAction = (page = 1, limit = 20, filters = {}) => async (dispatch, getState) => {
   try {
     dispatch({
       type: PROFILE_REQUEST,
     });
 
-    const { data } = await axios.get(`/api/profiles`);
-    dispatch({ type: PROFILE_SUCCESS, payload: data });
+    const params = new URLSearchParams({
+      page,
+      limit,
+      ...(filters.location && { location: filters.location }),
+      ...(filters.specialisation && { specialisation: filters.specialisation })
+    });
+
+    const { data } = await axios.get(`/api/profiles?${params}`);
+
+    dispatch({
+      type: PROFILE_SUCCESS,
+      payload: {
+        profiles: data.profiles,
+        page: data.page,
+        pages: data.pages,
+        total: data.total
+      }
+    });
   } catch (error) {
     dispatch({
       type: PROFILE_FAILURE,
@@ -57,8 +73,8 @@ export const profilesAction = () => async (dispatch, getState) => {
     });
   }
 };
-// Get all profiles ADMIN
-export const profilesAdminAction = () => async (dispatch, getState) => {
+// Get all profiles ADMIN - with pagination support
+export const profilesAdminAction = (page = 1, limit = 50) => async (dispatch, getState) => {
   try {
     dispatch({
       type: PROFILE_ADMIN_REQUEST,
@@ -75,8 +91,19 @@ export const profilesAdminAction = () => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.get(`/api/profiles/admin`, config);
-    dispatch({ type: PROFILE_ADMIN_SUCCESS, payload: data });
+    const params = new URLSearchParams({ page, limit });
+
+    const { data } = await axios.get(`/api/profiles/admin?${params}`, config);
+
+    dispatch({
+      type: PROFILE_ADMIN_SUCCESS,
+      payload: {
+        profiles: data.profiles,
+        page: data.page,
+        pages: data.pages,
+        total: data.total
+      }
+    });
   } catch (error) {
     dispatch({
       type: PROFILE_ADMIN_FAILURE,
@@ -168,7 +195,7 @@ export const createProfileAction = () => async (dispatch, getState) => {
   }
 };
 
-// Update Profile action
+// Update Profile action - user ID now taken from token, not URL
 export const profileUpdateAction = (profile) => async (dispatch, getState) => {
   try {
     dispatch({
@@ -186,8 +213,9 @@ export const profileUpdateAction = (profile) => async (dispatch, getState) => {
       },
     };
 
+    // Route changed from /api/profile/:id to /api/profile (ID from token)
     const { data } = await axios.put(
-      `/api/profile/${userInfo._id}`,
+      `/api/profile`,
       profile,
       config,
     );
@@ -235,7 +263,7 @@ export const deleteProfileAction = (id) => async (dispatch, getState) => {
     });
   }
 };
-// Delete REVIEW ADMIN
+// Delete REVIEW ADMIN - route changed to /api/profiles/:id/reviews
 export const deleteReviewProfileAction =
   (id, reviewId) => async (dispatch, getState) => {
     try {
@@ -247,11 +275,12 @@ export const deleteReviewProfileAction =
         userLogin: { userInfo },
       } = getState();
 
-      // Note: This can only be done like this in axios delete body
-      //https://stackoverflow.com/questions/51069552/axios-delete-request-with-body-and-headers
+      // Route changed from /api/profile/review/admin/:id to /api/profiles/:id/reviews
+      // reviewId stays in body as before
 
-      await axios.delete(`/api/profile/review/admin/${id}`, {
+      await axios.delete(`/api/profiles/${id}/reviews`, {
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${userInfo.token}`,
         },
         data: {
@@ -305,23 +334,22 @@ export const profileVerifyQualificationAction =
     }
   };
 
-// Profile click counter action
+// Profile click counter action - server auto-increments by 1, returns minimal response
 export const profileClickCounterAction =
-  (_id, profileClickCounter) => async (dispatch) => {
+  (_id) => async (dispatch) => {
     try {
       dispatch({
         type: PROFILE_CLICK_COUNTER_REQUEST,
       });
 
-      const data = await axios.put(`/api/profile-clicks`, {
-        _id,
-        profileClickCounter: profileClickCounter,
+      // Only send _id, server auto-increments by 1
+      // Response format changed to { success: true, clickCount: 42 }
+      const { data } = await axios.put(`/api/profile-clicks`, { _id });
+
+      dispatch({
+        type: PROFILE_CLICK_COUNTER_SUCCESS,
+        payload: data.clickCount // Changed from full profile to just clickCount
       });
-
-      // Send data to endpoint to update DB
-
-      dispatch({ type: PROFILE_CLICK_COUNTER_SUCCESS, payload: data });
-      dispatch(profilesAdminAction());
     } catch (error) {
       dispatch({
         type: PROFILE_CLICK_COUNTER_FAILURE,
@@ -333,8 +361,8 @@ export const profileClickCounterAction =
     }
   };
 
-// Get Profile Images for ProfileImage model
-export const profileImagesAction = () => async (dispatch, getState) => {
+// Get Profile Images for ProfileImage model - with pagination support
+export const profileImagesAction = (page = 1, limit = 20) => async (dispatch, getState) => {
   try {
     dispatch({
       type: PROFILE_IMAGES_REQUEST,
@@ -351,8 +379,19 @@ export const profileImagesAction = () => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.get(`/api/profile-images`, config);
-    dispatch({ type: PROFILE_IMAGES_SUCCESS, payload: data });
+    const params = new URLSearchParams({ page, limit });
+
+    const { data } = await axios.get(`/api/profile-images?${params}`, config);
+
+    dispatch({
+      type: PROFILE_IMAGES_SUCCESS,
+      payload: {
+        images: data.images,
+        page: data.page,
+        pages: data.pages,
+        total: data.total
+      }
+    });
   } catch (error) {
     dispatch({
       type: PROFILE_IMAGES_FAILURE,
@@ -364,15 +403,27 @@ export const profileImagesAction = () => async (dispatch, getState) => {
   }
 };
 
-// Get Profile Images for ProfileImage model 'PUBLIC'
-export const profileImagesPublicAction = (id) => async (dispatch, getState) => {
+// Get Profile Images for ProfileImage model 'PUBLIC' - route changed, pagination added
+export const profileImagesPublicAction = (id, page = 1, limit = 20) => async (dispatch, getState) => {
   try {
     dispatch({
       type: PROFILE_IMAGES_PUBLIC_REQUEST,
     });
 
-    const { data } = await axios.get(`/api/profile-images/${id}`);
-    dispatch({ type: PROFILE_IMAGES__PUBLIC_SUCCESS, payload: data });
+    // Route changed from /api/profile-images/:id to /api/profile-images-public/:id
+    const params = new URLSearchParams({ page, limit });
+
+    const { data } = await axios.get(`/api/profile-images-public/${id}?${params}`);
+
+    dispatch({
+      type: PROFILE_IMAGES__PUBLIC_SUCCESS,
+      payload: {
+        images: data.images,
+        page: data.page,
+        pages: data.pages,
+        total: data.total
+      }
+    });
   } catch (error) {
     dispatch({
       type: PROFILE_IMAGES__PUBLIC_FAILURE,

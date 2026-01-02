@@ -72,11 +72,15 @@ const FullProfileView = () => {
     loading: profileImageLoading,
     profileImages,
     error: profileImageError,
+    pages: imagePagesCount
   } = profileImagesPublic;
 
   const handleProfileImage = (index) => {
     setProfileImageIndex(index);
   };
+
+  // Note: For now showing first page of images only
+  // In a future enhancement, could add pagination controls for images
 
   return (
     <div>
@@ -165,7 +169,7 @@ const FullProfileView = () => {
 
                   <div>
                     <h3>Profile Images</h3>
-                    {profileImages ? (
+                    {profileImages && profileImages.length > 0 ? (
                       <div className="profile-image-public-wrapper">
                         {profileImages.map((image, index) =>
                           profileImageLoading ? (
@@ -185,8 +189,10 @@ const FullProfileView = () => {
                         )}
                       </div>
                     ) : profileImageError ? (
-                      { error }
-                    ) : null}
+                      <p>Error loading images: {profileImageError}</p>
+                    ) : (
+                      <p>No images available</p>
+                    )}
                   </div>
 
                   <h1>Specialisation</h1>

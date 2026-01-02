@@ -23,6 +23,8 @@ const AdminProfileView = () => {
 
   const [keyword, setKeyword] = useState('');
   const [showReviewsId, setShowReviewsId] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const profilesPerPage = 50;
 
   let [showReviews, setShowReviews] = useState(false);
 
@@ -34,11 +36,11 @@ const AdminProfileView = () => {
     if (!userInfo) {
       navigate('/');
     }
-    dispatch(profilesAdminAction());
-  }, [dispatch, navigate, userInfo]);
+    dispatch(profilesAdminAction(currentPage, profilesPerPage));
+  }, [dispatch, navigate, userInfo, currentPage]);
 
   const profilesState = useSelector((state) => state.profilesAdmin);
-  const { loading, error, success, profilesAdmin } = profilesState;
+  const { loading, error, success, profilesAdmin, page, pages, total } = profilesState;
 
   const handleDeleteProfile = (id) => {
     // Dispatch user delete action
@@ -61,13 +63,20 @@ const AdminProfileView = () => {
     }
   };
 
-  const searchedProfiles = profilesAdmin.filter((profile) => {
+  const searchedProfiles = (profilesAdmin || []).filter((profile) => {
     if (keyword) {
       return profile.name.toLowerCase().includes(keyword.toLowerCase());
     } else {
       return profilesAdmin;
     }
   });
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pages) {
+      setCurrentPage(newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   // Search
   const [newProfilesAdmin, setNewProfilesAdmin] = useState(profilesAdmin);
@@ -285,6 +294,55 @@ const AdminProfileView = () => {
                 </div>
               </div>
             ))}
+
+            {/* Pagination Controls */}
+            {pages > 1 && (
+              <div className="pagination-wrapper" style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '15px',
+                padding: '30px 0',
+                marginTop: '20px',
+                borderTop: '1px solid #ddd'
+              }}>
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  style={{
+                    padding: '10px 20px',
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    opacity: currentPage === 1 ? 0.5 : 1,
+                    backgroundColor: '#f0f0f0',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px'
+                  }}
+                  aria-label="Previous page"
+                >
+                  Previous
+                </button>
+
+                <span style={{ padding: '0 15px', fontWeight: 'bold' }}>
+                  Page {page} of {pages} (Total: {total} profiles)
+                </span>
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === pages}
+                  style={{
+                    padding: '10px 20px',
+                    cursor: currentPage === pages ? 'not-allowed' : 'pointer',
+                    opacity: currentPage === pages ? 0.5 : 1,
+                    backgroundColor: '#f0f0f0',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px'
+                  }}
+                  aria-label="Next page"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         )}
       </fieldset>

@@ -5,10 +5,10 @@ import './Message.scss';
 const Message = ({
   message,
   variant = 'error',
-  onDismiss,
+  onDismiss = null,
   autoClose = null,
   isVisible = undefined,
-  success, // Deprecated: for backward compatibility
+  success = undefined, // Deprecated: for backward compatibility
 }) => {
   const [internalVisible, setInternalVisible] = useState(true);
   const messageRef = useRef(null);
@@ -81,14 +81,6 @@ Message.propTypes = {
   autoClose: PropTypes.number,
   isVisible: PropTypes.bool,
   success: PropTypes.bool, // Deprecated: use variant="success" instead
-};
-
-Message.defaultProps = {
-  variant: 'error',
-  onDismiss: null,
-  autoClose: null,
-  isVisible: undefined,
-  success: undefined,
 };
 
 export default Message;

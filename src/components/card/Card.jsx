@@ -31,10 +31,10 @@ const Card = ({
   const profilesState = useSelector((state) => state.profiles);
   const { profiles } = profilesState;
 
-  // const [profileClickCounter] = useState(profile?.profileClickCounter);
-  const handleProfileClickCounter = (_id, count) => {
+  // Server auto-increments click counter by 1, no need to pass count
+  const handleProfileClickCounter = (_id) => {
     if (!_id) return;
-    dispatch(profileClickCounterAction(_id, count));
+    dispatch(profileClickCounterAction(_id));
   };
 
   return (
@@ -71,7 +71,7 @@ const Card = ({
               text="VIEW FULL PROFILE"
               className="btn link"
               disabled={false}
-              onClick={() => handleProfileClickCounter(id, 1)}
+              onClick={() => handleProfileClickCounter(id)}
             ></Button>
           </Link>
         </div>

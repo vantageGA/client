@@ -86,8 +86,6 @@ const ProfileEditView = () => {
   const [qualifications, setQualifications] = useState('');
   const [location, setLocation] = useState('');
   const [telephoneNumber, setTelephoneNumber] = useState('');
-  const [keyWordSearch, setkeyWordSearch] = useState('');
-  const [show, setShow] = useState(false);
 
   const [keyWordSearchOne, setkeyWordSearchOne] = useState('');
   const [keyWordSearchTwo, setkeyWordSearchTwo] = useState('');
@@ -147,7 +145,6 @@ const ProfileEditView = () => {
       setQualifications(profile.qualifications ?? '');
       setLocation(profile.location ?? '');
       setTelephoneNumber(profile.telephoneNumber ?? '');
-      setkeyWordSearch(profile.keyWordSearch ?? '');
       setkeyWordSearchOne(profile.keyWordSearchOne ?? '');
       setkeyWordSearchTwo(profile.keyWordSearchTwo ?? '');
       setkeyWordSearchThree(profile.keyWordSearchThree ?? '');
@@ -252,93 +249,33 @@ const ProfileEditView = () => {
       return;
     }
 
-    // Keyword search Algo
-    // Created a promise in order to resolve first
-    let prom = new Promise((resolve, reject) => {
-      const arr = [
-        keyWordSearchOne.trim() + ' ',
-        keyWordSearchTwo.trim() + ' ',
-        keyWordSearchThree.trim() + ' ',
-        keyWordSearchFour.trim() + ' ',
-        keyWordSearchFive.trim() + ' ',
-      ];
-      const permutations = (len, val, existing) => {
-        if (len === 0) {
-          res.push(val);
-          return;
-        }
-        for (let i = 0; i < arr.length; i++) {
-          // so that we do not repeat the item, using an array here makes it
-
-          if (!existing[i]) {
-            existing[i] = true;
-            permutations(len - 1, val + arr[i], existing);
-            existing[i] = false;
-          }
-        }
-      };
-      let res = [];
-      const buildPermutations = (arr = []) => {
-        for (let i = 0; i < arr.length; i++) {
-          permutations(arr.length - i, ' ', []);
-        }
-      };
-      buildPermutations(arr);
-      if (res) {
-        resolve(res);
-      } else {
-        reject('Failed');
-      }
-    });
-
-    prom
-      .then((res) => {
-        // Dispatch UPDATE PROFILE Action
-        dispatch(
-          profileUpdateAction({
-            name,
-            email,
-            faceBook,
-            instagram,
-            websiteUrl,
-            profileImage,
-            description,
-            specialisation,
-            qualifications,
-            location,
-            telephoneNumber,
-            keyWordSearch: res.join('').concat(pure),
-            keyWordSearchOne,
-            keyWordSearchTwo,
-            keyWordSearchThree,
-            keyWordSearchFour,
-            keyWordSearchFive,
-            specialisationOne,
-            specialisationTwo,
-            specialisationThree,
-            specialisationFour,
-          }),
-        );
-        showNotification('Profile updated successfully', 'success');
-      })
-      .catch((message) => {
-        showNotification('Failed to update profile: ' + message, 'error');
-      });
-    // Keyword search Algo
-
-    const purekeyWordSearch = description.concat(
-      name,
-      location,
-      specialisation,
+    // Dispatch UPDATE PROFILE Action
+    // Keywords are now handled server-side automatically
+    dispatch(
+      profileUpdateAction({
+        name,
+        email,
+        faceBook,
+        instagram,
+        websiteUrl,
+        profileImage,
+        description,
+        specialisation,
+        qualifications,
+        location,
+        telephoneNumber,
+        keyWordSearchOne,
+        keyWordSearchTwo,
+        keyWordSearchThree,
+        keyWordSearchFour,
+        keyWordSearchFive,
+        specialisationOne,
+        specialisationTwo,
+        specialisationThree,
+        specialisationFour,
+      }),
     );
-    const pure = purekeyWordSearch.replace(
-      /\b(?:and|'|"|""|from|for|this|must|just|something|any|anything|say|help|can|can't|cant|path|during|after|by|however|is|we| we'll|to|you|your|ll|highly|from|our|the|in|for|of|an|or|i|am|me|my|other|have|if|you|are|come|with|through|going|over|past|years|year|cater|getting|currently|current|have|having|people|worked|work|. |)\b/gi,
-      '',
-    );
-
-    // Add this to remove duplicates
-    // const removeDuplicates = Array.from(new Set(pure.split(' '))).toString();
-    // console.log(removeDuplicates.toString());
+    showNotification('Profile updated successfully', 'success');
   };
 
   // Profile image
@@ -382,10 +319,6 @@ const ProfileEditView = () => {
     if (window.confirm(`Are you sure you want to delete image`)) {
       dispatch(deleteProfileImageAction(id));
     }
-  };
-
-  const handleShowCombinations = () => {
-    setShow(!show);
   };
 
   const handleHelp = () => {
@@ -719,55 +652,12 @@ const ProfileEditView = () => {
                   />
                   <div>
                     <hr className="style-one" />
-
-                    <h3>keywords search (Generated)</h3>
-                    <div>
-                      {keyWordSearch?.length < 10 ? (
-                        <span className="small-text">
-                          must have at least {keyWordSearch.length} characters.
-                        </span>
-                      ) : null}
-                      Our Algorithm has generated{' '}
-                      {Number(keyWordSearch?.length)} words with{' '}
-                      {Math.floor(keyWordSearch?.length / 5)} combinations. This
-                      includes keywords that have been taken from your
-                      description and including your name.
-                      <Button
-                        type="button"
-                        colour="transparent"
-                        text={show ? 'Hide Combinations' : 'View Combinations'}
-                        className="btn"
-                        title="View Combinations"
-                        disabled={false}
-                        onClick={handleShowCombinations}
-                      ></Button>
-                      {show ? (
-                        <div className="textarea-wrapper">
-                          <label htmlFor="keyword-search-display">
-                            Generated Keywords (Read Only)
-                          </label>
-                          <textarea
-                            id="keyword-search-display"
-                            readOnly
-                            value={keyWordSearch}
-                            name="keyWordSearch"
-                            className={
-                              keyWordSearch?.length <= 10 ? 'invalid' : 'entered'
-                            }
-                            aria-invalid={keyWordSearch?.length <= 10}
-                            aria-describedby={
-                              keyWordSearch?.length <= 10
-                                ? 'keyword-error'
-                                : undefined
-                            }
-                          />
-                          {keyWordSearch?.length <= 10 && (
-                            <p id="keyword-error" className="validation-error" role="alert">
-                              Keyword search field must contain at least 10 characters
-                            </p>
-                          )}
-                        </div>
-                      ) : null}
+                    <div className="info-message">
+                      <p>
+                        Your keywords are automatically indexed for search.
+                        Users can search using any of your keywords, and MongoDB's
+                        text search will find your profile efficiently.
+                      </p>
                     </div>
                   </div>
                 </div>

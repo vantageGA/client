@@ -79,6 +79,12 @@ const ReviewerLoginView = () => {
   const handleReviewSubmit = (e) => {
     e.preventDefault();
 
+    // Ensure acceptConditions is boolean true, not string or truthy value
+    if (acceptConditions !== true) {
+      alert('You must accept the review conditions before submitting.');
+      return;
+    }
+
     // Dispatch reviewer comment of trainer
     dispatch(
       createUserReviewAction(userReviewInfo?._id, {
@@ -86,7 +92,7 @@ const ReviewerLoginView = () => {
         comment,
         showName,
         userProfileId,
-        acceptConditions,
+        acceptConditions: true, // Always send boolean true
       }),
     );
     setRating(5);

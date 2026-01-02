@@ -11,12 +11,15 @@ import BodyVantage from '../../components/bodyVantage/BodyVantage';
 
 const HomeView = () => {
   const dispatch = useDispatch();
+  const [currentPage, setCurrentPage] = useState(1);
+  const profilesPerPage = 20;
+
   useEffect(() => {
-    dispatch(profilesAction());
-  }, [dispatch]);
+    dispatch(profilesAction(currentPage, profilesPerPage));
+  }, [dispatch, currentPage]);
 
   const profilesState = useSelector((state) => state.profiles);
-  const { loading, error, profiles } = profilesState;
+  const { loading, error, profiles, page, pages, total } = profilesState;
 
   const [keyword, setKeyword] = useState('');
   const defaultHero =
@@ -125,25 +128,34 @@ const HomeView = () => {
 
   const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-  const searchedProfiles = profiles.filter((profile) => {
-    const description = profile?.description || '';
-    const name = profile?.name || '';
-    const location = Array.isArray(profile?.location)
-      ? profile.location.join(' ')
-      : profile?.location || '';
-    const specialisation = profile?.specialisation || '';
-    const keyWordSearch = profile?.keyWordSearch || '';
+  const searchedProfiles = (profiles || []).filter((profile) => {
+    const searchTerms = keyword.trim().toLowerCase();
 
-    const haystack = `${description} ${location} ${name} ${specialisation}`.toLowerCase();
-    const needle = keyword.trim().toLowerCase();
+    if (!searchTerms) return false;
 
-    if (!needle) return false;
+    // Get keywords array from profile
+    const keywords = Array.isArray(profile?.keywords)
+      ? profile.keywords.map(k => k.toLowerCase())
+      : [];
 
-    return (
-      haystack.includes(needle) ||
-      keyWordSearch.toLowerCase().includes(needle)
+    if (keywords.length === 0) return false;
+
+    // Split search into individual words for multi-keyword matching
+    const searchWords = searchTerms.split(/\s+/).filter(word => word.length > 0);
+
+    // ALL search words must match at least one keyword (exact match or contains)
+    // This ensures "fitness guildford gym" finds profiles with all 3 keywords
+    return searchWords.every(searchWord =>
+      keywords.some(keyword => keyword.includes(searchWord))
     );
   });
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pages) {
+      setCurrentPage(newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   const handleSearch = (e) => {
     setKeyword(e.target.value);
@@ -287,6 +299,48 @@ const HomeView = () => {
                     <p>Try adjusting your search criteria</p>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Pagination Controls - only show when not searching */}
+            {!keyword && pages > 1 && (
+              <div className="pagination-wrapper" style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '20px',
+                marginTop: '20px'
+              }}>
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  style={{
+                    padding: '8px 16px',
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    opacity: currentPage === 1 ? 0.5 : 1
+                  }}
+                  aria-label="Previous page"
+                >
+                  Previous
+                </button>
+
+                <span style={{ padding: '0 15px' }}>
+                  Page {page} of {pages} ({total} total profiles)
+                </span>
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === pages}
+                  style={{
+                    padding: '8px 16px',
+                    cursor: currentPage === pages ? 'not-allowed' : 'pointer',
+                    opacity: currentPage === pages ? 0.5 : 1
+                  }}
+                  aria-label="Next page"
+                >
+                  Next
+                </button>
               </div>
             )}
           </div>

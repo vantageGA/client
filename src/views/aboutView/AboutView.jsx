@@ -1,9 +1,11 @@
 import './AboutView.scss';
+import { useNavigate } from 'react-router-dom';
 import BodyVantage from '../../components/bodyVantage/BodyVantage';
 import Button from '../../components/button/Button';
 import LinkComp from '../../components/linkComp/LinkComp';
 
 const AboutView = () => {
+  const navigate = useNavigate();
   return (
     <div className="about-wrapper">
       <fieldset className="fieldSet">
@@ -45,7 +47,7 @@ const AboutView = () => {
               text="Become a Member Today"
               colour="#BE4F0C"
               disabled={false}
-              onClick={() => window.location.href = 'http://localhost:5173/registration'}
+              onClick={() => navigate('/registration')}
               type="button"
             />
           </div>
