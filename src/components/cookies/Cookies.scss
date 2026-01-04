@@ -1,36 +1,215 @@
 @use '../../index.scss' as *;
 @use '../../scssMixIn.scss' as *;
 
+// Backdrop overlay
 .cookies-wrapper {
-  //   border: 1px solid $border-colour;
-  padding: 1em;
   position: fixed;
-  left: 50%;
-  top: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  //   background-color: black;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  pointer-events: none;
+
+  // Dark overlay backdrop
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    pointer-events: all;
+    animation: fadeIn 300ms ease-out;
+  }
+
+  .fieldSet {
+    position: relative;
+    z-index: 1;
+    pointer-events: all;
+    max-width: 600px;
+    width: 100%;
+    padding: 2rem;
+    background: linear-gradient(
+      135deg,
+      rgba($fieldSet-bg-colour, 0.98) 0%,
+      rgba($main-bg-colour, 0.95) 100%
+    );
+    border: 1px solid $border-colour-light;
+    border-top: 2px solid $burnt-orange;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba($burnt-orange, 0.1);
+    animation: scaleIn 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    // Atmospheric gradient overlay
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        rgba($burnt-orange, 0.06) 0%,
+        transparent 40%,
+        transparent 60%,
+        rgba($burnt-orange, 0.03) 100%
+      );
+      pointer-events: none;
+      border-radius: 8px;
+    }
+
+    legend {
+      padding: 0 0.75rem;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.1rem;
+      letter-spacing: 0.1em;
+      color: $light-orange;
+      text-transform: uppercase;
+
+      span {
+        color: $burnt-orange;
+      }
+    }
+
+    h1 {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.8rem;
+      letter-spacing: 0.08em;
+      color: $main-font-colour;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    p {
+      font-family: 'Comfortaa', cursive;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: rgba($main-font-colour, 0.9);
+      margin-bottom: 1rem;
+    }
+
+    a {
+      color: $light-orange;
+      text-decoration: none;
+      transition: color 200ms ease;
+      font-weight: 600;
+
+      &:hover {
+        color: $burnt-orange;
+        text-decoration: underline;
+      }
+    }
+  }
 
   .link-wrapper {
-    // border: 1px solid $border-colour;
     display: flex;
-    justify-content: space-between;
-    padding: 0 0.4rem;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+
+    p {
+      margin: 0;
+      flex: 1;
+      min-width: 120px;
+    }
   }
 
   .button-wrapper {
-    // border: 1px solid $border-colour;
     display: flex;
-    justify-content: space-between;
-    padding: 0 0.4rem;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+
+    button {
+      flex: 1;
+      min-width: 140px;
+    }
+  }
+
+  .small-text {
+    display: block;
+    margin: 1.5rem 0 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid $border-colour-light;
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
 /* Responsive layout */
 @media (max-width: 812px) {
   .cookies-wrapper {
-    width: 90%;
+    padding: 1rem;
+
+    .fieldSet {
+      padding: 1.5rem;
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      legend {
+        font-size: 1rem;
+      }
+
+      p {
+        font-size: 0.9rem;
+      }
+    }
+
+    .link-wrapper {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .button-wrapper {
+      flex-direction: column;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .cookies-wrapper {
+    padding: 0.75rem;
+
+    .fieldSet {
+      padding: 1.25rem;
+
+      h1 {
+        font-size: 1.3rem;
+      }
+
+      legend {
+        font-size: 0.9rem;
+      }
+
+      p {
+        font-size: 0.85rem;
+      }
+    }
   }
 }

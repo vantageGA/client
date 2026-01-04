@@ -16,21 +16,26 @@ const Cookies = () => {
   const { success } = cookies;
 
   const handleDismiss = () => {
-    // Dispatch Cookies Action
     dispatch(cookiesAction());
   };
 
   const handleDismissCookies = () => {
     navigate('/cookies', { replace: true });
   };
+
   return (
     <>
       {!success ? (
         <div className="cookies-wrapper">
           <fieldset className="fieldSet">
-            <legend>Cookies & Privacy</legend>
+            <legend>
+              <span>Cookies &</span> Privacy
+            </legend>
             <h1>Cookies, Terms & Conditions</h1>
-            <p>By using our website you are agreeing to our cookies policy.</p>
+            <p>
+              By using our website you are agreeing to our cookies policy.
+            </p>
+
             <div className="link-wrapper">
               <p onClick={handleDismiss}>
                 <LinkComp route="cookies" routeName="Cookies Policy" />
@@ -40,28 +45,27 @@ const Cookies = () => {
               </p>
             </div>
 
-            <div>
-              <span className="small-text">
-                Please email{' '}
-                <a href="mailto:zack@bodyvantage.co.uk"> MANAGEMENT </a> with
-                any queries you might have.
-              </span>
-            </div>
+            <span className="small-text">
+              Please email{' '}
+              <a href="mailto:zack@bodyvantage.co.uk">MANAGEMENT</a> with any
+              queries you might have.
+            </span>
+
             <div className="button-wrapper">
               <Button
                 type="button"
                 colour="transparent"
                 onClick={handleDismiss}
                 title="Accept Cookies"
-                text=" Accept Cookies"
+                text="Accept Cookies"
                 disabled={false}
               />
               <Button
                 type="button"
                 colour="crimson"
                 onClick={handleDismissCookies}
-                title="Dont Accept Cookies"
-                text=" Dont Accept"
+                title="Don't Accept Cookies"
+                text="Don't Accept"
                 disabled={false}
               />
             </div>

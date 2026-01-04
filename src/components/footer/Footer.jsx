@@ -4,10 +4,12 @@ import DateTime from '../dateTime/DateTime';
 
 const Footer = () => {
   return (
-    <footer className="footer-container">
+    <footer>
       <div className="footer-wrapper">
         <DateTime />
-        <div className="footer-copyright">CopyRight &copy; Body-Vantage</div>
+        <div className="footer-copyright">
+          Copyright &copy; {new Date().getFullYear()} Body-Vantage
+        </div>
       </div>
     </footer>
   );

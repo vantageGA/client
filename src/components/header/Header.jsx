@@ -9,7 +9,6 @@ import LoginOut from '../login-out/LoginOut';
 import { logoutAction } from '../../store/actions/userActions';
 import { reviewLogoutAction } from '../../store/actions/userReviewActions';
 import { USER_REVIEW_CREATE_COMMENT_RESET } from '../../store/constants/userReviewConstants';
-import BetaReleaseComponent from '../betaRelease/BetaReleaseComponent';
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -32,7 +31,6 @@ const Header = () => {
 
   return (
     <>
-      <BetaReleaseComponent />
 
       <header className="header-container">
         <div className="header-content-wrapper">
@@ -84,22 +82,8 @@ const Header = () => {
             ) : null}
 
             {userInfo ? (
-              <div className="large-tabs">
-                <div className="user-info-wrapper">
-                  <div className="members-login--wrapper">
-                    {/* Use attribute = definition if its not a link */}
-
-                    <LoginOut
-                      description="LOGOUT"
-                      definition={
-                        <span className="members-login-text">
-                          {userInfo.name}
-                        </span>
-                      }
-                      onClick={handleLogout}
-                    />
-                  </div>
-                </div>
+              <div className="large-tabs" onClick={handleLogout}>
+                <span className="tab-label">Logout</span>
               </div>
             ) : null}
 
