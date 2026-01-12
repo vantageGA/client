@@ -12,40 +12,40 @@ const AboutView = () => {
         <legend>About Us</legend>
 
         <p>
-          <BodyVantage /> is a personal wellbeing website which enables you to
-          search and connect with specialised and experienced wellbeing
-          providers throughout the UK.
+          <BodyVantage /> was created to support professionals in the fitness,
+          beauty, rehabilitation, and wellbeing industries who genuinely care
+          about the people they work with. I work with businesses that help
+          others look better, move better, and feel better — from personal
+          trainers and gym owners to hair and beauty specialists, physios,
+          massage therapists, chiropractors, and wellbeing practitioners.
         </p>
 
         <p>
-          I noticed a gap in the health and wellbeing industry, where there was
-          a wealth of industry experience out there, but the public were not
-          aware of the providers in their location and that there had to be a
-          better way to put the public in touch with the right wellbeing
-          providers.
+          I understand that your audience is looking for more than just a
+          service. They want expertise they can trust, clear communication, and
+          a brand that feels credible and relatable. Through <BodyVantage />, I
+          help you express who you are, what you offer, and why it matters — so
+          you can connect with the right clients and grow your business with
+          confidence.
         </p>
 
         <p>
-          Ready to grow your wellbeing business and reach more clients? Join{' '}
-          <BodyVantage /> today and take ownership of your industry profile.
+          <BodyVantage /> is here to help you stand out, connect authentically,
+          and build a brand you're proud of.
         </p>
 
         <section className="member-benefits">
-          <h3>As a registered <BodyVantage /> member you:</h3>
+          <h3>As a <BodyVantage /> member you can:</h3>
           <ul>
-            <li>
-              can showcase your business to the public and convert enquiries
-              into clients
-            </li>
-            <li>can advertise your various wellbeing services to the public</li>
-            <li>are allowed unlimited service updates</li>
-            <li>can personalise your profile</li>
-            <li>can add client reviews</li>
+            <li>Strengthen your professional presence and credibility</li>
+            <li>Communicate your services with clarity and confidence</li>
+            <li>Connect more effectively with your ideal audience</li>
+            <li>Support sustainable business growth</li>
           </ul>
           <div className="cta-section">
             <Button
               text="Become a Member Today"
-              colour="#BE4F0C"
+              colour="#C4A523"
               disabled={false}
               onClick={() => navigate('/registration')}
               type="button"

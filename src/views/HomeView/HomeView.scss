@@ -85,9 +85,9 @@
 }
 
 .search-highlight {
-  color: $rating-colour;
+  color: $burnt-orange;
   font-weight: bold;
-  background-color: rgba(196, 166, 36, 0.25);
+  background-color: rgba($burnt-orange, 0.45);
   padding: 0 2px;
   border-radius: 2px;
 }

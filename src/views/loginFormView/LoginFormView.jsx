@@ -125,15 +125,9 @@ const LoginFormView = () => {
         </fieldset>
       )}
 
-      <div className="login-form-inner-wrapper">
-        <p>
-          New to our platform ?{' '}
-          <LinkComp route="registration" routeName="Register" /> here.
-        </p>
-        <p>
-          Forgot your password ?{' '}
-          <LinkComp route="forgot-password" routeName="Reset" /> here.
-        </p>
+      <div className="login-form-inner-wrapper">        
+        <div> <LinkComp route="registration" routeName="Register" /></div>
+        <div><LinkComp route="forgot-password" routeName="Forgot Password" /> </div>        
       </div>
     </div>
   );
