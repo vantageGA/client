@@ -61,6 +61,15 @@ const AboutView = () => {
             <li>member wellbeing offerings and reviews</li>
             <li>for member contact details and make enquiries</li>
           </ul>
+          <div className="cta-section">
+            <Button
+              text="FAQ's"
+              colour="#C4A523"
+              disabled={false}
+              onClick={() => navigate('/faq')}
+              type="button"
+            />
+          </div>
         </section>
       </fieldset>
 
