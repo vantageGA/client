@@ -45,9 +45,9 @@ const AboutView = () => {
           <div className="cta-section">
             <Button
               text="Become a Member Today"
-              colour="#C4A523"
+              
               disabled={false}
-              onClick={() => navigate('/registration')}
+              onClick={() => navigate('/pre-registration')}
               type="button"
             />
           </div>
@@ -64,7 +64,7 @@ const AboutView = () => {
           <div className="cta-section">
             <Button
               text="FAQ's"
-              colour="#C4A523"
+              
               disabled={false}
               onClick={() => navigate('/faq')}
               type="button"

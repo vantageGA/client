@@ -24,6 +24,7 @@ import PrivacyView from './views/privacyView/PrivacyView';
 import Cookies from './components/cookies/Cookies';
 import AboutView from './views/aboutView/AboutView';
 import FaqsView from './views/faqsView/FaqsView';
+import PreRegistrationView from './views/preRegistrationView/PreRegistrationView';
 
 // Change the display width by removing the --fluid after the container class
 const App = () => {
@@ -49,6 +50,7 @@ const App = () => {
             />
             <Route path="/contact" element={<ContactFormView />} />
             <Route path="/about" element={<AboutView />} />
+            <Route path="/pre-registration" element={<PreRegistrationView />} />
             <Route path="/faq" element={<FaqsView />} />
             <Route path="/cookies" element={<CookiesView />} />
             <Route path="/privacy" element={<PrivacyView />} />

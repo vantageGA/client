@@ -153,6 +153,11 @@ header {
       border-radius: 2px;
     }
 
+    &:focus,
+    &:active {
+      outline: none;
+    }
+
     .tab-label {
       font-size: 1.3rem;
       letter-spacing: 0.08em;

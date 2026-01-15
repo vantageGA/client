@@ -181,7 +181,7 @@ const RegistrationView = () => {
             )}
 
             <Button
-              colour="transparent"
+              
               text="submit"
               className="btn"
               disabled={

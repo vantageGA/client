@@ -1,8 +1,8 @@
 @use '../../index.scss' as *;
 
 .quill {
-  background-color: $main-font-colour;
-  color: $main-bg-colour;
+  background-color: transparent;
+  color: $main-font-colour;
   min-height: 250px;
 }
 .quill.invalid {

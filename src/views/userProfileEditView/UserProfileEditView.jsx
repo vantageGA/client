@@ -377,7 +377,7 @@ const UserProfileEditView = () => {
               ) : null}
               <Button
                 type="submit"
-                colour="transparent"
+                
                 text="Update Profile"
                 className="btn"
                 title={!user.isConfirmed ? 'You must confirm your email before updating your profile' : null}
@@ -428,14 +428,14 @@ const UserProfileEditView = () => {
                   <div className="button-group">
                     <Button
                       type="submit"
-                      colour="transparent"
+                      
                       text="Upload Image"
                       className="btn"
                       disabled={userProfileImageLoading}
                     />
                     <Button
                       type="button"
-                      colour="transparent"
+                      
                       text="Cancel"
                       className="btn"
                       onClick={handleCancelImageUpload}

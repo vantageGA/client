@@ -1,0 +1,273 @@
+@use '../../index.scss' as *;
+@use '../../scssMixIn.scss' as *;
+
+.pre-registration-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  .fieldSet {
+    padding: 1.5rem;
+    background-color: rgba(51, 51, 51, 0.3);
+    border-radius: 4px;
+    border: 1px solid $border-colour-light;
+    border-left: 1px solid $light-orange;
+
+    legend {
+      font-family: 'Bebas Neue', cursive;
+      letter-spacing: 0.1em;
+      font-size: 1.5rem;
+      color: $light-orange;
+      padding: 0 0.5rem;
+    }
+  }
+
+  .intro-text {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  p {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  h3 {
+    font-family: 'Bebas Neue', cursive;
+    letter-spacing: 0.1em;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: $light-orange;
+  }
+
+  h4 {
+    font-family: 'Bebas Neue', cursive;
+    letter-spacing: 0.1em;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: $light-orange;
+  }
+
+  // Accessible list styling
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 1rem 0;
+
+    li {
+      margin-bottom: 0.75rem;
+      padding-left: 1.5em;
+      position: relative;
+      line-height: 1.6;
+
+      &::before {
+        content: '▸';
+        position: absolute;
+        left: 0;
+        color: $burnt-orange;
+        font-weight: bold;
+      }
+
+      strong {
+        color: $light-orange;
+      }
+    }
+  }
+
+  // Benefits Section
+  .benefits-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: transparent;
+    border-radius: 4px;
+
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .benefit-card {
+      padding: 1rem;
+      background-color: transparent;
+      text-align: center;
+    }
+
+    .benefit-icon {
+      font-size: 2rem;
+      color: $burnt-orange;
+      margin-bottom: 0.75rem;
+    }
+
+    .benefit-title {
+      text-align: center;
+    }
+
+    .benefit-description {
+      line-height: 1.6;
+      margin: 0;
+      font-size: 0.95rem;
+    }
+  }
+
+  // Requirements Section
+  .requirements-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: transparent;
+    border-radius: 4px;
+  }
+
+  // Timeline Section
+  .timeline-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: transparent;
+    border-radius: 4px;
+
+    .timeline-container {
+      margin-top: 1rem;
+    }
+
+    .timeline-step {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: flex-start;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: $burnt-orange;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.2rem;
+      color: $main-bg-colour;
+      font-weight: bold;
+    }
+
+    .step-content {
+      flex: 1;
+
+      strong {
+        color: $light-orange;
+        display: block;
+        margin-bottom: 0.25rem;
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.95rem;
+      }
+    }
+  }
+
+  // FAQ Section
+  .faq-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: transparent;
+    border-radius: 4px;
+
+    .faq-container {
+      margin-top: 1rem;
+    }
+  }
+
+  // CTA Section
+  .cta-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: transparent;
+    border-radius: 4px;
+    text-align: center;
+
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  }
+
+  // Support link styling (outside fieldset)
+  .support-link {
+    margin-top: 2rem;
+    text-align: center;
+
+    p {
+      margin-bottom: 0;
+    }
+
+    a {
+      &:focus {
+        outline: 2px solid $burnt-orange;
+        outline-offset: 4px;
+        border-radius: 2px;
+      }
+
+      &:hover {
+        text-decoration: underline;
+        color: $light-orange;
+      }
+    }
+  }
+}
+
+@media (max-width: 812px) {
+  .pre-registration-wrapper {
+    padding: 0.75rem;
+
+    .fieldSet {
+      padding: 1rem;
+    }
+
+    .benefits-section,
+    .requirements-section,
+    .timeline-section,
+    .faq-section,
+    .cta-section {
+      padding: 1rem;
+    }
+
+    .benefits-section {
+      .benefits-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+
+    .timeline-section {
+      .timeline-step {
+        margin-bottom: 1rem;
+      }
+
+      .step-number {
+        width: 1.75rem;
+        height: 1.75rem;
+        font-size: 1rem;
+      }
+    }
+
+    .cta-section {
+      .cta-buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

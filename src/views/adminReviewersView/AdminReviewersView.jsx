@@ -68,7 +68,7 @@ const AdminReviewersView = () => {
                   <div className="item">
                     <p>{reviewer.name}</p>
                     <Button
-                      colour="transparent"
+                      
                       text="Delete User"
                       className="btn"
                       title={

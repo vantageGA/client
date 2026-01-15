@@ -150,7 +150,7 @@ const ReviewerRegisterView = () => {
             />
 
             <Button
-              colour="transparent"
+              
               text="submit"
               className="btn"
               disabled={

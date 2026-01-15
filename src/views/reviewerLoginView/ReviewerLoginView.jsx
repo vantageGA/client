@@ -169,7 +169,7 @@ const ReviewerLoginView = () => {
                 />
 
                 <Button
-                  colour="transparent"
+                  
                   text="submit"
                   className="btn"
                   disabled={
@@ -336,7 +336,7 @@ const ReviewerLoginView = () => {
                   </p>
 
                   <Button
-                    colour="transparent"
+                    
                     text="Accept Review Guidelines"
                     className="btn"
                     onClick={handleAcceptConditions}
@@ -404,7 +404,7 @@ const ReviewerLoginView = () => {
                       )}
                     </div>
                     <Button
-                      colour="transparent"
+                      
                       text="submit"
                       className="btn"
                       disabled={

@@ -63,7 +63,7 @@ const AdminView = () => {
         ) : (
           <>
             <Button
-              colour="transparent"
+              
               text={!showAdmin ? 'Show Admin' : 'Hide Admin'}
               className="btn"
               title="Show Admin"
@@ -103,7 +103,7 @@ const AdminView = () => {
                     />
                     <p>{userProfile.email}</p>
                     <Button
-                      colour="transparent"
+                      
                       text="Delete User"
                       className="btn"
                       title={
@@ -119,7 +119,7 @@ const AdminView = () => {
                   <div className="item">
                     {userProfile.isAdmin ? (
                       <Button
-                        colour="transparent"
+                        
                         text="Remove as Admin"
                         className="btn"
                         title={
@@ -132,7 +132,7 @@ const AdminView = () => {
                       ></Button>
                     ) : (
                       <Button
-                        colour="transparent"
+                        
                         text="Make Admin"
                         className="btn"
                         title={

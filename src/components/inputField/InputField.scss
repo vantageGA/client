@@ -1,10 +1,10 @@
 @use '../../index.scss' as *;
 
 // Input field color tokens for dark aesthetic
-$input-bg-default: rgba(25, 25, 25, 1);
-$input-bg-hover: rgba(35, 35, 35, 1);
-$input-bg-focus: rgba(45, 45, 45, 1);
-$input-bg-fieldset: rgba(30, 30, 30, 1); // Slightly lighter for fieldset context
+$input-bg-default: transparent;
+$input-bg-hover: transparent;
+$input-bg-focus: transparent;
+$input-bg-fieldset: transparent;
 $input-border-default: rgba(75, 75, 75, 1);
 $input-border-hover: rgba(100, 100, 100, 1);
 $input-border-focus: $burnt-orange;
@@ -57,18 +57,13 @@ $input-invalid-color: $danger;
     color: $input-text-default;
     line-height: 1.5;
 
-    // Dark aesthetic styling
+    // Transparent background
     background-color: $input-bg-default;
     border: 1px solid $input-border-default;
     border-radius: 4px;
 
-    // Subtle depth with inset shadow
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-    -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-
     // Smooth transitions
-    transition: background-color 150ms ease, border-color 150ms ease,
-      box-shadow 150ms ease, transform 150ms ease;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
 
     // Placeholder styling
     &::placeholder {
@@ -90,8 +85,7 @@ $input-invalid-color: $danger;
       border-left: 3px solid $input-border-focus;
       outline: 2px solid rgba($burnt-orange, 0.3);
       outline-offset: 2px;
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3),
-        0 0 0 3px rgba($burnt-orange, 0.1);
+      box-shadow: 0 0 0 3px rgba($burnt-orange, 0.1);
     }
 
     // Ensure touch targets are at least 48px
@@ -103,7 +97,7 @@ $input-invalid-color: $danger;
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,
   input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 30px rgba(25, 25, 25, 1) inset !important;
+    -webkit-box-shadow: 0 0 0 30px transparent inset !important;
     -webkit-text-fill-color: $main-font-colour !important;
     caret-color: $main-font-colour !important;
     transition: background-color 5000s ease-in-out 0s;
@@ -113,24 +107,8 @@ $input-invalid-color: $danger;
   input:-moz-autofill,
   input:-moz-autofill:hover,
   input:-moz-autofill:focus {
-    box-shadow: 0 0 0 30px rgba(25, 25, 25, 1) inset !important;
+    box-shadow: 0 0 0 30px transparent inset !important;
     -moz-text-fill-color: $main-font-colour !important;
-  }
-
-  // Within fieldsets, use slightly lighter background for better contrast
-  fieldset & {
-    input[type='text'],
-    input[type='email'],
-    input[type='password'],
-    input[type='search'],
-    input[type='tel'],
-    textarea {
-      background-color: $input-bg-fieldset;
-
-      &:hover:not(:focus) {
-        background-color: rgba(40, 40, 40, 1);
-      }
-    }
   }
 
   // Valid/Entered state - subtle green bottom border
@@ -141,14 +119,10 @@ $input-invalid-color: $danger;
   input[type='tel'].entered,
   textarea.entered {
     border-bottom: 2px solid $input-valid-color;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2),
-      0 2px 4px rgba($input-valid-color, 0.2);
 
     &:focus {
       border-left: 3px solid $input-border-focus;
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3),
-        0 0 0 3px rgba($burnt-orange, 0.1),
-        0 2px 4px rgba($input-valid-color, 0.3);
+      box-shadow: 0 0 0 3px rgba($burnt-orange, 0.1);
     }
   }
 
@@ -161,14 +135,10 @@ $input-invalid-color: $danger;
   textarea.invalid {
     border: 1px solid $input-invalid-color;
     border-left: 3px solid $input-invalid-color;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2),
-      0 0 8px rgba($input-invalid-color, 0.3);
 
     &:focus {
       outline: 2px solid rgba($input-invalid-color, 0.3);
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3),
-        0 0 0 3px rgba($input-invalid-color, 0.15),
-        0 0 8px rgba($input-invalid-color, 0.4);
+      box-shadow: 0 0 0 3px rgba($input-invalid-color, 0.15);
     }
   }
 

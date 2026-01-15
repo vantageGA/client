@@ -54,7 +54,7 @@ const Cookies = () => {
             <div className="button-wrapper">
               <Button
                 type="button"
-                colour="transparent"
+                
                 onClick={handleDismiss}
                 title="Accept Cookies"
                 text="Accept Cookies"
@@ -62,7 +62,7 @@ const Cookies = () => {
               />
               <Button
                 type="button"
-                colour="crimson"
+                
                 onClick={handleDismissCookies}
                 title="Don't Accept Cookies"
                 text="Don't Accept"

@@ -142,7 +142,7 @@ const ContactFormView = ({ type }) => {
               </div>
 
               <Button
-                colour="transparent"
+                
                 text="Submit"
                 className="btn"
                 type="submit"

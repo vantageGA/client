@@ -137,7 +137,7 @@ const AdminProfileView = () => {
                 label="SEARCH A NAME"
               />
               <Button
-                colour="transparent"
+                
                 text="Clear search"
                 className="btn"
                 title="Clear Search"
@@ -184,7 +184,7 @@ const AdminProfileView = () => {
               <div key={profile._id} className="admin-profile-inner-wrapper">
                 <div className="item">
                   <Button
-                    colour="transparent"
+                    
                     text="Delete Profile"
                     className="btn"
                     title="Delete Profile"
@@ -204,7 +204,7 @@ const AdminProfileView = () => {
                 <div className="item">
                   <>
                     <Button
-                      colour="transparent"
+                      
                       text="Verify Qualifications"
                       className="btn"
                       title="Verify Qualifications"
@@ -242,7 +242,7 @@ const AdminProfileView = () => {
                   {profile.numReviews}
 
                   <Button
-                    colour="transparent"
+                    
                     text={
                       showReviewsId === profile._id && showReviews
                         ? 'HIDE Reviews'
@@ -270,7 +270,7 @@ const AdminProfileView = () => {
                             <p>Review: {review.comment}</p>
                             <p>Rating: {review.rating}</p>
                             <Button
-                              colour="transparent"
+                              
                               text="Delete Review"
                               className="btn"
                               title="Delete Review"

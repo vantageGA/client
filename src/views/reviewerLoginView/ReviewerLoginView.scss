@@ -6,7 +6,7 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-color: $main-font-colour;
+    background-color: transparent;
     border-radius: 4px;
     width: auto;
     padding: 0 1rem;
@@ -17,7 +17,7 @@
     display: none;
   }
   select > option {
-    background-color: $main-font-colour;
+    background-color: $main-bg-colour;
     border-radius: 4px;
     text-align: center;
   }
@@ -107,19 +107,17 @@
       padding: 0.75rem 1rem;
       font-family: 'Comfortaa', cursive;
       font-size: 1rem;
-      background-color: rgba(25, 25, 25, 1);
+      background-color: transparent;
       border: 1px solid rgba(75, 75, 75, 1);
       border-radius: 4px;
       color: $main-font-colour;
-      transition: border-color 150ms ease, background-color 150ms ease;
+      transition: border-color 150ms ease;
 
       &:hover {
-        background-color: rgba(35, 35, 35, 1);
         border-color: rgba(100, 100, 100, 1);
       }
 
       &:focus {
-        background-color: rgba(45, 45, 45, 1);
         border-color: $burnt-orange;
         outline: 2px solid rgba($burnt-orange, 0.3);
         outline-offset: 2px;
@@ -131,7 +129,7 @@
     select:-webkit-autofill:hover,
     select:-webkit-autofill:focus,
     select:-webkit-autofill:active {
-      -webkit-box-shadow: 0 0 0 30px rgba(25, 25, 25, 1) inset !important;
+      -webkit-box-shadow: 0 0 0 30px transparent inset !important;
       -webkit-text-fill-color: $main-font-colour !important;
       transition: background-color 5000s ease-in-out 0s;
     }
@@ -169,12 +167,11 @@
       font-size: 1rem;
       color: $main-font-colour;
       line-height: 1.5;
-      background-color: rgba(25, 25, 25, 1);
+      background-color: transparent;
       border: 1px solid rgba(75, 75, 75, 1);
       border-radius: 4px;
       resize: vertical;
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-      transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
 
       &::placeholder {
         color: rgba(190, 190, 190, 1); // WCAG compliant
@@ -183,44 +180,33 @@
       }
 
       &:hover:not(:focus) {
-        background-color: rgba(35, 35, 35, 1);
         border-color: rgba(100, 100, 100, 1);
       }
 
       &:focus {
-        background-color: rgba(45, 45, 45, 1);
         border-color: $burnt-orange;
         border-left: 3px solid $burnt-orange;
         outline: 2px solid rgba($burnt-orange, 0.3);
         outline-offset: 2px;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3),
-          0 0 0 3px rgba($burnt-orange, 0.1);
+        box-shadow: 0 0 0 3px rgba($burnt-orange, 0.1);
       }
 
       &.invalid {
         border: 1px solid $danger;
         border-left: 3px solid $danger;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2),
-          0 0 8px rgba($danger, 0.3);
 
         &:focus {
           outline: 2px solid rgba($danger, 0.3);
-          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3),
-            0 0 0 3px rgba($danger, 0.15),
-            0 0 8px rgba($danger, 0.4);
+          box-shadow: 0 0 0 3px rgba($danger, 0.15);
         }
       }
 
       &.entered {
         border-bottom: 2px solid $success;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2),
-          0 2px 4px rgba($success, 0.2);
 
         &:focus {
           border-left: 3px solid $burnt-orange;
-          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3),
-            0 0 0 3px rgba($burnt-orange, 0.1),
-            0 2px 4px rgba($success, 0.3);
+          box-shadow: 0 0 0 3px rgba($burnt-orange, 0.1);
         }
       }
     }
@@ -230,7 +216,7 @@
     textarea:-webkit-autofill:hover,
     textarea:-webkit-autofill:focus,
     textarea:-webkit-autofill:active {
-      -webkit-box-shadow: 0 0 0 30px rgba(25, 25, 25, 1) inset !important;
+      -webkit-box-shadow: 0 0 0 30px transparent inset !important;
       -webkit-text-fill-color: $main-font-colour !important;
       caret-color: $main-font-colour !important;
       transition: background-color 5000s ease-in-out 0s;

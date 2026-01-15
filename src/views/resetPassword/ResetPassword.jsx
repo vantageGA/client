@@ -98,7 +98,7 @@ const ResetPassword = () => {
             )}
 
             <Button
-              colour="transparent"
+              
               text="submit"
               className="btn"
               disabled={

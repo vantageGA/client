@@ -116,7 +116,7 @@ const LoginFormView = () => {
             />
 
             <Button
-              colour="transparent"
+              
               text="submit"
               className="btn"
               disabled={!password.length || !isValidEmail(email)}

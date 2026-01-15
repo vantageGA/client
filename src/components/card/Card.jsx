@@ -67,7 +67,7 @@ const Card = ({
           {profileClickCounter}
           <Link className="link" to={`/fullProfile/${id}`}>
             <Button
-              colour="transparent"
+              
               text="VIEW FULL PROFILE"
               className="btn link"
               disabled={false}

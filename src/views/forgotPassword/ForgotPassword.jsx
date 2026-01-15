@@ -55,7 +55,7 @@ const ForgotPassword = () => {
           />
 
           <Button
-            colour="transparent"
+            
             text="submit"
             className="btn"
             disabled={!emailRegEx.test(email)}

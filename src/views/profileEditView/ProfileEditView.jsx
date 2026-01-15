@@ -373,7 +373,7 @@ const ProfileEditView = () => {
                 <p>You will then be able to edit your profile.</p>
                 <Button
                   type="submit"
-                  colour="transparent"
+                  
                   text="Create your profile"
                   className="btn"
                   title="Create your profile"
@@ -399,7 +399,7 @@ const ProfileEditView = () => {
 
             <Button
               type="button"
-              colour="transparent"
+              
               text={!showHelp ? 'SHOW HELP' : 'HIDE HELP'}
               className="btn"
               title={!showHelp ? 'SHOW HELP' : 'HIDE HELP'}
@@ -481,7 +481,7 @@ const ProfileEditView = () => {
               />
               <Button
                 type="submit"
-                colour="transparent"
+                
                 text="Save profile basics"
                 className="btn sticky-save"
                 title="Save profile basics"
@@ -506,7 +506,7 @@ const ProfileEditView = () => {
                 </div>
                 <Button
                   type="submit"
-                  colour="transparent"
+                  
                   text="Save description"
                   className="btn sticky-save"
                   title="Save description"
@@ -644,7 +644,7 @@ const ProfileEditView = () => {
                   />
                   <Button
                     type="submit"
-                    colour="transparent"
+                    
                     text="Save keywords"
                     className="btn sticky-save"
                     title="Save keywords"
@@ -784,7 +784,7 @@ const ProfileEditView = () => {
                 </div>
                 <Button
                   type="submit"
-                  colour="transparent"
+                  
                   text="Save specialisation"
                   className="btn sticky-save"
                   title="Save specialisation"
@@ -805,7 +805,7 @@ const ProfileEditView = () => {
                 </div>
                 <Button
                   type="submit"
-                  colour="transparent"
+                  
                   text="Save qualifications"
                   className="btn sticky-save"
                   title="Save qualifications"
@@ -837,7 +837,7 @@ const ProfileEditView = () => {
                 </div>
                 <Button
                   type="submit"
-                  colour="transparent"
+                  
                   text="Save location"
                   className="btn sticky-save"
                   title="Save location"
@@ -936,14 +936,14 @@ const ProfileEditView = () => {
                     />
                     <div className="button-group">
                       <Button
-                        colour="transparent"
+                        
                         text="Upload Image"
                         className="btn"
                         type="submit"
                         disabled={profileImageLoading}
                       />
                       <Button
-                        colour="transparent"
+                        
                         text="Cancel"
                         className="btn"
                         type="button"
