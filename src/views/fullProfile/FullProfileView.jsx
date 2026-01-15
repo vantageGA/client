@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import './FullProfileView.scss';
@@ -40,11 +40,7 @@ const sanitize = (value) =>
   });
 
 const FullProfileView = () => {
-  const [divHeight, setDivHeight] = useState(0);
-  const [nameHeight, setNameHeight] = useState(0);
   const [profileImageIndex, setProfileImageIndex] = useState(0);
-  const ref = useRef(null);
-  const refName = useRef(null);
   const dispatch = useDispatch();
   const { id } = useParams();
 
@@ -60,8 +56,6 @@ const FullProfileView = () => {
       dispatch(profileImagesPublicAction(profile.user));
       dispatch(userReviewIdAction(profile.user));
     }
-    setDivHeight(ref.current?.offsetHeight || 0);
-    setNameHeight(refName.current?.offsetHeight || 0);
     return () => {
       console.log('Full Profile cleanup');
     };
@@ -93,20 +87,7 @@ const FullProfileView = () => {
           ) : (
             <>
               <div className="full-profile-wrapper">
-                <div
-                  ref={ref}
-                  className="item bg-image"
-                  style={{
-                    backgroundImage:
-                      profileImages.length > 0
-                        ? `url(${profileImages[profileImageIndex]?.avatar})`
-                        : null,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'center',
-                    backgroundSize: 'cover',
-                    paddingBottom: '1rem',
-                  }}
-                >
+                <div className="item first-column">
                   <div className="specialisation-wrapper">
                     <div className="specialisation">
                       {profile?.specialisationOne}
@@ -121,7 +102,7 @@ const FullProfileView = () => {
                       {profile?.specialisationFour}
                     </div>
                   </div>
-                  <div ref={refName}>
+                  <div>
                     <div className="full-profile-name">{profile?.name}</div>
                     <Rating
                       value={profile?.rating}
@@ -130,14 +111,16 @@ const FullProfileView = () => {
                   </div>
 
                   <div
-                    className="full-profile-time"
-                    style={{ bottom: `-${divHeight - nameHeight * 2.2}px` }}
-                  >
-                    <p>
-                      Profile last updated:{' '}
-                      {moment(profile?.updatedAt).fromNow()}
-                    </p>
-                    <p>Create: {moment(profile?.createdAt).fromNow()}</p>
+                    className="bg-image"
+                    style={{
+                      backgroundImage:
+                        profileImages.length > 0
+                          ? `url(${profileImages[profileImageIndex]?.avatar})`
+                          : null,
+                    }}
+                  ></div>
+
+                  <div className="full-profile-time">
                     <p>
                       {profile?.name} has had {profile?.profileClickCounter}{' '}
                       views.

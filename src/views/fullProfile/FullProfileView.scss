@@ -2,10 +2,13 @@
 
 .full-profile-wrapper {
   display: flex;
+  align-items: stretch; /* Ensure all columns stretch to match the tallest */
 
   .item {
     flex: 1; /*grow*/
     padding: 0.5em;
+    display: flex; /* Make each item a flex container */
+    flex-direction: column; /* Stack content vertically */
 
     .specialisation-wrapper {
       display: flex;
@@ -25,7 +28,6 @@
       text-transform: uppercase;
     }
     .full-profile-time {
-      position: relative;
       justify-content: flex-start;
       font-size: 0.7em;
     }
@@ -39,10 +41,14 @@
     }
   }
 
-  .bg-image {
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
+  .first-column {
+    .bg-image {
+      flex: 1;
+      min-height: 300px;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
   }
   .profile-image-public-wrapper {
     display: flex;
