@@ -76,6 +76,14 @@ const FullProfileView = () => {
   // Note: For now showing first page of images only
   // In a future enhancement, could add pagination controls for images
 
+  // Filter empty specialisations
+  const specialisations = [
+    profile?.specialisationOne,
+    profile?.specialisationTwo,
+    profile?.specialisationThree,
+    profile?.specialisationFour
+  ].filter(s => s && s.trim());
+
   return (
     <div>
       {loading ? (
@@ -86,24 +94,22 @@ const FullProfileView = () => {
             <Message message={error} />
           ) : (
             <>
+              {specialisations.length > 0 && (
+                <section className="profile-specialisation-header" aria-label="Professional specialisations">
+                  <h2 className="sr-only">Specialisations</h2>
+                  <div className="specialisation-tags-container">
+                    {specialisations.map((spec, index) => (
+                      <span key={index} className="specialisation-tag">
+                        {spec}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              )}
               <div className="full-profile-wrapper">
                 <div className="item first-column">
-                  <div className="specialisation-wrapper">
-                    <div className="specialisation">
-                      {profile?.specialisationOne}
-                    </div>
-                    <div className="specialisation">
-                      {profile?.specialisationTwo}
-                    </div>
-                    <div className="specialisation">
-                      {profile?.specialisationThree}
-                    </div>
-                    <div className="specialisation">
-                      {profile?.specialisationFour}
-                    </div>
-                  </div>
                   <div>
-                    <div className="full-profile-name">{profile?.name}</div>
+                    <h1 className="full-profile-name">{profile?.name}</h1>
                     <Rating
                       value={profile?.rating}
                       text={`  from ${profile?.numReviews} reviews`}
@@ -128,22 +134,7 @@ const FullProfileView = () => {
                   </div>
                 </div>
                 <div className="item">
-                  <div className="specialisation-wrapper">
-                    <div className="specialisation">
-                      {profile?.specialisationOne}
-                    </div>
-                    <div className="specialisation">
-                      {profile?.specialisationTwo}
-                    </div>
-                    <div className="specialisation">
-                      {profile?.specialisationThree}
-                    </div>
-                    <div className="specialisation">
-                      {profile?.specialisationFour}
-                    </div>
-                  </div>
-
-                  <h1>My BIO</h1>
+                  <h2>My BIO</h2>
                   <p
                     dangerouslySetInnerHTML={{
                       __html: sanitize(profile?.description),
@@ -158,16 +149,15 @@ const FullProfileView = () => {
                           profileImageLoading ? (
                             <LoadingSpinner key={`loading-${index}`} />
                           ) : (
-                            <span
+                            <button
                               key={image._id || `image-${index}`}
                               onClick={() => handleProfileImage(index)}
+                              aria-pressed={index === profileImageIndex}
+                              aria-label={`View profile image ${index + 1} of ${profileImages.length}`}
+                              className={`gallery-thumbnail ${index === profileImageIndex ? 'active' : ''}`}
                             >
-                              <img
-                                src={image.avatar}
-                                alt={image.name}
-                                title={`Click to preview`}
-                              />
-                            </span>
+                              <img src={image.avatar} alt="" aria-hidden="true" />
+                            </button>
                           ),
                         )}
                       </div>
@@ -178,14 +168,14 @@ const FullProfileView = () => {
                     )}
                   </div>
 
-                  <h1>Specialisation</h1>
+                  <h2>Specialisation</h2>
                   <p
                     dangerouslySetInnerHTML={{
                       __html: sanitize(profile?.specialisation),
                     }}
                   ></p>
 
-                  <h1>Qualifications</h1>
+                  <h2>Qualifications</h2>
                   <p
                     dangerouslySetInnerHTML={{
                       __html: sanitize(profile?.qualifications),
@@ -198,6 +188,8 @@ const FullProfileView = () => {
                     {profile?.isQualificationsVerified === true ? (
                       <i
                         className="fa fa-check"
+                        role="img"
+                        aria-label="Verified"
                         style={{
                           fontSize: 20 + 'px',
                           color: 'rgba(92, 184, 92, 1)',
@@ -207,6 +199,8 @@ const FullProfileView = () => {
                     ) : (
                       <i
                         className="fa fa-times"
+                        role="img"
+                        aria-label="Not verified"
                         style={{
                           fontSize: 20 + 'px',
                           color: 'crimson',
@@ -217,25 +211,10 @@ const FullProfileView = () => {
                   </div>
                 </div>
                 <div className="item">
-                  <div className="specialisation-wrapper">
-                    <div className="specialisation">
-                      {profile?.specialisationOne}
-                    </div>
-                    <div className="specialisation">
-                      {profile?.specialisationTwo}
-                    </div>
-                    <div className="specialisation">
-                      {profile?.specialisationThree}
-                    </div>
-                    <div className="specialisation">
-                      {profile?.specialisationFour}
-                    </div>
-                  </div>
-
                   <div>
                     {profile?.reviews.length > 0 ? (
                       <>
-                        <h1>Reviews</h1>
+                        <h2>Reviews</h2>
                         {profile?.reviews.map((review) => (
                           <div key={review._id}>
                             <Review
@@ -258,7 +237,7 @@ const FullProfileView = () => {
                       </>
                     ) : (
                       <>
-                        <h1>Reviews</h1>
+                        <h2>Reviews</h2>
                         <p>
                           There is currently no reviews for {profile?.name}.
                         </p>
@@ -273,12 +252,12 @@ const FullProfileView = () => {
                     )}
                   </div>
                   <div>
-                    <h1>Contact Details</h1>
+                    <h2>Contact Details</h2>
                     <p>Mobile: {profile?.telephoneNumber}</p>
                     <p>
                       Email:{' '}
                       <a
-                        href={`mailto: ${profile?.email}`}
+                        href={`mailto:${profile?.email}`}
                         target="_blank"
                         rel="noreferrer"
                       >
@@ -308,20 +287,21 @@ const FullProfileView = () => {
                     {!profile?.websiteUrl ? (
                       <p>No website.</p>
                     ) : (
-                      <>
+                      <p>
                         My website:{' '}
                         <a
-                          href={`https://www.${profile?.websiteUrl}`}
+                          href={`https://${profile?.websiteUrl}`}
                           target="_blank"
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
                         >
-                          {profile?.websiteUrl}
+                          {profile?.websiteUrl} <span aria-hidden="true">↗</span>
+                          <span className="sr-only">(opens in new tab)</span>
                         </a>
-                      </>
+                      </p>
                     )}
                   </div>
                   <div>
-                    <h1>Location</h1>
+                    <h2>Location</h2>
                     <p>{profile?.location}</p>
                   </div>
                 </div>
