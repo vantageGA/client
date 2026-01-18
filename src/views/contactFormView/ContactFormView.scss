@@ -150,6 +150,21 @@
     line-height: 1.4;
   }
 
+  // Response time note - informational text above submit button
+  .response-time-note {
+    display: block;
+    font-size: 0.9rem;
+    color: $light-orange;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.75rem 1rem;
+    background-color: rgba($light-orange, 0.08);
+    border-left: 3px solid $light-orange;
+    border-radius: 2px;
+    line-height: 1.5;
+    font-style: italic;
+  }
+
   // Validation error message with animation (matching InputField)
   .validation-error {
     display: block;
@@ -183,6 +198,41 @@
     gap: 1rem;
     line-height: 1.6;
 
+    // Value proposition section - main brand description
+    .value-proposition {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid $border-colour-light;
+
+      p {
+        font-family: 'Comfortaa', cursive;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: $main-font-colour;
+        margin: 0;
+        font-weight: 400;
+        letter-spacing: 0.02em;
+      }
+    }
+
+    // Contact section with heading
+    .contact-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+
+      .contact-heading {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        color: $light-orange;
+        margin: 0;
+        text-transform: uppercase;
+        padding-bottom: 0.5rem;
+      }
+    }
+
     .contact-detail-item {
       display: flex;
       flex-direction: column;
@@ -204,6 +254,8 @@
         text-decoration: none;
         transition: color 0.2s ease;
         display: inline-block;
+        word-break: break-word;
+        overflow-wrap: break-word;
 
         &:hover {
           color: $light-orange;
@@ -214,6 +266,10 @@
           outline: 2px solid $burnt-orange;
           outline-offset: 4px;
           border-radius: 2px;
+        }
+
+        &:active {
+          color: $burnt-orange;
         }
       }
     }

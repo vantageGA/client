@@ -1,0 +1,141 @@
+@use '../../index.scss' as *;
+
+.social-links-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid $border-colour-light;
+
+  .social-heading {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: $light-orange;
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    padding-bottom: 0.5rem;
+  }
+
+  .social-links-container {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.875rem 1.25rem;
+    background-color: rgba($light-orange, 0.08);
+    border: 1px solid $border-colour-light;
+    border-radius: 4px;
+    color: $main-font-colour;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    min-height: 48px; // Touch target minimum
+
+    // Icon styling
+    i {
+      font-size: 1.25rem;
+      color: $light-orange;
+      transition: color 0.2s ease;
+    }
+
+    // Label styling
+    .social-label {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+      color: $main-font-colour;
+      transition: color 0.2s ease;
+    }
+
+    // Hover state
+    &:hover {
+      background-color: rgba($light-orange, 0.15);
+      border-color: $light-orange;
+      transform: translateY(-2px);
+
+      i {
+        color: $burnt-orange;
+      }
+
+      .social-label {
+        color: $light-orange;
+      }
+    }
+
+    // Focus state for keyboard navigation
+    &:focus {
+      outline: 2px solid $burnt-orange;
+      outline-offset: 4px;
+      border-radius: 4px;
+      background-color: rgba($burnt-orange, 0.1);
+    }
+
+    // Active state
+    &:active {
+      transform: translateY(0);
+      background-color: rgba($burnt-orange, 0.2);
+
+      i,
+      .social-label {
+        color: $burnt-orange;
+      }
+    }
+  }
+}
+
+// Tablet breakpoint - adjust layout
+@media (max-width: 812px) {
+  .social-links-section {
+    .social-links-container {
+      gap: 1rem;
+    }
+
+    .social-link {
+      padding: 0.75rem 1rem;
+
+      i {
+        font-size: 1.15rem;
+      }
+
+      .social-label {
+        font-size: 0.95rem;
+      }
+    }
+  }
+}
+
+// Mobile breakpoint - stack vertically or reduce further
+@media (max-width: 480px) {
+  .social-links-section {
+    .social-links-container {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .social-link {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+// Accessibility: Respect reduced motion preference
+@media (prefers-reduced-motion: reduce) {
+  .social-links-section {
+    .social-link {
+      transition: none;
+
+      &:hover {
+        transform: none;
+      }
+
+      &:active {
+        transform: none;
+      }
+    }
+  }
+}

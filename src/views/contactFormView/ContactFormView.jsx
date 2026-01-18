@@ -8,6 +8,8 @@ import InputField from '../../components/inputField/InputField';
 import Button from '../../components/button/Button';
 import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
 import Message from '../../components/message/Message';
+import BodyVantage from '../../components/bodyVantage/BodyVantage';
+import SocialLinks from '../../components/socialLinks/SocialLinks';
 
 const ContactFormView = ({ type }) => {
   // Simplified name regex - accepts letters, spaces, hyphens, apostrophes (min 2 chars)
@@ -81,14 +83,14 @@ const ContactFormView = ({ type }) => {
               <div className="form-group">
                 <InputField
                   id="name"
-                  label="Name"
+                  label="Full Name"
                   type="text"
                   name="name"
                   value={name}
                   required
                   hint="Minimum 2 characters"
                   className={showNameError ? 'invalid' : isNameValid ? 'entered' : ''}
-                  error={showNameError ? 'Name must contain at least 2 characters.' : null}
+                  error={showNameError ? 'Full Name must contain at least 2 characters.' : null}
                   onChange={(e) => setName(e.target.value)}
                   onBlur={() => handleBlur('name')}
                   aria-invalid={showNameError}
@@ -141,8 +143,12 @@ const ContactFormView = ({ type }) => {
                 )}
               </div>
 
+              <p className="response-time-note">
+                We aim to respond within 48 hours.
+              </p>
+
               <Button
-                
+
                 text="Submit"
                 className="btn"
                 type="submit"
@@ -152,24 +158,38 @@ const ContactFormView = ({ type }) => {
           </fieldset>
 
           <fieldset className="fieldSet contact-details-fieldset">
-            <legend>Contact Details</legend>
+            <legend>What Bodyvantage Means</legend>
+
             <address className="contact-details">
-              <div className="contact-detail-item">
-                <strong>Address:</strong>
-                <span>1233 Main Street, London, UK</span>
+              {/* Value Proposition Section */}
+              <div className="value-proposition">
+                <p>
+                  <BodyVantage />{' '}is a professional membership network supporting trust, clarity
+                  and credibility across fitness, beauty, rehabilitation and wellbeing.
+                </p>
               </div>
-              <div className="contact-detail-item">
-                <strong>Phone:</strong>
-                <a href="tel:+44113" aria-label="Call us at 113">
-                  113
-                </a>
+
+              {/* Contact Information Section */}
+              <div className="contact-section">
+                <h3 className="contact-heading">Get in Touch</h3>
+
+                <div className="contact-detail-item">
+                  <strong>Contact:</strong>
+                  <a href="mailto:hello@bodyvantage.co.uk" aria-label="Email us at hello@bodyvantage.co.uk">
+                    hello@bodyvantage.co.uk
+                  </a>
+                </div>
+
+                <div className="contact-detail-item">
+                  <strong>Member Support:</strong>
+                  <a href="mailto:membersupport@bodyvantage.co.uk" aria-label="Email member support at membersupport@bodyvantage.co.uk">
+                    membersupport@bodyvantage.co.uk
+                  </a>
+                </div>
               </div>
-              <div className="contact-detail-item">
-                <strong>Email:</strong>
-                <a href="mailto:something@mail.com" aria-label="Email us at something@mail.com">
-                  something@mail.com
-                </a>
-              </div>
+
+              {/* Social Media Links */}
+              <SocialLinks />
             </address>
           </fieldset>
         </div>
