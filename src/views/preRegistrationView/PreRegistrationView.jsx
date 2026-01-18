@@ -1,189 +1,186 @@
 import './PreRegistrationView.scss';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import BodyVantage from '../../components/bodyVantage/BodyVantage';
 import Button from '../../components/button/Button';
-import Accordion from '../../components/accordion/Accordion';
 import LinkComp from '../../components/linkComp/LinkComp';
 
 const PreRegistrationView = () => {
   const navigate = useNavigate();
 
-  // State for FAQ accordion
-  const [activeQuestion, setActiveQuestion] = useState(null);
-
-  // FAQ data structure
-  const faqs = [
-    {
-      id: 1,
-      question: 'How long does the registration process take?',
-      answer: 'The initial registration form takes approximately 10-15 minutes to complete. After submission, our team will review your application within 3-5 business days. You will be notified via email once your profile is approved and activated.'
-    },
-    {
-      id: 2,
-      question: 'What documents do I need to provide?',
-      answer: 'You will need to provide proof of professional qualifications, valid insurance documentation, and professional identification. Specific requirements vary by industry sector. All documents should be current and clearly legible.'
-    },
-    {
-      id: 3,
-      question: 'Is there a membership fee?',
-      answer: 'Yes, BodyVantage operates on a subscription-based model. Membership fees vary depending on your chosen plan and features. Detailed pricing information will be provided during the registration process. We offer flexible payment options to suit different business needs.'
-    },
-    {
-      id: 4,
-      question: 'Can I update my profile after registration?',
-      answer: 'Absolutely. Once your profile is approved, you will have full access to edit your information, add services, update pricing, upload photos, and manage your availability. You can make updates at any time through your dashboard.'
-    },
-    {
-      id: 5,
-      question: 'What happens if my application is not approved?',
-      answer: 'If your application does not meet our current requirements, we will provide detailed feedback via email explaining the reasons. You will have the opportunity to address any issues and reapply. Our support team is available to answer questions and guide you through the process.'
-    }
-  ];
-
-  // Handle FAQ toggle
-  const handleQuestionClick = (id) => {
-    setActiveQuestion(activeQuestion === id ? null : id);
-  };
-
   return (
     <div className="pre-registration-wrapper">
       <fieldset className="fieldSet">
-        <legend>Before You Join <BodyVantage /></legend>
+        <legend>Join <BodyVantage /> – Become a Registered Member</legend>
 
         <p className="intro-text">
-          Everything you need to know about becoming a member
+          <BodyVantage /> membership is designed for individual professionals
+          working across fitness, beauty, rehabilitation, and wellbeing. Whether
+          you operate independently, are self-employed, or work as part of a
+          wider team, membership recognises you as a professional, not a
+          business listing.
         </p>
 
-        {/* Benefits Section */}
-        <section className="benefits-section">
-          <h3>Membership Benefits</h3>
-          <div className="benefits-grid">
-            <article className="benefit-card">
-              <div className="benefit-icon" aria-hidden="true">
-                <i className="fas fa-user-check"></i>
-              </div>
-              <h4 className="benefit-title">Professional Credibility</h4>
-              <p className="benefit-description">
-                Enhance your professional reputation with a verified profile on our trusted platform.
-              </p>
-            </article>
+        <p>
+          Joining <BodyVantage /> confirms your commitment to verified
+          expertise, professional conduct, and recognised standards.
+        </p>
 
-            <article className="benefit-card">
-              <div className="benefit-icon" aria-hidden="true">
-                <i className="fas fa-search-location"></i>
-              </div>
-              <h4 className="benefit-title">Increased Visibility</h4>
-              <p className="benefit-description">
-                Reach more potential clients through our location-based search platform.
-              </p>
-            </article>
-
-            <article className="benefit-card">
-              <div className="benefit-icon" aria-hidden="true">
-                <i className="fas fa-chart-line"></i>
-              </div>
-              <h4 className="benefit-title">Business Growth</h4>
-              <p className="benefit-description">
-                Access tools and features designed to help you grow your business.
-              </p>
-            </article>
-
-            <article className="benefit-card">
-              <div className="benefit-icon" aria-hidden="true">
-                <i className="fas fa-hands-helping"></i>
-              </div>
-              <h4 className="benefit-title">Dedicated Support</h4>
-              <p className="benefit-description">
-                Receive ongoing support from our team with profile optimization and more.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        {/* Requirements Section */}
-        <section className="requirements-section">
-          <h3>Membership Requirements</h3>
+        {/* Who Membership Is For Section */}
+        <section className="content-section">
+          <h3>Who Membership Is For</h3>
           <p>
-            To maintain the quality and credibility of our platform, all members must meet the following criteria:
+            <BodyVantage /> supports individual practitioners including:
           </p>
           <ul>
-            <li><strong>Professional Qualifications:</strong> Hold relevant certifications or licenses in your field</li>
-            <li><strong>Valid Insurance:</strong> Maintain current professional indemnity and public liability insurance</li>
-            <li><strong>Professional Conduct:</strong> Agree to uphold our code of conduct and standards</li>
-            <li><strong>Accurate Information:</strong> Provide truthful information about your services and qualifications</li>
-            <li><strong>Responsive Communication:</strong> Commit to responding to client inquiries promptly</li>
+            <li>Personal trainers and fitness professionals</li>
+            <li>Beauticians and aesthetics practitioners</li>
+            <li>Physiotherapists and rehabilitation specialists</li>
+            <li>Massage therapists and chiropractors</li>
+            <li>Wellbeing and holistic practitioners</li>
+          </ul>
+          <p>
+            Membership is open to professionals who value credibility,
+            accountability, and long-term trust over visibility alone.
+          </p>
+        </section>
+
+        {/* Why Join Section */}
+        <section className="benefits-section">
+          <h3>Why Join <BodyVantage /></h3>
+          <p>As a registered member, you benefit from:</p>
+          <ul className="detailed-list">
+            <li>
+              <strong>Individual professional recognition</strong>
+              <span>
+                Membership confirms that you meet <BodyVantage />{' '}
+                standards for qualifications, conduct, and professional
+                alignment.
+              </span>
+            </li>
+            <li>
+              <strong>Increased client confidence</strong>
+              <span>
+                Being a registered member helps potential clients feel reassured
+                before making contact.
+              </span>
+            </li>
+            <li>
+              <strong>Clear, professional representation</strong>
+              <span>
+                Your profile is structured to communicate your expertise
+                accurately, without reliance on marketing language or
+                self-promotion.
+              </span>
+            </li>
+            <li>
+              <strong>Alignment with a trusted network</strong>
+              <span>
+                Join a recognised community of professionals committed to
+                maintaining standards within their industry.
+              </span>
+            </li>
           </ul>
         </section>
 
-        {/* Timeline Section */}
+        {/* What Membership Includes Section */}
+        <section className="includes-section">
+          <h3>What Membership Includes</h3>
+          <p>Registered members receive:</p>
+          <ul className="detailed-list">
+            <li>
+              <strong>Verified member status</strong>
+              <span>
+                Recognition as a <BodyVantage /> professional following review
+                and approval.
+              </span>
+            </li>
+            <li>
+              <strong>Structured professional profile</strong>
+              <span>
+                Designed to present your information consistently and
+                responsibly.
+              </span>
+            </li>
+            <li>
+              <strong>Trust-led visibility</strong>
+              <span>
+                Allowing the public to discover professionals through a platform
+                focused on credibility, not popularity.
+              </span>
+            </li>
+            <li>
+              <strong>Ongoing professional alignment</strong>
+              <span>
+                Continued access to guidance and standards to support
+                responsible representation.
+              </span>
+            </li>
+          </ul>
+        </section>
+
+        {/* How to Become a Member Section */}
         <section className="timeline-section">
-          <h3>Registration Process</h3>
+          <h3>How to Become a Registered Member</h3>
           <div className="timeline-container">
             <div className="timeline-step">
               <span className="step-number">1</span>
               <div className="step-content">
-                <strong>Complete Registration Form</strong>
-                <p>Fill out the form with your business details and qualifications (10-15 minutes)</p>
+                <strong>Apply as an individual professional</strong>
+                <p>
+                  Submit your personal details, qualifications, and professional
+                  information.
+                </p>
               </div>
             </div>
             <div className="timeline-step">
               <span className="step-number">2</span>
               <div className="step-content">
-                <strong>Document Verification</strong>
-                <p>Upload proof of qualifications, insurance certificates, and identification</p>
+                <strong>Verification and review</strong>
+                <p>
+                  Your application is reviewed to ensure <BodyVantage />{' '}
+                  standards are met.
+                </p>
               </div>
             </div>
             <div className="timeline-step">
               <span className="step-number">3</span>
               <div className="step-content">
-                <strong>Application Review</strong>
-                <p>Our team reviews your application (3-5 business days)</p>
+                <strong>Approval and registration</strong>
+                <p>
+                  Once approved, your profile is activated and you become a
+                  registered <BodyVantage /> member.
+                </p>
               </div>
             </div>
             <div className="timeline-step">
               <span className="step-number">4</span>
               <div className="step-content">
-                <strong>Profile Activation</strong>
-                <p>Once approved, customize your profile and settings</p>
-              </div>
-            </div>
-            <div className="timeline-step">
-              <span className="step-number">5</span>
-              <div className="step-content">
-                <strong>Go Live</strong>
-                <p>Start connecting with potential clients immediately</p>
+                <strong>Maintain standards</strong>
+                <p>
+                  Membership requires ongoing adherence to professional
+                  guidelines and responsible representation.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* FAQ Section */}
-        <section className="faq-section">
-          <h3>Frequently Asked Questions</h3>
-          <div className="faq-container">
-            {faqs.map((faq) => (
-              <Accordion
-                key={faq.id}
-                id={faq.id}
-                question={faq.question}
-                answer={activeQuestion === faq.id ? faq.answer : null}
-                onClick={() => handleQuestionClick(faq.id)}
-              />
-            ))}
-          </div>
+        {/* Commitment Section */}
+        <section className="commitment-section">
+          <h3>Our Commitment to Members and the Public</h3>
+          <p>
+            <BodyVantage /> exists to recognise individual professionals, not
+            promote businesses or practices. Our focus is on trust, credibility,
+            and professional accountability, helping members and the public
+            engage with confidence.
+          </p>
         </section>
 
         {/* CTA Section */}
         <section className="cta-section">
-          <h3>Ready to Join?</h3>
-          <p>
-            Take the next step in growing your business and connecting with more clients.
-          </p>
           <div className="cta-buttons">
             <Button
               text="Register Now"
-              
               disabled={false}
               onClick={() => navigate('/registration')}
               type="button"
@@ -191,7 +188,6 @@ const PreRegistrationView = () => {
             />
             <Button
               text="Back to About"
-              
               disabled={false}
               onClick={() => navigate('/about')}
               type="button"
@@ -203,7 +199,9 @@ const PreRegistrationView = () => {
 
       <div className="support-link">
         <p>
-          Need help? <LinkComp route="contact" routeName="Contact Support" /> or <LinkComp route="faq" routeName="Browse FAQs" />
+          Need help?{' '}
+          <LinkComp route="contact" routeName="Contact Support" /> or{' '}
+          <LinkComp route="faq" routeName="Browse FAQs" />
         </p>
       </div>
     </div>

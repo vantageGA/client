@@ -75,49 +75,56 @@
     }
   }
 
+  // Content Section
+  .content-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: transparent;
+    border-radius: 4px;
+  }
+
   // Benefits Section
   .benefits-section {
     margin: 2rem 0;
     padding: 1.5rem;
     background-color: transparent;
     border-radius: 4px;
-
-    .benefits-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-      margin-top: 1rem;
-    }
-
-    .benefit-card {
-      padding: 1rem;
-      background-color: transparent;
-      text-align: center;
-    }
-
-    .benefit-icon {
-      font-size: 2rem;
-      color: $burnt-orange;
-      margin-bottom: 0.75rem;
-    }
-
-    .benefit-title {
-      text-align: center;
-    }
-
-    .benefit-description {
-      line-height: 1.6;
-      margin: 0;
-      font-size: 0.95rem;
-    }
   }
 
-  // Requirements Section
-  .requirements-section {
+  // Includes Section
+  .includes-section {
     margin: 2rem 0;
     padding: 1.5rem;
     background-color: transparent;
     border-radius: 4px;
+  }
+
+  // Commitment Section
+  .commitment-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: transparent;
+    border-radius: 4px;
+  }
+
+  // Detailed list with title and description
+  .detailed-list {
+    li {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1.25rem;
+
+      strong {
+        display: block;
+        margin-bottom: 0.25rem;
+      }
+
+      span {
+        display: inline-block;
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+    }
   }
 
   // Timeline Section
@@ -232,19 +239,13 @@
       padding: 1rem;
     }
 
+    .content-section,
     .benefits-section,
-    .requirements-section,
+    .includes-section,
+    .commitment-section,
     .timeline-section,
-    .faq-section,
     .cta-section {
       padding: 1rem;
-    }
-
-    .benefits-section {
-      .benefits-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
     }
 
     .timeline-section {

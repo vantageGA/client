@@ -57,12 +57,27 @@
     }
   }
 
+  // Content sections
+  .content-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: transparent;
+    border-radius: 4px;
+  }
+
   // Member benefits section
   .member-benefits {
     margin: 2rem 0;
     padding: 1.5rem;
     background-color: transparent;
     border-radius: 4px;
+
+    .emphasis {
+      text-align: center;
+      font-style: italic;
+      margin-top: 1.5rem;
+      color: $light-orange;
+    }
   }
 
   // Visitor features section
@@ -111,6 +126,7 @@
       padding: 1rem;
     }
 
+    .content-section,
     .member-benefits,
     .visitor-features {
       padding: 1rem;
