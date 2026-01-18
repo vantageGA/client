@@ -14,7 +14,7 @@ const FaqsView = () => {
   return (
     <div className="faqs-wrapper">
       <fieldset className="fieldSet">
-        <legend>FAQ's</legend>
+        <legend>Frequently Asked Questions</legend>
         {faqs.map((faq) => (
           <Accordion
             key={faq.id}
