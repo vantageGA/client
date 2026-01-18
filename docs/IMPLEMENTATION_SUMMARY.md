@@ -354,3 +354,116 @@ Refer to:
 **Files modified:** 10 total (2 component files, 6 view files, 2 documentation files)
 **Lines of code:** ~400+ lines added/modified
 **Accessibility standards met:** WCAG 2.1 Level AA (AAA for touch targets)
+
+---
+
+# Recent Updates - January 2026
+
+## Views Updated
+
+### AboutView
+- Complete content rewrite with new brand messaging
+- Legend: "About Body Vantage"
+- Sections: Why Body Vantage Exists, Who We Work With, What It Means to Be a Member, Our Approach
+- Uses `<BodyVantage />` component throughout
+- Retained CTA buttons: "Become a Member Today" and "FAQ's"
+
+### PreRegistrationView
+- Complete content rewrite focused on individual professional membership
+- Legend: "Join Body Vantage – Become a Registered Member"
+- Removed: Hero section, benefit cards grid, FAQ accordion, support section
+- New sections: Who Membership Is For, Why Join, What Membership Includes, How to Become a Member (4 steps), Our Commitment
+- Simplified structure with fieldset layout
+- Retained CTA buttons: "Register Now" and "Back to About"
+
+### ContactFormView
+- Changed "Name" label to "Full Name"
+- Updated error message to match: "Full Name must contain at least 2 characters."
+- Added response time note above submit button: "We aim to respond within 48 hours."
+- Redesigned right fieldset:
+  - Legend: "What Bodyvantage Means"
+  - Value proposition paragraph using `<BodyVantage />` component
+  - "Get in Touch" section with email contacts (hello@bodyvantage.co.uk, membersupport@bodyvantage.co.uk)
+  - New `<SocialLinks />` component for social media
+
+### FaqsView
+- Updated legend from "FAQ's" to "Frequently Asked Questions"
+- Replaced all FAQ content with 14 new questions focused on:
+  - Platform purpose and membership
+  - Verification and professional standards
+  - Differences from directories and lead-generation
+  - Reviews, profile guidelines, and cancellation
+
+---
+
+## New Component: SocialLinks
+
+### Location
+```
+/client/src/components/socialLinks/
+├── SocialLinks.jsx
+└── SocialLinks.scss
+```
+
+### Purpose
+Reusable component for displaying social media links with icons and labels.
+
+### Usage
+```jsx
+import SocialLinks from '../../components/socialLinks/SocialLinks';
+
+<SocialLinks />
+```
+
+### Features
+- Configurable social links array (LinkedIn, Instagram, Facebook by default)
+- Font Awesome icons (`fab fa-linkedin`, `fab fa-instagram`, `fab fa-facebook-f`)
+- Horizontal flex layout with "Follow Us" heading
+- Hover effects with elevation and color change
+- Focus states for keyboard navigation (2px burnt-orange outline)
+- Responsive: horizontal on desktop, vertical stack on mobile
+- Respects `prefers-reduced-motion`
+- Proper accessibility: `aria-label`, `rel="noopener noreferrer"`, `target="_blank"`
+
+### Default Configuration
+```javascript
+const SOCIAL_LINKS_CONFIG = [
+  {
+    id: 'linkedin',
+    label: 'LinkedIn',
+    url: 'https://www.linkedin.com/company/bodyvantage/',
+    ariaLabel: 'Visit BodyVantage on LinkedIn',
+  },
+  {
+    id: 'instagram',
+    label: 'Instagram',
+    url: 'https://www.instagram.com/bodyvantage/',
+    ariaLabel: 'Visit BodyVantage on Instagram',
+  },
+  {
+    id: 'facebook',
+    label: 'Facebook',
+    url: 'https://www.facebook.com/bodyvantage/',
+    ariaLabel: 'Visit BodyVantage on Facebook',
+  },
+];
+```
+
+### Props
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `socials` | `array` | `SOCIAL_LINKS_CONFIG` | Array of social link objects |
+
+### Styling
+- Uses `$light-orange` and `$burnt-orange` color tokens
+- 'Bebas Neue' font for heading and labels
+- Border-top separator (1px solid `$border-colour-light`)
+- 48px minimum touch targets
+- Responsive breakpoints at 812px and 480px
+
+---
+
+**Updates completed:** January 2026
+**Views modified:** 4 (AboutView, PreRegistrationView, ContactFormView, FaqsView)
+**New components:** 1 (SocialLinks)
+**Documentation updated:** PRE-REGISTER.md, QUICK_REFERENCE_GUIDE.md, IMPLEMENTATION_SUMMARY.md

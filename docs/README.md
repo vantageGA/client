@@ -18,7 +18,7 @@ Entry points for frontend changes, UX reviews, and migrations.
 - PATTERN_COMPARISON.md: Component and pattern comparisons.
 
 ## Component Work
-- IMPLEMENTATION_SUMMARY.md: Message component refactor summary.
+- IMPLEMENTATION_SUMMARY.md: Message component refactor summary + January 2026 view updates and SocialLinks component.
 
 ## Frontend Migrations and Changes
 - FRONTEND_BREAKING_CHANGES.md: Breaking changes and required updates.

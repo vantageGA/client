@@ -56,13 +56,13 @@ TOTAL: 39 issues
 ```jsx
 <InputField
   id="name"
-  label="Name"
+  label="Full Name"
   type="text"
   value={name}
   required
   hint="Minimum 2 characters"
   className={showNameError ? 'invalid' : isNameValid ? 'entered' : ''}
-  error={showNameError ? '...' : null}
+  error={showNameError ? 'Full Name must contain at least 2 characters.' : null}
   onChange={(e) => setName(e.target.value)}
   onBlur={() => handleBlur('name')}
   aria-invalid={showNameError}
