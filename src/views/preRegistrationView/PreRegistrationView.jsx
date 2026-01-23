@@ -118,6 +118,15 @@ const PreRegistrationView = () => {
           </ul>
         </section>
 
+        {/* Pricing Section */}
+        <section className="pricing-section">
+          <h3>Membership Pricing</h3>
+          <p>
+            Membership is <strong>£9.99 per month</strong> or{' '}
+            <strong>£99 annually</strong>.
+          </p>
+        </section>
+
         {/* How to Become a Member Section */}
         <section className="timeline-section">
           <h3>How to Become a Registered Member</h3>

@@ -77,6 +77,42 @@ const ContactFormView = ({ type }) => {
             </div>
           )}
 
+          <fieldset className="fieldSet contact-details-fieldset">
+            <legend>What Bodyvantage Means</legend>
+
+            <address className="contact-details">
+              {/* Value Proposition Section */}
+              <div className="value-proposition">
+                <p>
+                  <BodyVantage />{' '}is a professional membership network supporting trust, clarity
+                  and credibility across fitness, beauty, rehabilitation and wellbeing.
+                </p>
+              </div>
+
+              {/* Contact Information Section */}
+              <div className="contact-section">
+                <h3 className="contact-heading">Get in Touch</h3>
+
+                <div className="contact-detail-item">
+                  <strong>Contact:</strong>
+                  <a href="mailto:hello@bodyvantage.co.uk" aria-label="Email us at hello@bodyvantage.co.uk">
+                    hello@bodyvantage.co.uk
+                  </a>
+                </div>
+
+                <div className="contact-detail-item">
+                  <strong>Member Support:</strong>
+                  <a href="mailto:membersupport@bodyvantage.co.uk" aria-label="Email member support at membersupport@bodyvantage.co.uk">
+                    membersupport@bodyvantage.co.uk
+                  </a>
+                </div>
+              </div>
+
+              {/* Social Media Links */}
+              <SocialLinks />
+            </address>
+          </fieldset>
+
           <fieldset className="fieldSet form-fieldset">
             <legend>Contact Form</legend>
             <form onSubmit={handleSubmit}>
@@ -155,42 +191,6 @@ const ContactFormView = ({ type }) => {
                 disabled={!isFormValid}
               />
             </form>
-          </fieldset>
-
-          <fieldset className="fieldSet contact-details-fieldset">
-            <legend>What Bodyvantage Means</legend>
-
-            <address className="contact-details">
-              {/* Value Proposition Section */}
-              <div className="value-proposition">
-                <p>
-                  <BodyVantage />{' '}is a professional membership network supporting trust, clarity
-                  and credibility across fitness, beauty, rehabilitation and wellbeing.
-                </p>
-              </div>
-
-              {/* Contact Information Section */}
-              <div className="contact-section">
-                <h3 className="contact-heading">Get in Touch</h3>
-
-                <div className="contact-detail-item">
-                  <strong>Contact:</strong>
-                  <a href="mailto:hello@bodyvantage.co.uk" aria-label="Email us at hello@bodyvantage.co.uk">
-                    hello@bodyvantage.co.uk
-                  </a>
-                </div>
-
-                <div className="contact-detail-item">
-                  <strong>Member Support:</strong>
-                  <a href="mailto:membersupport@bodyvantage.co.uk" aria-label="Email member support at membersupport@bodyvantage.co.uk">
-                    membersupport@bodyvantage.co.uk
-                  </a>
-                </div>
-              </div>
-
-              {/* Social Media Links */}
-              <SocialLinks />
-            </address>
           </fieldset>
         </div>
       )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import './RegistrationView.scss';
@@ -8,12 +8,14 @@ import Message from '../../components/message/Message';
 import InputField from '../../components/inputField/InputField';
 import Button from '../../components/button/Button';
 import PasswordStrength from '../../components/passwordStrength/PasswordStrength';
+import MembershipProposition from '../../components/membershipProposition/MembershipProposition';
 import { registerAction } from '../../store/actions/userActions';
 import { isValidName, isValidEmail, isValidPassword } from '../../utils/validation';
 
 const RegistrationView = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const nameInputRef = useRef(null);
 
   const userRegistration = useSelector((state) => state.userRegistration);
   const { loading, error, success, userInfo } = userRegistration;
@@ -62,6 +64,24 @@ const RegistrationView = () => {
     }
   };
 
+  const handleMembershipClick = () => {
+    // Scroll to the form and focus the name input
+    if (nameInputRef.current) {
+      nameInputRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+
+      // Focus after scroll animation completes
+      setTimeout(() => {
+        const inputElement = nameInputRef.current.querySelector('input');
+        if (inputElement) {
+          inputElement.focus();
+        }
+      }, 500);
+    }
+  };
+
   return (
     <div className="registrationView-wrapper">
       {error ? <Message message={error} /> : null}
@@ -71,33 +91,40 @@ const RegistrationView = () => {
       {!userInfo && loading ? (
         <LoadingSpinner />
       ) : (
-        <fieldset className="fieldSet">
-          <legend>Members Registration form</legend>
-          <form onSubmit={handleSubmit} noValidate>
-            <InputField
-              label="Name"
-              placeholder="Ben Smith"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onBlur={() => handleBlur('name')}
-              type="text"
-              name="name"
-              required
-              hint="2-100 characters, letters, spaces, hyphens and apostrophes only"
-              className={
-                touched.name && !isValidName(name) && name.length > 0
-                  ? 'invalid'
-                  : name.length > 0
-                  ? 'entered'
-                  : ''
-              }
-              error={
-                touched.name && !isValidName(name) && name.length !== 0
-                  ? `Name must be 2-100 characters using only letters, spaces, hyphens and apostrophes.`
-                  : null
-              }
-              aria-invalid={touched.name && !isValidName(name)}
-            />
+        <div className="registration-container">
+          {/* Membership Proposition */}
+          <MembershipProposition onApplyClick={handleMembershipClick} />
+
+          {/* Registration Form */}
+          <fieldset className="fieldSet">
+              <legend>Members Registration form</legend>
+              <form onSubmit={handleSubmit} noValidate>
+                <div ref={nameInputRef}>
+                  <InputField
+                    label="Name"
+                    placeholder="Ben Smith"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onBlur={() => handleBlur('name')}
+                    type="text"
+                    name="name"
+                    required
+                    hint="2-100 characters, letters, spaces, hyphens and apostrophes only"
+                    className={
+                      touched.name && !isValidName(name) && name.length > 0
+                        ? 'invalid'
+                        : name.length > 0
+                        ? 'entered'
+                        : ''
+                    }
+                    error={
+                      touched.name && !isValidName(name) && name.length !== 0
+                        ? `Name must be 2-100 characters using only letters, spaces, hyphens and apostrophes.`
+                        : null
+                    }
+                    aria-invalid={touched.name && !isValidName(name)}
+                  />
+                </div>
 
             <InputField
               label="Email"
@@ -180,20 +207,21 @@ const RegistrationView = () => {
               </div>
             )}
 
-            <Button
-              
-              text="submit"
-              className="btn"
-              disabled={
-                !isValidName(name) ||
-                !isValidPassword(password) ||
-                !isValidPassword(confirmPassword) ||
-                !isValidEmail(email) ||
-                password !== confirmPassword
-              }
-            ></Button>
-          </form>
-        </fieldset>
+                <Button
+
+                  text="submit"
+                  className="btn"
+                  disabled={
+                    !isValidName(name) ||
+                    !isValidPassword(password) ||
+                    !isValidPassword(confirmPassword) ||
+                    !isValidEmail(email) ||
+                    password !== confirmPassword
+                  }
+                ></Button>
+              </form>
+            </fieldset>
+        </div>
       )}
     </div>
   );

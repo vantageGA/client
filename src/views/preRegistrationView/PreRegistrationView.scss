@@ -99,6 +99,14 @@
     border-radius: 4px;
   }
 
+  // Pricing Section
+  .pricing-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: transparent;
+    border-radius: 4px;
+  }
+
   // Commitment Section
   .commitment-section {
     margin: 2rem 0;
@@ -242,6 +250,7 @@
     .content-section,
     .benefits-section,
     .includes-section,
+    .pricing-section,
     .commitment-section,
     .timeline-section,
     .cta-section {
