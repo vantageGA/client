@@ -31,12 +31,8 @@
     }
   }
 
-  // Form fieldset - primary accent color
-  .form-fieldset {
-    border-left: 1px solid $burnt-orange;
-  }
-
-  // Contact details fieldset - secondary accent color
+  // Both fieldsets use consistent border-left color
+  .form-fieldset,
   .contact-details-fieldset {
     border-left: 1px solid $light-orange;
   }

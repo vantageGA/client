@@ -3,7 +3,7 @@ import './CookiesView.scss';
 
 const CookiesView = () => {
   return (
-    <>
+    <div className="cookies-wrapper">
       <fieldset className="fieldSet">
         <legend>Cookies Policy</legend>
         <h1>Cookie Policy for bodyvantage.co.uk</h1>
@@ -170,7 +170,7 @@ const CookiesView = () => {
           <li>By visiting this link: bodyvantage.co.uk</li>
         </ul>
       </fieldset>
-    </>
+    </div>
   );
 };
 

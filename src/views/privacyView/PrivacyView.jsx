@@ -3,7 +3,7 @@ import './PrivacyView.scss';
 
 const PrivacyView = () => {
   return (
-    <>
+    <div className="privacy-wrapper">
       <fieldset className="fieldSet">
         <legend>Privacy Policy</legend>
         <h1>Privacy Policy for Body Vantage Ltd</h1>
@@ -220,7 +220,7 @@ policy-generator/"
           efforts to promptly remove such information from our records.
         </p>
       </fieldset>
-    </>
+    </div>
   );
 };
 

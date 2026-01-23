@@ -97,7 +97,7 @@ const RegistrationView = () => {
 
           {/* Registration Form */}
           <fieldset className="fieldSet">
-              <legend>Members Registration form</legend>
+              <legend>Member Registration</legend>
               <form onSubmit={handleSubmit} noValidate>
                 <div ref={nameInputRef}>
                   <InputField

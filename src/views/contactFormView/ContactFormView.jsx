@@ -78,7 +78,7 @@ const ContactFormView = ({ type }) => {
           )}
 
           <fieldset className="fieldSet contact-details-fieldset">
-            <legend>What Bodyvantage Means</legend>
+            <legend>About BodyVantage</legend>
 
             <address className="contact-details">
               {/* Value Proposition Section */}
