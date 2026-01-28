@@ -10,6 +10,7 @@ import Button from '../../components/button/Button';
 import PasswordStrength from '../../components/passwordStrength/PasswordStrength';
 import MembershipProposition from '../../components/membershipProposition/MembershipProposition';
 import { registerAction } from '../../store/actions/userActions';
+import { createCheckoutSessionAction } from '../../store/actions/stripeActions';
 import { isValidName, isValidEmail, isValidPassword } from '../../utils/validation';
 
 const RegistrationView = () => {
@@ -18,7 +19,10 @@ const RegistrationView = () => {
   const nameInputRef = useRef(null);
 
   const userRegistration = useSelector((state) => state.userRegistration);
-  const { loading, error, success, userInfo } = userRegistration;
+  const { loading: registerLoading, error: registerError, success: registerSuccess, userInfo } = userRegistration;
+
+  const stripeCheckout = useSelector((state) => state.stripeCheckout);
+  const { loading: checkoutLoading, error: checkoutError, success: checkoutSuccess } = stripeCheckout;
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -32,6 +36,7 @@ const RegistrationView = () => {
     password: false,
     confirmPassword: false,
   });
+  const [selectedPlan, setSelectedPlan] = useState('monthly');
 
   useEffect(() => {
     if (userInfo && userInfo !== undefined) {
@@ -55,12 +60,13 @@ const RegistrationView = () => {
     if (password !== confirmPassword) {
       setMessage('Passwords do not match');
     } else {
-      // Dispatch registration data
-      dispatch(registerAction(name, email, password));
-      setName('');
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
+      // Create checkout session with user data and selected plan
+      dispatch(createCheckoutSessionAction({
+        plan: selectedPlan,
+        email: email,
+        name: name,
+        password: password
+      }));
     }
   };
 
@@ -84,11 +90,12 @@ const RegistrationView = () => {
 
   return (
     <div className="registrationView-wrapper">
-      {error ? <Message message={error} /> : null}
+      {registerError ? <Message message={registerError} /> : null}
+      {checkoutError ? <Message message={checkoutError} /> : null}
       {message ? <Message message={message} /> : null}
-      {success ? <Message message={registrationConfirmation} variant="success" autoClose={5000} /> : null}
+      {registerSuccess ? <Message message={registrationConfirmation} variant="success" autoClose={5000} /> : null}
 
-      {!userInfo && loading ? (
+      {!userInfo && (registerLoading || checkoutLoading) ? (
         <LoadingSpinner />
       ) : (
         <div className="registration-container">
@@ -129,7 +136,7 @@ const RegistrationView = () => {
             <InputField
               label="Email"
               type="email"
-              name={email}
+              name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onBlur={() => handleBlur('email')}
@@ -151,7 +158,7 @@ const RegistrationView = () => {
             <InputField
               label="Password"
               type="password"
-              name={password}
+              name="password"
               value={password}
               required
               onBlur={() => handleBlur('password')}
@@ -173,7 +180,7 @@ const RegistrationView = () => {
             <InputField
               label="Confirm Password"
               type="password"
-              name={confirmPassword}
+              name="confirmPassword"
               value={confirmPassword}
               required
               onBlur={() => handleBlur('confirmPassword')}
@@ -207,11 +214,57 @@ const RegistrationView = () => {
               </div>
             )}
 
-                <Button
+            {/* Subscription Plan Selection */}
+            <div className="subscription-plan-section">
+              <h3>Select Your Membership Plan</h3>
+              <div className="plan-options">
+                <label className={`plan-option ${selectedPlan === 'monthly' ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="plan"
+                    value="monthly"
+                    checked={selectedPlan === 'monthly'}
+                    onChange={() => setSelectedPlan('monthly')}
+                    aria-label="Monthly membership plan"
+                  />
+                  <div className="plan-content">
+                    <h4>Monthly Membership</h4>
+                    <p className="price">£9.99 <span>/month</span></p>
+                    <ul className="plan-features">
+                      <li>Cancel anytime</li>
+                      <li>No long-term contract</li>
+                      <li>Full access to all features</li>
+                    </ul>
+                  </div>
+                </label>
+                <label className={`plan-option ${selectedPlan === 'annual' ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="plan"
+                    value="annual"
+                    checked={selectedPlan === 'annual'}
+                    onChange={() => setSelectedPlan('annual')}
+                    aria-label="Annual membership plan"
+                  />
+                  <div className="plan-content">
+                    <h4>Annual Membership</h4>
+                    <p className="price">£99 <span>/year</span></p>
+                    <p className="discount">Save 20% compared to monthly</p>
+                    <ul className="plan-features">
+                      <li>Cancel anytime</li>
+                      <li>20% discount</li>
+                      <li>Full access to all features</li>
+                    </ul>
+                  </div>
+                </label>
+              </div>
+            </div>
 
-                  text="submit"
+                <Button
+                  text={checkoutLoading ? 'Processing...' : 'Subscribe Now'}
                   className="btn"
                   disabled={
+                    checkoutLoading ||
                     !isValidName(name) ||
                     !isValidPassword(password) ||
                     !isValidPassword(confirmPassword) ||

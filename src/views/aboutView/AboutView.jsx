@@ -87,7 +87,7 @@ const AboutView = () => {
             <Button
               text="Become a Member Today"
               disabled={false}
-              onClick={() => navigate('/pre-registration')}
+              onClick={() => navigate('/registration')}
               type="button"
             />
           </div>

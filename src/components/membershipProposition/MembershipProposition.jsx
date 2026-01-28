@@ -1,8 +1,15 @@
 import PropTypes from 'prop-types';
 import './MembershipProposition.scss';
 import Button from '../button/Button';
+import { useNavigate } from 'react-router-dom';
 
-const MembershipProposition = ({ onApplyClick }) => {
+const MembershipProposition = ({ onApplyClick, showSubscriptionLink = false }) => {
+  const navigate = useNavigate();
+
+  const handleSubscriptionClick = () => {
+    navigate('/subscribe');
+  };
+
   return (
     <fieldset className="fieldSet membership-proposition">
       <legend>Membership</legend>
@@ -30,12 +37,21 @@ const MembershipProposition = ({ onApplyClick }) => {
             <span className="price-period">per year</span>
           </div>
         </div>
-        <Button
-          text="Apply for Membership"
-          onClick={onApplyClick}
-          type="button"
-          title="Proceed to membership application"
-        />
+        {showSubscriptionLink ? (
+          <Button
+            text="Subscribe Now"
+            onClick={handleSubscriptionClick}
+            type="button"
+            title="Proceed to subscription"
+          />
+        ) : (
+          <Button
+            text="Apply for Membership"
+            onClick={onApplyClick}
+            type="button"
+            title="Proceed to membership application"
+          />
+        )}
         <p className="pricing-disclaimer">No contracts • Cancel anytime</p>
       </section>
 
@@ -71,7 +87,8 @@ const MembershipProposition = ({ onApplyClick }) => {
 };
 
 MembershipProposition.propTypes = {
-  onApplyClick: PropTypes.func.isRequired,
+  onApplyClick: PropTypes.func,
+  showSubscriptionLink: PropTypes.bool,
 };
 
 export default MembershipProposition;

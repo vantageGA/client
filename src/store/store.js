@@ -49,10 +49,13 @@ import {
 } from './reducers/imageUploadReducers';
 
 import { cookiesReducer } from './reducers/cookiesReducer';
+import { stripeCheckoutReducer, stripeSubscriptionReducer } from './reducers/stripeReducers';
 
 const reducer = combineReducers({
   cookies: cookiesReducer,
   contactForm: contactFormReducer,
+  stripeCheckout: stripeCheckoutReducer,
+  stripeSubscription: stripeSubscriptionReducer,
   users: usersReducer,
   userLogin: userLoginReducer,
   userRegistration: userRegistrationReducer,

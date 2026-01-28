@@ -25,6 +25,9 @@ import Cookies from './components/cookies/Cookies';
 import AboutView from './views/aboutView/AboutView';
 import FaqsView from './views/faqsView/FaqsView';
 import PreRegistrationView from './views/preRegistrationView/PreRegistrationView';
+import SubscriptionOptions from './views/subscriptionView/SubscriptionOptions';
+import SubscriptionSuccess from './views/subscriptionView/SubscriptionSuccess';
+import SubscriptionCancel from './views/subscriptionView/SubscriptionCancel';
 
 // Change the display width by removing the --fluid after the container class
 const App = () => {
@@ -33,7 +36,7 @@ const App = () => {
       <div className="container--fluid">
         <Header />
         <div className="content-wrapper">
-          <Cookies />
+          {/* <Cookies /> */}
           <Routes>
             <Route path="/" element={<HomeView />} exact />
 
@@ -68,6 +71,9 @@ const App = () => {
               path="/reviewer-register"
               element={<ReviewerRegisterView />}
             />
+            <Route path="/subscribe" element={<SubscriptionOptions />} exact />
+            <Route path="/subscribe/success" element={<SubscriptionSuccess />} exact />
+            <Route path="/subscribe/cancel" element={<SubscriptionCancel />} exact />
             <Route path="*" element={<ErrorView />} />
           </Routes>
         </div>

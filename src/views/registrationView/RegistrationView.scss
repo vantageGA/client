@@ -58,6 +58,114 @@
     margin-top: -0.5rem;
   }
 
+  /* Subscription Plan Selection Styles */
+  .subscription-plan-section {
+    margin: 1.5rem 0;
+  }
+
+  .subscription-plan-section h3 {
+    font-family: 'Bebas Neue', cursive;
+    letter-spacing: 0.1em;
+    font-size: 1.25rem;
+    color: $light-orange;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  .plan-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .plan-option {
+    position: relative;
+    padding: 1rem;
+    border: 1px solid $border-colour-light;
+    border-radius: 4px;
+    background-color: rgba(51, 51, 51, 0.3);
+    cursor: pointer;
+    transition: all 150ms ease;
+
+    &:hover {
+      border-color: $light-orange;
+      background-color: rgba(51, 51, 51, 0.5);
+    }
+
+    &.selected {
+      border-color: $burnt-orange;
+      border-left: 3px solid $burnt-orange;
+      background-color: rgba(51, 51, 51, 0.6);
+    }
+  }
+
+  .plan-option input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .plan-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .plan-content h4 {
+    font-family: 'Bebas Neue', cursive;
+    letter-spacing: 0.1em;
+    font-size: 1.1rem;
+    color: $light-orange;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .plan-content .price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: $main-font-colour;
+
+    span {
+      font-size: 0.8rem;
+      color: rgba(245, 245, 245, 0.7);
+    }
+  }
+
+  .plan-content .discount {
+    font-size: 0.85rem;
+    color: $success;
+    font-weight: bold;
+  }
+
+  .plan-content .plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgba(245, 245, 245, 0.8);
+
+    li {
+      padding: 0.25rem 0;
+      position: relative;
+      padding-left: 1.5rem;
+
+      &::before {
+        content: '•';
+        position: absolute;
+        left: 0;
+        color: $burnt-orange;
+        font-weight: bold;
+      }
+    }
+  }
+
+  /* Responsive adjustments for plan options */
+  @media (max-width: 812px) {
+    .plan-options {
+      grid-template-columns: 1fr;
+    }
+  }
+
   /* Tablet: Stack layout at 1024px */
   @media (max-width: 1024px) {
     .registration-container {
