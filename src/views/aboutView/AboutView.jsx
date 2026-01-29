@@ -83,12 +83,13 @@ const AboutView = () => {
             <br />
             It is about clarity, credibility, and professional alignment.
           </p>
-          <div className="cta-section">
+           <div className="cta-section">
             <Button
               text="Become a Member Today"
               disabled={false}
-              onClick={() => navigate('/registration')}
+              onClick={() => navigate('/pre-registration')}
               type="button"
+              title="Learn more about membership"
             />
           </div>
         </section>
