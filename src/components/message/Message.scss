@@ -2,8 +2,10 @@
 
 .message-wrapper {
   width: 100%;
+  max-width: 100%;
   border-radius: 4px;
   animation: slideIn 300ms ease-out forwards;
+  box-sizing: border-box;
 
   &:focus {
     outline: 2px solid $burnt-orange;
@@ -22,6 +24,8 @@
   padding: 1rem;
   border-radius: 4px;
   word-break: break-word;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .message-text {

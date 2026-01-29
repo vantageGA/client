@@ -17,6 +17,13 @@ import moment from 'moment';
 
 const AdminView = () => {
   const [showAdmin, setShowAdmin] = useState(false);
+  const [expandedCardId, setExpandedCardId] = useState(null);
+
+  // Loading states for async actions
+  const [loadingStates, setLoadingStates] = useState({
+    deleteUser: null,
+    toggleAdmin: null,
+  });
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -35,160 +42,175 @@ const AdminView = () => {
   const usersState = useSelector((state) => state.users);
   const { loading, error, userProfiles } = usersState;
 
-  const handleDeleteUser = (id) => {
+  const toggleCard = (userId) => {
+    setExpandedCardId(prev => prev === userId ? null : userId);
+  };
+
+  const handleDeleteUser = (id, name) => {
     // Dispatch user delete action
-    if (window.confirm(`Are you sure you want to delete ${id}`)) {
-      dispatch(deleteUserAction(id));
-      dispatch(usersAction());
+    if (window.confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
+      setLoadingStates(prev => ({ ...prev, deleteUser: id }));
+      dispatch(deleteUserAction(id)).finally(() => {
+        setLoadingStates(prev => ({ ...prev, deleteUser: null }));
+        dispatch(usersAction());
+      });
     }
   };
 
   const handleMakeAdmin = (id, val) => {
-    //Dispatch Action here
-    dispatch(userAddRemoveAdminAction({ id, val }));
+    const action = val ? 'grant admin privileges to' : 'remove admin privileges from';
+    if (window.confirm(`Are you sure you want to ${action} this user?`)) {
+      setLoadingStates(prev => ({ ...prev, toggleAdmin: id }));
+      dispatch(userAddRemoveAdminAction({ id, val })).finally(() => {
+        setLoadingStates(prev => ({ ...prev, toggleAdmin: null }));
+      });
+    }
   };
 
   const handleShowAdmin = () => {
     setShowAdmin(!showAdmin);
   };
 
+  const filteredUsers = showAdmin
+    ? (userProfiles || [])
+    : (userProfiles || []).filter(u => !u.isAdmin);
+
   return (
     <>
       <fieldset className="fieldSet">
         <legend>Users</legend>
-        {error ? <Message message={error} /> : null}
+        {error ? <Message message={error} variant="error" ariaLive="assertive" /> : null}
 
         {loading ? (
           <LoadingSpinner />
         ) : (
-          <>
-            <Button
-              
-              text={!showAdmin ? 'Show Admin' : 'Hide Admin'}
-              className="btn"
-              title="Show Admin"
-              onClick={handleShowAdmin}
-              disabled={false}
-            ></Button>
+          <div className="admin-user-view-wrapper">
+            <div className="admin-toggle-bar">
+              <Button
+                text={showAdmin ? 'Hide Admin Users' : 'Show Admin Users'}
+                className="btn"
+                title={showAdmin ? 'Hide admin users' : 'Show admin users'}
+                onClick={handleShowAdmin}
+              />
+              <span className="user-count">
+                Showing {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''}
+              </span>
+            </div>
 
-            <div className="admin-view-wrapper">
-              <div className=" heading admin-view-inner-wrapper">
-                <div className="item">NAME</div>
-                <div className="item">IS-ADMIN</div>
-                <div className="item">CONFIRMED</div>
-                <div className="item">CREATED</div>
-                <div className="item">UPDATED</div>
-              </div>
+            <div className="admin-table-scroll">
+              <table className="admin-table">
+                <thead className="admin-table-header">
+                  <tr>
+                    <th>User</th>
+                    <th>Admin</th>
+                    <th>Confirmed</th>
+                    <th>Created</th>
+                    <th>Updated</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="admin-table-body">
+                  {filteredUsers.map((userProfile) => (
+                    <tr key={userProfile._id} className="admin-table-row">
+                      <td data-label="User">
+                        <div className="profile-cell">
+                          <img className="profile-image" src={userProfile.profileImage} alt={userProfile.name} />
+                          <div className="profile-info">
+                            <strong>{userProfile.name}</strong>
+                            <span>{userProfile.email}</span>
+                            <span className="user-id">{userProfile._id}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td data-label="Admin">
+                        <span className={`status-badge ${userProfile.isAdmin ? 'verified' : 'unverified'}`}>
+                          <i className={`fa ${userProfile.isAdmin ? 'fa-check' : 'fa-times'}`} aria-hidden="true"></i>
+                          {userProfile.isAdmin ? ' Admin' : ' User'}
+                        </span>
+                      </td>
+                      <td data-label="Confirmed">
+                        <span className={`status-badge ${userProfile.isConfirmed ? 'verified' : 'unverified'}`}>
+                          <i className={`fa ${userProfile.isConfirmed ? 'fa-check' : 'fa-times'}`} aria-hidden="true"></i>
+                          {userProfile.isConfirmed ? ' Confirmed' : ' Unconfirmed'}
+                        </span>
+                      </td>
+                      <td data-label="Created">{moment(userProfile.createdAt).fromNow()}</td>
+                      <td data-label="Updated">{moment(userProfile.updatedAt).fromNow()}</td>
+                      <td data-label="Actions">
+                        <div className="actions-cell">
+                          <Button
+                            text={userProfile.isAdmin
+                              ? (loadingStates.toggleAdmin === userProfile._id ? 'Removing...' : 'Remove Admin')
+                              : (loadingStates.toggleAdmin === userProfile._id ? 'Granting...' : 'Make Admin')}
+                            className="btn"
+                            title={userProfile.isAdmin ? 'Remove admin privileges' : 'Grant admin privileges'}
+                            onClick={() => handleMakeAdmin(userProfile._id, !userProfile.isAdmin)}
+                            disabled={!userProfile.isConfirmed || loadingStates.toggleAdmin === userProfile._id}
+                          />
+                          <Button
+                            text={loadingStates.deleteUser === userProfile._id ? 'Deleting...' : 'Delete'}
+                            className="btn btn-danger"
+                            title={userProfile.isAdmin ? 'Cannot delete admin users' : 'Delete User'}
+                            onClick={() => handleDeleteUser(userProfile._id, userProfile.name)}
+                            disabled={!userProfile.isConfirmed || userProfile.isAdmin || loadingStates.deleteUser === userProfile._id}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-              {userProfiles.map((userProfile) => (
-                <div
-                  key={userProfile._id}
-                  className={
-                    !showAdmin && userProfile.isAdmin
-                      ? 'admin-view-inner-wrapper isAdmin'
-                      : 'admin-view-inner-wrapper'
-                  }
-                >
-                  <div
-                    className={
-                      userProfile.isAdmin ? 'item showIsAdmin' : 'item'
-                    }
-                  >
-                    <p className="small-text">{userProfile._id}</p>
-                    <p>{userProfile.name}</p>
-                    <img
-                      className="image"
-                      src={userProfile.profileImage}
-                      alt={userProfile.name}
-                    />
-                    <p>{userProfile.email}</p>
-                    <Button
-                      
-                      text="Delete User"
-                      className="btn"
-                      title={
-                        userProfile.isAdmin
-                          ? 'You CANT delete ADMIN'
-                          : 'Delete User'
-                      }
-                      onClick={() => handleDeleteUser(userProfile._id)}
-                      disabled={!userProfile.isConfirmed || userProfile.isAdmin}
-                    ></Button>
-                  </div>
+            <div className="mobile-cards">
+              {filteredUsers.map(userProfile => (
+                <div className={`mobile-card ${expandedCardId === userProfile._id ? 'expanded' : ''}`} key={userProfile._id}>
+                  <button className="card-summary" onClick={() => toggleCard(userProfile._id)} aria-expanded={expandedCardId === userProfile._id}>
+                    <img className="profile-image" src={userProfile.profileImage} alt="" />
+                    <div className="card-identity">
+                      <strong>{userProfile.name}</strong>
+                      <span>{userProfile.email}</span>
+                    </div>
+                    <div className="card-meta">
+                      <span className={`status-badge ${userProfile.isAdmin ? 'verified' : 'unverified'}`}>
+                        {userProfile.isAdmin ? 'Admin' : 'User'}
+                      </span>
+                      <span className={`status-badge ${userProfile.isConfirmed ? 'verified' : 'unverified'}`}>
+                        {userProfile.isConfirmed ? 'Confirmed' : 'Unconfirmed'}
+                      </span>
+                    </div>
+                    <i className={`fa fa-chevron-${expandedCardId === userProfile._id ? 'up' : 'down'}`} aria-hidden="true" />
+                  </button>
 
-                  <div className="item">
-                    {userProfile.isAdmin ? (
-                      <Button
-                        
-                        text="Remove as Admin"
-                        className="btn"
-                        title={
-                          userProfile.isAdmin
-                            ? 'You CANT create admin'
-                            : 'Make Admin'
-                        }
-                        onClick={() => handleMakeAdmin(userProfile._id, false)}
-                        disabled={!userProfile.isConfirmed}
-                      ></Button>
-                    ) : (
-                      <Button
-                        
-                        text="Make Admin"
-                        className="btn"
-                        title={
-                          userProfile.isAdmin
-                            ? 'You CANT create admin'
-                            : 'Make Admin'
-                        }
-                        onClick={() => handleMakeAdmin(userProfile._id, true)}
-                        disabled={!userProfile.isConfirmed}
-                      ></Button>
-                    )}
-
-                    {userProfile.isAdmin === true ? (
-                      <i
-                        className="fa fa-check"
-                        style={{
-                          fontSize: 20 + 'px',
-                          color: 'rgba(92, 184, 92, 1)',
-                        }}
-                      ></i>
-                    ) : (
-                      <i
-                        className="fa fa-times"
-                        style={{ fontSize: 20 + 'px', color: 'crimson' }}
-                      ></i>
-                    )}
-                  </div>
-
-                  <div className="item">
-                    {userProfile.isConfirmed === true ? (
-                      <i
-                        className="fa fa-check"
-                        style={{
-                          fontSize: 20 + 'px',
-                          color: 'rgba(92, 184, 92, 1)',
-                        }}
-                      ></i>
-                    ) : (
-                      <i
-                        className="fa fa-times"
-                        style={{ fontSize: 20 + 'px', color: 'crimson' }}
-                      ></i>
-                    )}
-                  </div>
-
-                  <div className="item">
-                    {moment(userProfile.createdAt).fromNow()}
-                  </div>
-
-                  <div className="item">
-                    {moment(userProfile.updatedAt).fromNow()}
-                  </div>
+                  {expandedCardId === userProfile._id && (
+                    <div className="card-details">
+                      <div className="detail-row"><label>User ID</label><p>{userProfile._id}</p></div>
+                      <div className="detail-row"><label>Created</label><p>{moment(userProfile.createdAt).fromNow()}</p></div>
+                      <div className="detail-row"><label>Updated</label><p>{moment(userProfile.updatedAt).fromNow()}</p></div>
+                      <div className="card-actions">
+                        <Button
+                          text={userProfile.isAdmin
+                            ? (loadingStates.toggleAdmin === userProfile._id ? 'Removing...' : 'Remove Admin')
+                            : (loadingStates.toggleAdmin === userProfile._id ? 'Granting...' : 'Make Admin')}
+                          className="btn"
+                          title={userProfile.isAdmin ? 'Remove admin privileges' : 'Grant admin privileges'}
+                          onClick={() => handleMakeAdmin(userProfile._id, !userProfile.isAdmin)}
+                          disabled={!userProfile.isConfirmed || loadingStates.toggleAdmin === userProfile._id}
+                        />
+                        <Button
+                          text={loadingStates.deleteUser === userProfile._id ? 'Deleting...' : 'Delete User'}
+                          className="btn btn-danger"
+                          title={userProfile.isAdmin ? 'Cannot delete admin users' : 'Delete User'}
+                          onClick={() => handleDeleteUser(userProfile._id, userProfile.name)}
+                          disabled={!userProfile.isConfirmed || userProfile.isAdmin || loadingStates.deleteUser === userProfile._id}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
-          </>
+          </div>
         )}
       </fieldset>
     </>

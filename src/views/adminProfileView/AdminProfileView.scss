@@ -1,207 +1,705 @@
 @use '../../index.scss' as *;
 @use '../../scssMixIn.scss' as *;
 
-.admin-profile-view-wrapper {
-  $description-width: 52%;
-  .heading {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
-    background-color: $main-font-colour;
-    color: $main-bg-colour;
-    z-index: 100;
-    font-weight: bold;
-  }
-  .image {
-    margin: 0 auto;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-  }
-  .admin-keyword-search {
-    border-radius: 4px 4px 0 0; /*TL TR BR BL*/
-  }
-  .admin-profile-inner-wrapper {
-    display: flex;
-    min-height: 60px;
-    padding: 0.75rem 1rem;
-    .sort-wrapper {
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
+// ============================================================
+// Admin Profile View — Desktop Table + Mobile Cards
+// ============================================================
 
-      .sort-button {
-        background: none;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        .arrow {
-          opacity: 0.4;
-          &:hover {
-            opacity: 1;
-            color: $rating-colour;
-          }
-        }
-        &:focus {
-          outline: 2px solid $rating-colour;
-          outline-offset: 2px;
-        }
+.admin-profile-view-wrapper {
+  font-size: 0.95rem;
+  overflow-x: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  // --- Search bar ---
+  .admin-keyword-search {
+    border-radius: 4px 4px 0 0;
+    margin-bottom: 1rem;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  // --- Desktop table (hidden on mobile) ---
+  .admin-table-scroll {
+    overflow-x: auto;
+  }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid $border-colour-light;
+      vertical-align: middle;
+    }
+
+    th {
+      // Rebalanced widths
+      &:nth-child(1) { width: 20%; } // Profile
+      &:nth-child(2) { width: 10%; } // Status
+      &:nth-child(3) { width: 25%; } // Description
+      &:nth-child(4) { width: 10%; } // Rating
+      &:nth-child(5) { width: 10%; } // Reviews
+      &:nth-child(6) { width: 10%; } // Created
+      &:nth-child(7) { width: 10%; } // Updated
+      &:nth-child(8) { width: 5%; }  // Actions
+    }
+  }
+
+  .admin-table-header {
+    background-color: rgba($burnt-orange, 0.15);
+    border-bottom: 2px solid $burnt-orange;
+
+    th {
+      color: $main-font-colour;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  .admin-table-body {
+    .admin-table-row {
+      transition: background-color 0.15s ease;
+
+      &:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.03);
+      }
+
+      &:hover {
+        background-color: rgba($burnt-orange, 0.08);
       }
     }
   }
-  .admin-profile-inner-wrapper:nth-child(even) {
-    background-color: rgba(255, 255, 255, 0.1);
+
+  // --- Profile cell ---
+  .profile-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: 100%;
+    overflow: hidden;
   }
 
-  Button {
-    margin: 0 auto;
+  .profile-image {
+    width: 60px;
+    height: 60px;
+    max-width: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
   }
 
-  .item {
-    height: auto;
-    overflow-y: auto;
-    text-align: center;
-    width: calc(100% / 6);
-    font-size: 0.8em;
-    border-left: 1px solid $border-colour;
-    padding: 0.75rem 1rem;
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+
+    strong {
+      font-size: 0.95rem;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+
+    span {
+      font-size: 0.8rem;
+      color: rgba($main-font-colour, 0.65);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
   }
 
-  .item + .wider-item {
-    text-align: left;
-    width: $description-width;
-    padding: 0.75rem 1rem;
-  }
-  .review-item {
-    border: $border-colour 1px solid;
-    padding: 0.4em;
-    text-align: left;
-  }
-
-  h6 {
-    margin: 0;
-  }
-
+  // --- Status badge ---
   .status-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.5em;
-    padding: 0.25em 0.5em;
+    gap: 0.4em;
+    padding: 0.25em 0.65em;
     border-radius: 4px;
-    font-size: 0.8em;
-    font-weight: bold;
-    
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    max-width: 100%;
+    box-sizing: border-box;
+
     &.verified {
-      color: rgba(92, 184, 92, 1);
-      background-color: rgba(92, 184, 92, 0.1);
+      color: $success;
+      background-color: rgba($success, 0.12);
     }
-    
+
     &.unverified {
-      color: crimson;
-      background-color: rgba(220, 20, 60, 0.1);
+      color: $danger;
+      background-color: rgba($danger, 0.1);
     }
   }
 
+  // --- Description ---
+  .desc-text {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin-bottom: 0.35rem;
+    // Clamp long descriptions
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .location-text {
+    font-size: 0.8rem;
+    color: rgba($main-font-colour, 0.55);
+    font-style: italic;
+  }
+
+  // --- Rating ---
+  .rating-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: $rating-colour;
+    flex-shrink: 0;
+  }
+
+  // --- Reviews toggle ---
+  .reviews-toggle {
+    background: none;
+    border: 1px solid rgba($burnt-orange, 0.4);
+    color: $burnt-orange;
+    padding: 0.3em 0.7em;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+      background-color: rgba($burnt-orange, 0.12);
+      border-color: $burnt-orange;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $burnt-orange;
+      outline-offset: 2px;
+    }
+  }
+
+  // --- Sort controls ---
+  .sort-wrapper {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 0.4em;
+
+    .sort-button {
+      background: none;
+      border: none;
+      padding: 0.2em;
+      cursor: pointer;
+
+      .arrow {
+        opacity: 0.4;
+        transition: opacity 0.15s ease, color 0.15s ease;
+
+        &:hover {
+          opacity: 1;
+          color: $rating-colour;
+        }
+      }
+
+      &:focus-visible {
+        outline: 2px solid $rating-colour;
+        outline-offset: 2px;
+      }
+    }
+  }
+
+  // --- Actions cell ---
+  .actions-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: stretch;
+  }
+
+  .btn-danger {
+    color: $danger !important;
+    border-color: rgba($danger, 0.4) !important;
+  }
+
+  // --- Reviews panel (below table) ---
+  .reviews-panel {
+    background-color: $fieldSet-bg-colour;
+    border: 1px solid $border-colour-light;
+    border-radius: 0 0 6px 6px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    animation: slideDown 0.2s ease-out;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+
+    h4 {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      color: $burnt-orange;
+      word-break: break-word;
+    }
+  }
+
+  .review-card {
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid $border-colour-light;
+    border-radius: 4px;
+    padding: 0.85rem;
+    margin-bottom: 0.65rem;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .review-author {
+    font-weight: 600;
+    font-size: 0.9rem;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .review-rating {
+    color: $rating-colour;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+
+  .review-comment {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: rgba($main-font-colour, 0.8);
+    margin-bottom: 0.5rem;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  // --- Pagination (dark theme) ---
   .pagination-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 15px;
-    padding: 30px 0;
-    margin-top: 20px;
-    border-top: 1px solid #ddd;
+    gap: 1rem;
+    padding: 1.5rem 0;
+    margin-top: 1.25rem;
+    border-top: 1px solid $border-colour-light;
+    max-width: 100%;
+    box-sizing: border-box;
 
     button {
-      padding: 10px 20px;
+      padding: 0.6rem 1.25rem;
       cursor: pointer;
-      opacity: 1;
-      background-color: #f0f0f0;
-      border: 1px solid #ccc;
+      background-color: rgba($burnt-orange, 0.1);
+      border: 1px solid rgba($burnt-orange, 0.35);
       border-radius: 4px;
-      transition: opacity 0.2s;
+      color: $main-font-colour;
+      font-size: 0.88rem;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+      max-width: 100%;
+      box-sizing: border-box;
+
+      &:hover:not(:disabled) {
+        background-color: rgba($burnt-orange, 0.2);
+        border-color: $burnt-orange;
+      }
 
       &:disabled {
         cursor: not-allowed;
-        opacity: 0.5;
+        opacity: 0.4;
+      }
+
+      &:focus-visible {
+        outline: 2px solid $burnt-orange;
+        outline-offset: 2px;
       }
     }
 
     span {
-      padding: 0 15px;
-      font-weight: bold;
+      padding: 0 0.75rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      word-break: break-word;
+      max-width: 100%;
+    }
+  }
+
+  // --- Mobile cards (hidden on desktop) ---
+  .mobile-cards {
+    display: none;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .mobile-card {
+    background-color: $fieldSet-bg-colour;
+    border: 1px solid $border-colour-light;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    &.expanded {
+      border-color: rgba($burnt-orange, 0.4);
+    }
+  }
+
+  .card-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 100%;
+    padding: 0.85rem;
+    background: none;
+    border: none;
+    color: $main-font-colour;
+    cursor: pointer;
+    text-align: left;
+    min-height: 44px;
+    font-size: inherit;
+    box-sizing: border-box;
+    overflow: hidden;
+
+    &:focus-visible {
+      outline: 2px solid $burnt-orange;
+      outline-offset: -2px;
+    }
+
+    .profile-image {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+    }
+  }
+
+  .card-identity {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    strong {
+      font-size: 0.95rem;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+
+    span {
+      font-size: 0.8rem;
+      color: rgba($main-font-colour, 0.6);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-shrink: 0;
+  }
+
+  .card-details {
+    padding: 0 0.85rem 0.85rem;
+    border-top: 1px solid $border-colour-light;
+    animation: slideDown 0.2s ease-out;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .detail-row {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba($border-colour-light, 0.5);
+    max-width: 100%;
+    overflow: hidden;
+
+    &:last-of-type {
+      border-bottom: none;
+    }
+
+    label {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba($main-font-colour, 0.5);
+      margin-bottom: 0.15rem;
+      word-break: break-word;
+    }
+
+    p {
+      font-size: 0.9rem;
+      line-height: 1.4;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+  }
+
+  .mobile-reviews {
+    padding: 0.5rem 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    .btn {
+      min-height: 44px;
+      max-width: 100%;
     }
   }
 }
 
-/* Responsive layout */
-@media (max-width: 812px) {
+// --- Animation ---
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ============================================================
+// Tablet (641px — 1024px)
+// ============================================================
+@media (max-width: 1024px) {
   .admin-profile-view-wrapper {
-    .heading {
-      display: none;
+    .admin-table {
+      th:nth-child(6), // Created
+      td:nth-child(6) {
+        display: none;
+      }
+
+      th, td {
+        padding: 0.65rem 0.75rem;
+      }
     }
-    .admin-profile-inner-wrapper {
-      flex-direction: column;
-    }
-    .item {
-      width: 100% !important;
-    }
-    .item + .wider-item {
-      width: 100% !important;
+
+    .profile-image {
+      width: 50px;
+      height: 50px;
     }
   }
 }
 
-.admin-table-container {
-  margin: 1rem 0;
+// ============================================================
+// Mobile (≤640px)
+// ============================================================
+@media (max-width: 640px) {
+  // Prevent fieldset from causing horizontal scroll
+  fieldset:has(.admin-profile-view-wrapper) {
+    overflow-x: hidden;
+    max-width: 100vw;
+    box-sizing: border-box;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .admin-profile-view-wrapper {
+    font-size: 0.9rem;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+
+    // Force all direct children to respect max-width
+    > * {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    // Ensure paragraph doesn't overflow
+    p {
+      max-width: 100%;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .admin-keyword-search {
+      max-width: 100%;
+      overflow: hidden;
+      box-sizing: border-box;
+
+      // Ensure button doesn't overflow
+      button {
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+    }
+
+    // Completely remove table from layout on mobile
+    .admin-table-scroll {
+      display: none !important;
+      position: absolute !important;
+      visibility: hidden !important;
+      width: 0 !important;
+      height: 0 !important;
+      overflow: hidden !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+    }
+
+    .admin-table {
+      display: none !important;
+      position: absolute !important;
+      visibility: hidden !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
+    .reviews-panel {
+      border-radius: 6px;
+      max-width: 100%;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+
+    .mobile-cards {
+      display: flex;
+      flex-direction: column;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    .mobile-card {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .card-summary {
+      overflow: hidden;
+      max-width: 100%;
+    }
+
+    .card-identity {
+      overflow-wrap: break-word;
+      word-break: break-word;
+      min-width: 0;
+      max-width: 100%;
+
+      strong,
+      span {
+        max-width: 100%;
+      }
+    }
+
+    .card-details {
+      overflow-wrap: break-word;
+      word-break: break-word;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .card-meta {
+      flex-wrap: wrap;
+      max-width: 100%;
+    }
+
+    .detail-row {
+      max-width: 100%;
+
+      p {
+        overflow-wrap: break-word;
+        word-break: break-word;
+        max-width: 100%;
+      }
+    }
+
+    .reviews-toggle {
+      width: 100%;
+      max-width: 100%;
+      min-height: 44px;
+      margin: 0.5rem 0;
+      font-size: 0.9rem;
+      box-sizing: border-box;
+    }
+
+    .review-card {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .review-author,
+    .review-comment {
+      max-width: 100%;
+    }
+
+    .pagination-wrapper {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      max-width: 100%;
+
+      button {
+        max-width: calc(50% - 0.25rem);
+        flex: 1 1 auto;
+      }
+
+      span {
+        width: 100%;
+        max-width: 100%;
+        text-align: center;
+        order: -1;
+      }
+    }
+  }
 }
 
-.admin-table-title {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: $main-font-colour;
-}
+// ============================================================
+// Reduced motion
+// ============================================================
+@media (prefers-reduced-motion: reduce) {
+  .admin-profile-view-wrapper {
+    .card-details,
+    .reviews-panel {
+      animation: none;
+    }
 
-.admin-table-scroll {
-  overflow-x: auto;
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.admin-table-header {
-  background-color: $main-font-colour;
-  color: $main-bg-colour;
-  font-weight: bold;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.admin-table-row:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.admin-table-cell {
-  padding: 0.75rem 1rem;
-  text-align: center;
-  border-left: 1px solid $border-colour;
-  font-size: 0.8em;
-  height: auto;
-  overflow-y: auto;
-  width: calc(100% / 6);
-}
-
-.admin-table-cell--wide {
-  text-align: left;
-  width: 52%;
-}
-
-.admin-table-cell--sortable {
-  cursor: pointer;
-}
-
-.admin-table-cell:first-child {
-  border-left: none;
+    .admin-table-body .admin-table-row,
+    .pagination-wrapper button,
+    .reviews-toggle {
+      transition: none;
+    }
+  }
 }

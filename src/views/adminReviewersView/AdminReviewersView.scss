@@ -1,52 +1,254 @@
 @use '../../index.scss' as *;
 @use '../../scssMixIn.scss' as *;
 
-.admin-reviewer-wrapper {
-  .heading {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
-    background-color: $main-font-colour;
-    color: $main-bg-colour;
-    z-index: 100;
-    font-weight: bold;
+// ============================================================
+// Admin Reviewers View — Desktop Table + Mobile Cards
+// ============================================================
+
+.admin-reviewers-view-wrapper {
+  font-size: 0.95rem;
+  overflow-x: hidden;
+
+  // --- Reviewer count ---
+  .reviewer-count {
+    font-size: 0.9rem;
+    color: rgba($main-font-colour, 0.7);
+    margin-bottom: 1rem;
   }
 
-  .admin-reviewer-inner-wrapper {
+  // --- Desktop table ---
+  .admin-table-scroll {
+    overflow-x: auto;
+  }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid $border-colour-light;
+      vertical-align: middle;
+    }
+
+    th {
+      &:nth-child(1) { width: 30%; } // Reviewer
+      &:nth-child(2) { width: 30%; } // Email
+      &:nth-child(3) { width: 20%; } // Created
+      &:nth-child(4) { width: 20%; } // Actions
+    }
+  }
+
+  .admin-table-header {
+    background-color: rgba($burnt-orange, 0.15);
+    border-bottom: 2px solid $burnt-orange;
+
+    th {
+      color: $main-font-colour;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  .admin-table-row {
+    transition: background-color 0.15s ease;
+
+    &:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+
+    &:hover {
+      background-color: rgba($burnt-orange, 0.08);
+    }
+  }
+
+  // --- Actions cell ---
+  .actions-cell {
     display: flex;
-    padding: 0.75rem;
-  }
-  Button {
-    margin: 0 auto;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: stretch;
   }
 
-  .item {
-    height: auto;
-    overflow-y: auto;
-    text-align: center;
-    width: calc(100% / 5);
-    font-size: 0.8em;
-    border-left: 1px solid $border-colour;
+  .btn-danger {
+    color: $danger !important;
+    border-color: rgba($danger, 0.4) !important;
   }
-  .admin-reviewer-inner-wrapper:nth-child(even) {
-    background-color: rgba(255, 255, 255, 0.1);
+
+  // --- Mobile cards (hidden on desktop) ---
+  .mobile-cards {
+    display: none;
+  }
+
+  .mobile-card {
+    background-color: $fieldSet-bg-colour;
+    border: 1px solid $border-colour-light;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+
+    &.expanded {
+      border-color: rgba($burnt-orange, 0.4);
+    }
+  }
+
+  .card-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.85rem;
+    background: none;
+    border: none;
+    color: $main-font-colour;
+    cursor: pointer;
+    text-align: left;
+    min-height: 44px;
+    font-size: inherit;
+
+    &:focus-visible {
+      outline: 2px solid $burnt-orange;
+      outline-offset: -2px;
+    }
+  }
+
+  .card-identity {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+
+    strong {
+      font-size: 0.95rem;
+    }
+
+    span {
+      font-size: 0.8rem;
+      color: rgba($main-font-colour, 0.6);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .card-details {
+    padding: 0 0.85rem 0.85rem;
+    border-top: 1px solid $border-colour-light;
+    animation: slideDown 0.2s ease-out;
+  }
+
+  .detail-row {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba($border-colour-light, 0.5);
+
+    &:last-of-type {
+      border-bottom: none;
+    }
+
+    label {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba($main-font-colour, 0.5);
+      margin-bottom: 0.15rem;
+    }
+
+    p {
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+  }
+
+  .card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+
+    .btn {
+      min-height: 44px;
+    }
   }
 }
 
-/* Responsive layout - makes a one column layout (100%) instead of a two-column layout (50%) */
-@media (max-width: 812px) {
-  .admin-reviewer-wrapper {
-    .heading {
+// --- Animation ---
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ============================================================
+// Tablet (641px — 1024px)
+// ============================================================
+@media (max-width: 1024px) {
+  .admin-reviewers-view-wrapper {
+    .admin-table {
+      th, td {
+        padding: 0.65rem 0.75rem;
+      }
+    }
+  }
+}
+
+// ============================================================
+// Mobile (≤640px)
+// ============================================================
+@media (max-width: 640px) {
+  .admin-reviewers-view-wrapper {
+    font-size: 0.9rem;
+
+    .admin-table-scroll {
       display: none;
     }
-    .admin-view-inner-wrapper {
+
+    .mobile-cards {
+      display: flex;
       flex-direction: column;
     }
-    .item {
-      width: 100% !important;
+
+    .mobile-card {
+      max-width: 100%;
     }
-    .item + .wider-item {
-      width: 100% !important;
+
+    .card-summary {
+      overflow: hidden;
+    }
+
+    .card-identity,
+    .card-details {
+      overflow-wrap: break-word;
+      word-break: break-word;
+      min-width: 0;
+    }
+
+    .detail-row p {
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+  }
+}
+
+// ============================================================
+// Reduced motion
+// ============================================================
+@media (prefers-reduced-motion: reduce) {
+  .admin-reviewers-view-wrapper {
+    .card-details {
+      animation: none;
+    }
+
+    .admin-table-row {
+      transition: none;
     }
   }
 }

@@ -2,16 +2,20 @@
 
 .search-input-wrapper {
   width: 100%;
+  max-width: 100%;
   margin: 0 auto;
+  box-sizing: border-box;
   /* form starting stylings ------------------------------- */
   input {
     display: block;
     width: 100%;
+    max-width: 100%;
     padding: 0.75rem 1rem;
     font-family: 'Comfortaa', cursive;
     font-size: 1rem;
     color: $main-font-colour;
     line-height: 1.5;
+    box-sizing: border-box;
 
     // Transparent background
     background-color: transparent;
@@ -135,8 +139,10 @@
 @media (max-width: 812px) {
   .search-input-wrapper {
     width: 100%;
+    max-width: 100%;
     input {
       width: 100%;
+      max-width: 100%;
       padding: 0.875rem 1rem;
     }
   }
@@ -144,13 +150,17 @@
 
 @media (max-width: 480px) {
   .search-input-wrapper {
+    overflow: hidden;
     input {
       padding: 1rem;
       font-size: 1rem; // Prevents iOS zoom on focus
+      max-width: 100%;
     }
 
     label {
       font-size: 0.9rem;
+      max-width: 100%;
+      word-break: break-word;
     }
   }
 }

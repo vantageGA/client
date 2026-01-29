@@ -12,6 +12,9 @@
   padding: 8px;
   border: 3px double $border-colour-light;
   outline: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
 
   &.disabled {
     border: 3px double $danger;
@@ -24,5 +27,14 @@
     cursor: pointer;
     color: $rating-colour;
     transition: border 0.6s ease-in-out;
+  }
+}
+
+/* Mobile button constraints */
+@media (max-width: 640px) {
+  .btn {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
