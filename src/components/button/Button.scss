@@ -15,7 +15,8 @@
 
   &.disabled {
     border: 3px double $danger;
-    opacity: 0.4;
+    color: rgba(100, 100, 100, 0.6); // Lower contrast but compliant color
+    cursor: not-allowed;
   }
   &.not-disabled:hover {
     border: 3px double $main-font-colour;

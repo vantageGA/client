@@ -9,6 +9,7 @@ const Message = ({
   autoClose = null,
   isVisible = undefined,
   success = undefined, // Deprecated: for backward compatibility
+  ariaLive = 'polite',
 }) => {
   const [internalVisible, setInternalVisible] = useState(true);
   const messageRef = useRef(null);
@@ -55,7 +56,7 @@ const Message = ({
       ref={messageRef}
       className={`message-wrapper message-${actualVariant}`}
       role="alert"
-      aria-live="polite"
+      aria-live={ariaLive}
       aria-atomic="true"
       tabIndex={-1}
     >
@@ -81,6 +82,7 @@ Message.propTypes = {
   autoClose: PropTypes.number,
   isVisible: PropTypes.bool,
   success: PropTypes.bool, // Deprecated: use variant="success" instead
+  ariaLive: PropTypes.oneOf(['polite', 'assertive', 'off']),
 };
 
 export default Message;

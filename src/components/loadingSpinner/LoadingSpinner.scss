@@ -40,6 +40,19 @@
   }
 }
 
+.visually-hidden {
+  position: absolute;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  border: 0;
+  white-space: nowrap;
+}
+
 @keyframes rotate1 {
   from {
     transform: rotateX(35deg) rotateY(-45deg) rotateZ(0);

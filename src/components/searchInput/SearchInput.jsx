@@ -27,7 +27,7 @@ const SearchInput = ({
           aria-describedby={ariaDescribedBy}
         />
         <span className="bar"></span>
-        <label>{label}</label>
+        <label htmlFor={id}>{label}</label>
       </div>
     </>
   );
