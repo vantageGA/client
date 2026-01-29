@@ -10,6 +10,8 @@
   border-left: 1px solid $burnt-orange;
   border-radius: 4px;
   margin-bottom: 1rem;
+  min-inline-size: 0;
+  box-sizing: border-box;
 
   .item {
     display: flex;
@@ -41,6 +43,10 @@
       color: $light-orange;
       margin-bottom: 0.5rem;
     }
+
+    > div {
+      min-width: 0;
+    }
   }
 
   .link {
@@ -52,16 +58,74 @@
   }
 }
 /* Responsive layout */
+/* Tablet */
 @media (max-width: 812px) {
   .card-inner-wrapper {
     flex: 1 1 100%;
     max-width: 100%;
 
+    .item .card-profile-image {
+      width: 180px;
+      height: 160px;
+    }
+  }
+}
+
+/* Mobile - vertical card stack */
+@media (max-width: 640px) {
+  .card-inner-wrapper {
+    flex: 1 1 100%;
+    max-width: 100%;
+    overflow: hidden;
+
     .item {
+      flex-direction: column;
+      align-items: stretch;
+      min-width: 0;
+
       .card-profile-image {
-        width: 140px;
-        height: 120px;
-        margin: 0.2em;
+        width: 100%;
+        height: auto;
+        max-height: 220px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin: 0 0 0.75rem 0;
+      }
+
+      .card-name {
+        font-size: 1.3rem;
+      }
+
+      > div {
+        min-width: 0;
+        width: 100%;
+      }
+    }
+
+    /* Keep specialisations in a row on mobile */
+    .item:first-child {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+
+      .specialisation {
+        width: auto;
+        flex: 1 1 auto;
+        font-size: 0.7em;
+        padding: 0.3em 0.5em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    .link {
+      display: block;
+
+      .btn {
+        width: 100%;
+        min-height: 44px;
+        text-align: center;
       }
     }
   }

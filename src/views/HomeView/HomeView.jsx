@@ -138,15 +138,29 @@ const HomeView = () => {
       ? profile.keywords.map(k => k.toLowerCase())
       : [];
 
-    if (keywords.length === 0) return false;
+    // Also include specialisation fields in searchable terms
+    const specialisations = [
+      profile?.specialisationOne,
+      profile?.specialisationTwo,
+      profile?.specialisationThree,
+      profile?.specialisationFour,
+      profile?.specialisation,
+      profile?.name,
+      profile?.location,
+    ]
+      .filter(Boolean)
+      .map(s => s.toLowerCase());
+
+    const allSearchableTerms = [...keywords, ...specialisations];
+
+    if (allSearchableTerms.length === 0) return false;
 
     // Split search into individual words for multi-keyword matching
     const searchWords = searchTerms.split(/\s+/).filter(word => word.length > 0);
 
-    // ALL search words must match at least one keyword (exact match or contains)
-    // This ensures "fitness guildford gym" finds profiles with all 3 keywords
+    // ALL search words must match at least one searchable term (exact match or contains)
     return searchWords.every(searchWord =>
-      keywords.some(keyword => keyword.includes(searchWord))
+      allSearchableTerms.some(term => term.includes(searchWord))
     );
   });
 
@@ -272,8 +286,6 @@ const HomeView = () => {
                           <p>{truncateDescription(profile?.description || '')}</p>
                         }
                         rating={profile?.rating}
-                        number
-                        of
                         reviews={profile?.numReviews}
                       />
                     </div>
@@ -289,39 +301,22 @@ const HomeView = () => {
 
             {/* Pagination Controls - only show when not searching */}
             {!keyword && pages > 1 && (
-              <div className="pagination-wrapper" style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '20px',
-                marginTop: '20px'
-              }}>
+              <div className="pagination-wrapper">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  style={{
-                    padding: '8px 16px',
-                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                    opacity: currentPage === 1 ? 0.5 : 1
-                  }}
                   aria-label="Previous page"
                 >
                   Previous
                 </button>
 
-                <span style={{ padding: '0 15px' }}>
+                <span>
                   Page {page} of {pages} ({total} total profiles)
                 </span>
 
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === pages}
-                  style={{
-                    padding: '8px 16px',
-                    cursor: currentPage === pages ? 'not-allowed' : 'pointer',
-                    opacity: currentPage === pages ? 0.5 : 1
-                  }}
                   aria-label="Next page"
                 >
                   Next
