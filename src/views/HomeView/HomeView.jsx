@@ -183,7 +183,8 @@ const HomeView = () => {
 
   const truncateDescription = (text) => {
     if (!text) return '';
-    return text.length > 180 ? `${text.slice(0, 180)}...` : text;
+    const plainText = text.replace(/<[^>]*>/g, '').trim();
+    return plainText.length > 180 ? `${plainText.slice(0, 180)}...` : plainText;
   };
 
   return (

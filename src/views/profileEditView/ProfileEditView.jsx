@@ -11,6 +11,11 @@ import {
 } from '../../store/actions/profileActions';
 
 import {
+  PROFILE_UPDATE_RESET,
+  PROFILE_OF_LOGGED_IN_USER_RESET,
+} from '../../store/constants/profileConstants';
+
+import {
   profileImageUploadAction,
   deleteProfileImageAction,
 } from '../../store/actions/imageUploadActions';
@@ -46,6 +51,8 @@ const sanitize = (value) =>
     ALLOWED_ATTR: ['href', 'target', 'rel'],
   });
 
+const stripHtml = (html) => html.replace(/<[^>]*>/g, '').trim();
+
 const ProfileEditView = () => {
   const emailRegEx =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
@@ -70,6 +77,10 @@ const ProfileEditView = () => {
   // PROFILE image upload
   const profileImageStore = useSelector((state) => state.profileImage);
   const { loading: profileImageLoading } = profileImageStore;
+
+  // Profile update state
+  const profileUpdateState = useSelector((state) => state.profileUpdate);
+  const { success: updateSuccess, error: updateError } = profileUpdateState;
 
   // PROFILE images
   const profileImagesState = useSelector((state) => state.profileImages);
@@ -155,15 +166,24 @@ const ProfileEditView = () => {
       setSpecialisationThree(profile.specialisationThree ?? '');
       setSpecialisationFour(profile.specialisationFour ?? '');
     }
-
-    dispatch(profileImagesAction());
-
-    const abortConst = new AbortController();
-    return () => {
-      abortConst.abort();
-      console.log('ProfileEditView useEffect cleaned');
-    };
   }, [navigate, dispatch, userInfo, profile]);
+
+  // Fetch profile images once on mount
+  useEffect(() => {
+    dispatch(profileImagesAction());
+  }, [dispatch]);
+
+  // Watch profileUpdate state for success/error
+  useEffect(() => {
+    if (updateSuccess) {
+      showNotification('Profile updated successfully', 'success');
+      dispatch({ type: PROFILE_UPDATE_RESET });
+    }
+    if (updateError) {
+      showNotification(updateError, 'error');
+      dispatch({ type: PROFILE_UPDATE_RESET });
+    }
+  }, [updateSuccess, updateError, dispatch]);
 
   // Keep displayed profile image aligned with the latest list.
   useEffect(() => {
@@ -209,12 +229,15 @@ const ProfileEditView = () => {
       return;
     }
 
-    if (description.length < 10) {
-      showNotification('Description must be at least 10 characters', 'error');
+    if (stripHtml(description).length < 10) {
+      showNotification(
+        `Description must be at least 10 characters (${stripHtml(description).length} entered)`,
+        'error',
+      );
       return;
     }
 
-    if (location.length <= 10) {
+    if (location.length < 10) {
       showNotification('Location must be at least 10 characters', 'error');
       return;
     }
@@ -275,7 +298,6 @@ const ProfileEditView = () => {
         specialisationFour,
       }),
     );
-    showNotification('Profile updated successfully', 'success');
   };
 
   // Profile image
@@ -291,6 +313,16 @@ const ProfileEditView = () => {
 
   const uploadFileHandler = (e) => {
     const imageFile = e.target.files[0];
+    if (!imageFile) return;
+
+    if (imageFile.size > 5 * 1024 * 1024) {
+      showNotification('Image must be less than 5MB', 'error');
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+
     setPreviewImageFile(imageFile);
     previewFile(imageFile);
   };
@@ -349,7 +381,11 @@ const ProfileEditView = () => {
         <Message
           message={error || createError}
           variant="error"
-          onDismiss={() => setNotification({ message: '', variant: 'error' })}
+          onDismiss={() => {
+            if (error) {
+              dispatch({ type: PROFILE_OF_LOGGED_IN_USER_RESET });
+            }
+          }}
         />
       )}
 
@@ -489,10 +525,9 @@ const ProfileEditView = () => {
               />
               <div>
                 <h3>Description </h3>
-                {description?.length < 10 ? (
+                {stripHtml(description || '').length < 10 ? (
                   <span className="small-text">
-                    Description must have at least {description.length}{' '}
-                    characters.
+                    Description must be at least 10 characters ({stripHtml(description || '').length} entered)
                   </span>
                 ) : null}
 
@@ -501,7 +536,7 @@ const ProfileEditView = () => {
                   <QuillEditor
                     value={description}
                     onChange={setDescription}
-                    className={description?.length < 10 ? 'invalid' : 'entered'}
+                    className={stripHtml(description || '').length < 10 ? 'invalid' : 'entered'}
                   />
                 </div>
                 <Button
@@ -823,13 +858,13 @@ const ProfileEditView = () => {
                     name="location"
                     required
                     placeholder="Enter your detailed location (city, region, etc.)"
-                    className={location?.length <= 10 ? 'invalid' : 'entered'}
-                    aria-invalid={location?.length <= 10}
+                    className={location?.length < 10 ? 'invalid' : 'entered'}
+                    aria-invalid={location?.length < 10}
                     aria-describedby={
-                      location?.length <= 10 ? 'location-error' : undefined
+                      location?.length < 10 ? 'location-error' : undefined
                     }
                   />
-                  {location?.length <= 10 && location.length > 0 && (
+                  {location?.length < 10 && location.length > 0 && (
                     <p id="location-error" className="validation-error" role="alert">
                       Location must be at least 10 characters ({location.length} entered)
                     </p>
@@ -908,7 +943,7 @@ const ProfileEditView = () => {
               {profileImage ? (
                 <img src={profileImage} alt={name} className="image" />
               ) : (
-                <p>'No profile image'</p>
+                <p>No profile image</p>
               )}
               <form onSubmit={handleProfileImageUpdate}>
                 <div className="file-input-wrapper">
@@ -981,7 +1016,7 @@ const ProfileEditView = () => {
                   </div>
                 ))
               ) : (
-                <p>'No profile image'</p>
+                <p>No profile image</p>
               )}
             </div>
             <h3>Description</h3>
