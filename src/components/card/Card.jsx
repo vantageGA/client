@@ -40,10 +40,10 @@ const Card = ({
   return (
     <div className="card-inner-wrapper">
       <div className="item">
-        <div className="specialisation">{specialisationOne}</div>
-        <div className="specialisation">{specialisationTwo}</div>
-        <div className="specialisation">{specialisationThree}</div>
-        <div className="specialisation">{specialisationFour}</div>
+        {specialisationOne && <div className="specialisation">{specialisationOne}</div>}
+        {specialisationTwo && <div className="specialisation">{specialisationTwo}</div>}
+        {specialisationThree && <div className="specialisation">{specialisationThree}</div>}
+        {specialisationFour && <div className="specialisation">{specialisationFour}</div>}
       </div>
 
       <div className="item">

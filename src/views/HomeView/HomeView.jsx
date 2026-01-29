@@ -258,26 +258,10 @@ const HomeView = () => {
                   searchedProfiles.map((profile) => (
                     <div key={profile?._id}>
                       <Card
-                        specialisationOne={
-                          profile?.specialisationOne?.length
-                            ? profile?.specialisationOne
-                            : 'Personal Trainer'
-                        }
-                        specialisationTwo={
-                          profile?.specialisationTwo?.length
-                            ? profile?.specialisationTwo
-                            : 'Personal Trainer'
-                        }
-                        specialisationThree={
-                          profile?.specialisationThree?.length
-                            ? profile?.specialisationThree
-                            : 'Personal Trainer'
-                        }
-                        specialisationFour={
-                          profile?.specialisationFour?.length
-                            ? profile?.specialisationFour
-                            : 'Personal Trainer'
-                        }
+                        specialisationOne={profile?.specialisationOne || null}
+                        specialisationTwo={profile?.specialisationTwo || null}
+                        specialisationThree={profile?.specialisationThree || null}
+                        specialisationFour={profile?.specialisationFour || null}
                         id={profile?._id}
                         name={
                           <>{highlightKeywordMatch(profile?.name || '')}</>
