@@ -1,0 +1,39 @@
+@use '../../index.scss' as *;
+
+.form-section-accordion {
+  border: 1px solid $border-colour-light;
+  border-left: 3px solid $burnt-orange;
+  border-radius: 4px;
+  margin: 0.75rem 0;
+  background: rgba(51, 51, 51, 0.2);
+
+  .form-section-toggle {
+    all: unset;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+  }
+
+  .form-section-title {
+    font-family: 'Bebas Neue', cursive;
+    text-transform: uppercase;
+    font-size: 1.4rem;
+    letter-spacing: 0.08em;
+  }
+
+  .form-section-panel {
+    padding: 0.75rem 1rem 1rem;
+    border-top: 1px solid $border-colour-light;
+    background-color: rgba(51, 51, 51, 0.35);
+  }
+
+  i {
+    color: $burnt-orange;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useImperativeHandle } from 'react';
 import Quill from 'quill';
 import DOMPurify from 'dompurify';
 import 'quill/dist/quill.snow.css';
@@ -33,7 +33,7 @@ const formats = [
   'align',
 ];
 
-function QuillEditor({ value = '', onChange, className }) {
+const QuillEditor = React.forwardRef(({ value = '', onChange, className, id }, ref) => {
   const editorRef = useRef(null);
   const quillRef = useRef(null);
   const lastHtml = useRef('');
@@ -77,11 +77,17 @@ function QuillEditor({ value = '', onChange, className }) {
     }
   }, [value]);
 
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      quillRef.current?.focus();
+    },
+  }));
+
   return (
-    <div className={`quill ${className || ''}`}>
+    <div id={id} className={`quill ${className || ''}`} tabIndex={0}>
       <div ref={editorRef} />
     </div>
   );
-}
+});
 
 export default QuillEditor;

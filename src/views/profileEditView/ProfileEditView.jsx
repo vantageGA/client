@@ -25,6 +25,7 @@ import Button from '../../components/button/Button';
 import Message from '../../components/message/Message';
 import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
 import Rating from '../../components/rating/Rating';
+import FormSectionAccordion from '../../components/formSectionAccordion/FormSectionAccordion';
 
 import moment from 'moment';
 import QuillEditor from '../../components/quillEditor/QuillEditor';
@@ -110,9 +111,12 @@ const ProfileEditView = () => {
   const [specialisationFour, setSpecialisationFour] = useState('');
 
   const [showHelp, setShowHelp] = useState(false);
+  const [openSection, setOpenSection] = useState('');
+  const [pendingFocusId, setPendingFocusId] = useState('');
 
   // Refs
   const fileInputRef = useRef(null);
+  const descriptionEditorRef = useRef(null);
 
   // Notification state for centralized message management
   const [notification, setNotification] = useState({
@@ -185,6 +189,22 @@ const ProfileEditView = () => {
     }
   }, [updateSuccess, updateError, dispatch]);
 
+  useEffect(() => {
+    if (!pendingFocusId) return;
+
+    requestAnimationFrame(() => {
+      if (pendingFocusId === 'profile-description') {
+        descriptionEditorRef.current?.focus();
+      } else {
+        const element = document.getElementById(pendingFocusId);
+        if (element && typeof element.focus === 'function') {
+          element.focus();
+        }
+      }
+      setPendingFocusId('');
+    });
+  }, [openSection, pendingFocusId]);
+
   // Keep displayed profile image aligned with the latest list.
   useEffect(() => {
     if (!profileImages) return;
@@ -215,21 +235,29 @@ const ProfileEditView = () => {
 
     // Validate all required fields before processing
     if (!name || name.trim().length === 0) {
+      setOpenSection('basics');
+      setPendingFocusId('profile-name');
       showNotification('Name is required', 'error');
       return;
     }
 
     if (!emailRegEx.test(email)) {
+      setOpenSection('basics');
+      setPendingFocusId('profile-email');
       showNotification('Valid email address is required', 'error');
       return;
     }
 
     if (!telephoneNumberRegEx.test(telephoneNumber)) {
+      setOpenSection('telephone');
+      setPendingFocusId('profile-telephone');
       showNotification('Valid UK telephone number is required', 'error');
       return;
     }
 
     if (stripHtml(description).length < 10) {
+      setOpenSection('description');
+      setPendingFocusId('profile-description');
       showNotification(
         `Description must be at least 10 characters (${stripHtml(description).length} entered)`,
         'error',
@@ -238,6 +266,8 @@ const ProfileEditView = () => {
     }
 
     if (location.length < 10) {
+      setOpenSection('location');
+      setPendingFocusId('location');
       showNotification('Location must be at least 10 characters', 'error');
       return;
     }
@@ -252,6 +282,8 @@ const ProfileEditView = () => {
     ];
     const invalidKeywords = keywords.filter((k) => k.length < 3);
     if (invalidKeywords.length > 0) {
+      setOpenSection('keywords');
+      setPendingFocusId('keyword-one');
       showNotification('All keyword fields must be at least 3 characters', 'error');
       return;
     }
@@ -265,6 +297,8 @@ const ProfileEditView = () => {
     ];
     const invalidSpecs = specializations.filter((s) => s.length < 3);
     if (invalidSpecs.length > 0) {
+      setOpenSection('spec-keywords');
+      setPendingFocusId('specialisation-one');
       showNotification(
         'All specialisation fields must be at least 3 characters',
         'error',
@@ -444,101 +478,116 @@ const ProfileEditView = () => {
             ></Button>
 
             <form onSubmit={handleSubmit}>
-              {showHelp ? (
-                <InfoComponent description="Name that the public will see." />
-              ) : null}
-              <InputField
-                id="profile-name"
-                label="Name"
-                onChange={(e) => setName(e.target.value)}
-                onBlur={() => handleBlur('name')}
-                type="text"
-                name="name"
-                placeholder="Ben Smith"
-                value={name}
-                required
-                hint="Your full professional name as it will appear publicly"
-                className={showNameError ? 'invalid' : isNameValid ? 'entered' : ''}
-                error={showNameError ? `Name field cannot be empty` : null}
-                aria-invalid={showNameError}
-                aria-describedby={showNameError ? 'profile-name-error' : undefined}
-              />
-              {showHelp ? (
-                <InfoComponent description="Email address the public will see." />
-              ) : null}{' '}
-              <InputField
-                id="profile-email"
-                label="Email"
-                type="email"
-                name="email"
-                placeholder="ben@mail.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onBlur={() => handleBlur('email')}
-                required
-                hint="Valid email format required (example@domain.com)"
-                className={showEmailError ? 'invalid' : isEmailValid ? 'entered' : ''}
-                error={showEmailError ? `Invalid email address` : null}
-                aria-invalid={showEmailError}
-                aria-describedby={showEmailError ? 'profile-email-error' : undefined}
-              />
-              <InputField
-                id="profile-facebook"
-                label="Facebook USERNAME"
-                type="text"
-                name="faceBook"
-                value={faceBook}
-                placeholder="fiscalfitness"
-                onChange={(e) => setFaceBook(e.target.value)}
-                hint="Your Facebook username (optional)"
-                className={faceBook.length > 0 ? 'entered' : ''}
-              />
-              <InputField
-                id="profile-instagram"
-                label="Instagram USERNAME"
-                type="text"
-                name="instagram"
-                value={instagram}
-                placeholder="zachfiscalfitness"
-                onChange={(e) => setInstagram(e.target.value)}
-                hint="Your Instagram username (optional)"
-                className={instagram.length > 0 ? 'entered' : ''}
-              />
-              <InputField
-                id="profile-website"
-                label="Website URL"
-                type="text"
-                name="websiteUrl"
-                value={websiteUrl}
-                placeholder="zachfiscalfitness.co.uk"
-                onChange={(e) => setWebsiteUrl(e.target.value)}
-                hint="Your professional website URL (optional)"
-                className={websiteUrl.length > 0 ? 'entered' : ''}
-              />
-              <Button
-                type="submit"
-                
-                text="Save profile basics"
-                className="btn sticky-save"
-                title="Save profile basics"
-                disabled={false}
-              />
-              <div>
-                <h3>Description </h3>
+              <FormSectionAccordion
+                title="Profile Basics"
+                isOpen={openSection === 'basics'}
+                onToggle={() =>
+                  setOpenSection((current) => (current === 'basics' ? '' : 'basics'))
+                }
+              >
+                {showHelp ? (
+                  <InfoComponent description="Name that the public will see." />
+                ) : null}
+                <InputField
+                  id="profile-name"
+                  label="Name"
+                  onChange={(e) => setName(e.target.value)}
+                  onBlur={() => handleBlur('name')}
+                  type="text"
+                  name="name"
+                  placeholder="Ben Smith"
+                  value={name}
+                  required
+                  hint="Your full professional name as it will appear publicly"
+                  className={showNameError ? 'invalid' : isNameValid ? 'entered' : ''}
+                  error={showNameError ? `Name field cannot be empty` : null}
+                  aria-invalid={showNameError}
+                  aria-describedby={showNameError ? 'profile-name-error' : undefined}
+                />
+                {showHelp ? (
+                  <InfoComponent description="Email address the public will see." />
+                ) : null}{' '}
+                <InputField
+                  id="profile-email"
+                  label="Email"
+                  type="email"
+                  name="email"
+                  placeholder="ben@mail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onBlur={() => handleBlur('email')}
+                  required
+                  hint="Valid email format required (example@domain.com)"
+                  className={showEmailError ? 'invalid' : isEmailValid ? 'entered' : ''}
+                  error={showEmailError ? `Invalid email address` : null}
+                  aria-invalid={showEmailError}
+                  aria-describedby={showEmailError ? 'profile-email-error' : undefined}
+                />
+                <InputField
+                  id="profile-facebook"
+                  label="Facebook USERNAME"
+                  type="text"
+                  name="faceBook"
+                  value={faceBook}
+                  placeholder="fiscalfitness"
+                  onChange={(e) => setFaceBook(e.target.value)}
+                  hint="Your Facebook username (optional)"
+                  className={faceBook.length > 0 ? 'entered' : ''}
+                />
+                <InputField
+                  id="profile-instagram"
+                  label="Instagram USERNAME"
+                  type="text"
+                  name="instagram"
+                  value={instagram}
+                  placeholder="zachfiscalfitness"
+                  onChange={(e) => setInstagram(e.target.value)}
+                  hint="Your Instagram username (optional)"
+                  className={instagram.length > 0 ? 'entered' : ''}
+                />
+                <InputField
+                  id="profile-website"
+                  label="Website URL"
+                  type="text"
+                  name="websiteUrl"
+                  value={websiteUrl}
+                  placeholder="zachfiscalfitness.co.uk"
+                  onChange={(e) => setWebsiteUrl(e.target.value)}
+                  hint="Your professional website URL (optional)"
+                  className={websiteUrl.length > 0 ? 'entered' : ''}
+                />
+                <Button
+                  type="submit"
+                  
+                  text="Save profile basics"
+                  className="btn sticky-save"
+                  title="Save profile basics"
+                  disabled={false}
+                />
+              </FormSectionAccordion>
+              <FormSectionAccordion
+                title="Description"
+                isOpen={openSection === 'description'}
+                onToggle={() =>
+                  setOpenSection((current) =>
+                    current === 'description' ? '' : 'description',
+                  )
+                }
+              >
                 {stripHtml(description || '').length < 10 ? (
                   <span className="small-text">
                     Description must be at least 10 characters ({stripHtml(description || '').length} entered)
                   </span>
                 ) : null}
 
-                <div className="input-wrapper">
-                  <label>Brief Description of yourself </label>
-                  <QuillEditor
-                    value={description}
-                    onChange={setDescription}
-                    className={stripHtml(description || '').length < 10 ? 'invalid' : 'entered'}
-                  />
-                </div>
+                <label>Brief Description of yourself </label>
+                <QuillEditor
+                  id="profile-description"
+                  value={description}
+                  onChange={setDescription}
+                  ref={descriptionEditorRef}
+                  className={stripHtml(description || '').length < 10 ? 'invalid' : 'entered'}
+                />
                 <Button
                   type="submit"
                   
@@ -547,266 +596,280 @@ const ProfileEditView = () => {
                   title="Save description"
                   disabled={false}
                 />
-              </div>
-              
-              <div>
-                <h3>Search Keyword(s)</h3>
-                <div className="input-wrapper">
-                  <InputField
-                    id="keyword-one"
-                    label="Keyword 1"
-                    placeholder="e.g., Personal Training"
-                    value={keyWordSearchOne}
-                    onChange={(e) => setkeyWordSearchOne(e.target.value)}
-                    onBlur={() => handleBlur('keyWordSearchOne')}
-                    type="text"
-                    name="keyWordSearchOne"
-                    required
-                    hint="Primary search keyword (minimum 3 characters)"
-                    className={
-                      touched.keyWordSearchOne && keyWordSearchOne?.length < 3
-                        ? 'invalid'
-                        : keyWordSearchOne?.length >= 3
-                        ? 'entered'
-                        : ''
-                    }
-                    error={
-                      touched.keyWordSearchOne && keyWordSearchOne?.length < 3
-                        ? `Keyword must contain at least 3 characters`
-                        : null
-                    }
-                    aria-invalid={touched.keyWordSearchOne && keyWordSearchOne?.length < 3}
-                  />
-                  <InputField
-                    id="keyword-two"
-                    label="Keyword 2"
-                    placeholder="e.g., Strength Training"
-                    value={keyWordSearchTwo}
-                    onChange={(e) => setkeyWordSearchTwo(e.target.value)}
-                    onBlur={() => handleBlur('keyWordSearchTwo')}
-                    type="text"
-                    name="keyWordSearchTwo"
-                    required
-                    hint="Secondary search keyword (minimum 3 characters)"
-                    className={
-                      touched.keyWordSearchTwo && keyWordSearchTwo?.length < 3
-                        ? 'invalid'
-                        : keyWordSearchTwo?.length >= 3
-                        ? 'entered'
-                        : ''
-                    }
-                    error={
-                      touched.keyWordSearchTwo && keyWordSearchTwo?.length < 3
-                        ? `Keyword must contain at least 3 characters`
-                        : null
-                    }
-                    aria-invalid={touched.keyWordSearchTwo && keyWordSearchTwo?.length < 3}
-                  />
-                  <InputField
-                    id="keyword-three"
-                    label="Keyword 3"
-                    placeholder="e.g., Nutrition"
-                    value={keyWordSearchThree}
-                    onChange={(e) => setkeyWordSearchThree(e.target.value)}
-                    onBlur={() => handleBlur('keyWordSearchThree')}
-                    type="text"
-                    name="keyWordSearchThree"
-                    required
-                    hint="Additional search keyword (minimum 3 characters)"
-                    className={
-                      touched.keyWordSearchThree && keyWordSearchThree?.length < 3
-                        ? 'invalid'
-                        : keyWordSearchThree?.length >= 3
-                        ? 'entered'
-                        : ''
-                    }
-                    error={
-                      touched.keyWordSearchThree && keyWordSearchThree?.length < 3
-                        ? `Keyword must contain at least 3 characters`
-                        : null
-                    }
-                    aria-invalid={touched.keyWordSearchThree && keyWordSearchThree?.length < 3}
-                  />
-                  <InputField
-                    id="keyword-four"
-                    label="Keyword 4"
-                    placeholder="e.g., Weight Loss"
-                    value={keyWordSearchFour}
-                    onChange={(e) => setkeyWordSearchFour(e.target.value)}
-                    onBlur={() => handleBlur('keyWordSearchFour')}
-                    type="text"
-                    name="keyWordSearchFour"
-                    required
-                    hint="Additional search keyword (minimum 3 characters)"
-                    className={
-                      touched.keyWordSearchFour && keyWordSearchFour?.length < 3
-                        ? 'invalid'
-                        : keyWordSearchFour?.length >= 3
-                        ? 'entered'
-                        : ''
-                    }
-                    error={
-                      touched.keyWordSearchFour && keyWordSearchFour?.length < 3
-                        ? `Keyword must contain at least 3 characters`
-                        : null
-                    }
-                    aria-invalid={touched.keyWordSearchFour && keyWordSearchFour?.length < 3}
-                  />
-                  <InputField
-                    id="keyword-five"
-                    label="Keyword 5"
-                    placeholder="e.g., Fitness"
-                    value={keyWordSearchFive}
-                    onChange={(e) => setkeyWordSearchFive(e.target.value)}
-                    onBlur={() => handleBlur('keyWordSearchFive')}
-                    type="text"
-                    name="keyWordSearchFive"
-                    required
-                    hint="Additional search keyword (minimum 3 characters)"
-                    className={
-                      touched.keyWordSearchFive && keyWordSearchFive?.length < 3
-                        ? 'invalid'
-                        : keyWordSearchFive?.length >= 3
-                        ? 'entered'
-                        : ''
-                    }
-                    error={
-                      touched.keyWordSearchFive && keyWordSearchFive?.length < 3
-                        ? `Keyword must contain at least 3 characters`
-                        : null
-                    }
-                    aria-invalid={touched.keyWordSearchFive && keyWordSearchFive?.length < 3}
-                  />
-                  <Button
-                    type="submit"
-                    
-                    text="Save keywords"
-                    className="btn sticky-save"
-                    title="Save keywords"
-                    disabled={false}
-                  />
-                  <div>
-                    <hr className="style-one" />
-                    <div className="info-message">
-                      <p>
-                        Your keywords are automatically indexed for search.
-                        Users can search using any of your keywords, and MongoDB's
-                        text search will find your profile efficiently.
-                      </p>
-                    </div>
-                  </div>
+              </FormSectionAccordion>
+              <FormSectionAccordion
+                title="Search Keyword(s)"
+                isOpen={openSection === 'keywords'}
+                onToggle={() =>
+                  setOpenSection((current) =>
+                    current === 'keywords' ? '' : 'keywords',
+                  )
+                }
+              >
+                <InputField
+                  id="keyword-one"
+                  label="Keyword 1"
+                  placeholder="e.g., Personal Training"
+                  value={keyWordSearchOne}
+                  onChange={(e) => setkeyWordSearchOne(e.target.value)}
+                  onBlur={() => handleBlur('keyWordSearchOne')}
+                  type="text"
+                  name="keyWordSearchOne"
+                  required
+                  hint="Primary search keyword (minimum 3 characters)"
+                  className={
+                    touched.keyWordSearchOne && keyWordSearchOne?.length < 3
+                      ? 'invalid'
+                      : keyWordSearchOne?.length >= 3
+                      ? 'entered'
+                      : ''
+                  }
+                  error={
+                    touched.keyWordSearchOne && keyWordSearchOne?.length < 3
+                      ? `Keyword must contain at least 3 characters`
+                      : null
+                  }
+                  aria-invalid={touched.keyWordSearchOne && keyWordSearchOne?.length < 3}
+                />
+                <InputField
+                  id="keyword-two"
+                  label="Keyword 2"
+                  placeholder="e.g., Strength Training"
+                  value={keyWordSearchTwo}
+                  onChange={(e) => setkeyWordSearchTwo(e.target.value)}
+                  onBlur={() => handleBlur('keyWordSearchTwo')}
+                  type="text"
+                  name="keyWordSearchTwo"
+                  required
+                  hint="Secondary search keyword (minimum 3 characters)"
+                  className={
+                    touched.keyWordSearchTwo && keyWordSearchTwo?.length < 3
+                      ? 'invalid'
+                      : keyWordSearchTwo?.length >= 3
+                      ? 'entered'
+                      : ''
+                  }
+                  error={
+                    touched.keyWordSearchTwo && keyWordSearchTwo?.length < 3
+                      ? `Keyword must contain at least 3 characters`
+                      : null
+                  }
+                  aria-invalid={touched.keyWordSearchTwo && keyWordSearchTwo?.length < 3}
+                />
+                <InputField
+                  id="keyword-three"
+                  label="Keyword 3"
+                  placeholder="e.g., Nutrition"
+                  value={keyWordSearchThree}
+                  onChange={(e) => setkeyWordSearchThree(e.target.value)}
+                  onBlur={() => handleBlur('keyWordSearchThree')}
+                  type="text"
+                  name="keyWordSearchThree"
+                  required
+                  hint="Additional search keyword (minimum 3 characters)"
+                  className={
+                    touched.keyWordSearchThree && keyWordSearchThree?.length < 3
+                      ? 'invalid'
+                      : keyWordSearchThree?.length >= 3
+                      ? 'entered'
+                      : ''
+                  }
+                  error={
+                    touched.keyWordSearchThree && keyWordSearchThree?.length < 3
+                      ? `Keyword must contain at least 3 characters`
+                      : null
+                  }
+                  aria-invalid={touched.keyWordSearchThree && keyWordSearchThree?.length < 3}
+                />
+                <InputField
+                  id="keyword-four"
+                  label="Keyword 4"
+                  placeholder="e.g., Weight Loss"
+                  value={keyWordSearchFour}
+                  onChange={(e) => setkeyWordSearchFour(e.target.value)}
+                  onBlur={() => handleBlur('keyWordSearchFour')}
+                  type="text"
+                  name="keyWordSearchFour"
+                  required
+                  hint="Additional search keyword (minimum 3 characters)"
+                  className={
+                    touched.keyWordSearchFour && keyWordSearchFour?.length < 3
+                      ? 'invalid'
+                      : keyWordSearchFour?.length >= 3
+                      ? 'entered'
+                      : ''
+                  }
+                  error={
+                    touched.keyWordSearchFour && keyWordSearchFour?.length < 3
+                      ? `Keyword must contain at least 3 characters`
+                      : null
+                  }
+                  aria-invalid={touched.keyWordSearchFour && keyWordSearchFour?.length < 3}
+                />
+                <InputField
+                  id="keyword-five"
+                  label="Keyword 5"
+                  placeholder="e.g., Fitness"
+                  value={keyWordSearchFive}
+                  onChange={(e) => setkeyWordSearchFive(e.target.value)}
+                  onBlur={() => handleBlur('keyWordSearchFive')}
+                  type="text"
+                  name="keyWordSearchFive"
+                  required
+                  hint="Additional search keyword (minimum 3 characters)"
+                  className={
+                    touched.keyWordSearchFive && keyWordSearchFive?.length < 3
+                      ? 'invalid'
+                      : keyWordSearchFive?.length >= 3
+                      ? 'entered'
+                      : ''
+                  }
+                  error={
+                    touched.keyWordSearchFive && keyWordSearchFive?.length < 3
+                      ? `Keyword must contain at least 3 characters`
+                      : null
+                  }
+                  aria-invalid={touched.keyWordSearchFive && keyWordSearchFive?.length < 3}
+                />
+                <Button
+                  type="submit"
+                  
+                  text="Save keywords"
+                  className="btn sticky-save"
+                  title="Save keywords"
+                  disabled={false}
+                />
+                <hr className="style-one" />
+                <div className="info-message">
+                  <p>
+                    Your keywords are automatically indexed for search.
+                    Users can search using any of your keywords, and MongoDB's
+                    text search will find your profile efficiently.
+                  </p>
                 </div>
-              </div>
-              <div>
-                <h3>Specialisation Keyword(s)</h3>
-                <div className="input-wrapper">
-                  <InputField
-                    id="specialisation-one"
-                    label="Specialisation 1"
-                    placeholder="e.g., Bodybuilding"
-                    value={specialisationOne}
-                    onChange={(e) => setSpecialisationOne(e.target.value)}
-                    onBlur={() => handleBlur('specialisationOne')}
-                    type="text"
-                    name="specialisationOne"
-                    required
-                    hint="Primary area of expertise (minimum 3 characters)"
-                    className={
-                      touched.specialisationOne && specialisationOne?.length < 3
-                        ? 'invalid'
-                        : specialisationOne?.length >= 3
-                        ? 'entered'
-                        : ''
-                    }
-                    error={
-                      touched.specialisationOne && specialisationOne?.length < 3
-                        ? `Specialisation must contain at least 3 characters`
-                        : null
-                    }
-                    aria-invalid={touched.specialisationOne && specialisationOne?.length < 3}
-                  />
+              </FormSectionAccordion>
+              <FormSectionAccordion
+                title="Specialisation Keyword(s)"
+                isOpen={openSection === 'spec-keywords'}
+                onToggle={() =>
+                  setOpenSection((current) =>
+                    current === 'spec-keywords' ? '' : 'spec-keywords',
+                  )
+                }
+              >
+                <InputField
+                  id="specialisation-one"
+                  label="Specialisation 1"
+                  placeholder="e.g., Bodybuilding"
+                  value={specialisationOne}
+                  onChange={(e) => setSpecialisationOne(e.target.value)}
+                  onBlur={() => handleBlur('specialisationOne')}
+                  type="text"
+                  name="specialisationOne"
+                  required
+                  hint="Primary area of expertise (minimum 3 characters)"
+                  className={
+                    touched.specialisationOne && specialisationOne?.length < 3
+                      ? 'invalid'
+                      : specialisationOne?.length >= 3
+                      ? 'entered'
+                      : ''
+                  }
+                  error={
+                    touched.specialisationOne && specialisationOne?.length < 3
+                      ? `Specialisation must contain at least 3 characters`
+                      : null
+                  }
+                  aria-invalid={touched.specialisationOne && specialisationOne?.length < 3}
+                />
 
-                  <InputField
-                    id="specialisation-two"
-                    label="Specialisation 2"
-                    placeholder="e.g., Sports Performance"
-                    value={specialisationTwo}
-                    onChange={(e) => setSpecialisationTwo(e.target.value)}
-                    onBlur={() => handleBlur('specialisationTwo')}
-                    type="text"
-                    name="specialisationTwo"
-                    required
-                    hint="Secondary area of expertise (minimum 3 characters)"
-                    className={
-                      touched.specialisationTwo && specialisationTwo?.length < 3
-                        ? 'invalid'
-                        : specialisationTwo?.length >= 3
-                        ? 'entered'
-                        : ''
-                    }
-                    error={
-                      touched.specialisationTwo && specialisationTwo?.length < 3
-                        ? `Specialisation must contain at least 3 characters`
-                        : null
-                    }
-                    aria-invalid={touched.specialisationTwo && specialisationTwo?.length < 3}
-                  />
+                <InputField
+                  id="specialisation-two"
+                  label="Specialisation 2"
+                  placeholder="e.g., Sports Performance"
+                  value={specialisationTwo}
+                  onChange={(e) => setSpecialisationTwo(e.target.value)}
+                  onBlur={() => handleBlur('specialisationTwo')}
+                  type="text"
+                  name="specialisationTwo"
+                  required
+                  hint="Secondary area of expertise (minimum 3 characters)"
+                  className={
+                    touched.specialisationTwo && specialisationTwo?.length < 3
+                      ? 'invalid'
+                      : specialisationTwo?.length >= 3
+                      ? 'entered'
+                      : ''
+                  }
+                  error={
+                    touched.specialisationTwo && specialisationTwo?.length < 3
+                      ? `Specialisation must contain at least 3 characters`
+                      : null
+                  }
+                  aria-invalid={touched.specialisationTwo && specialisationTwo?.length < 3}
+                />
 
-                  <InputField
-                    id="specialisation-three"
-                    label="Specialisation 3"
-                    placeholder="e.g., Rehabilitation"
-                    value={specialisationThree}
-                    onChange={(e) => setSpecialisationThree(e.target.value)}
-                    onBlur={() => handleBlur('specialisationThree')}
-                    type="text"
-                    name="specialisationThree"
-                    required
-                    hint="Additional area of expertise (minimum 3 characters)"
-                    className={
-                      touched.specialisationThree && specialisationThree?.length < 3
-                        ? 'invalid'
-                        : specialisationThree?.length >= 3
-                        ? 'entered'
-                        : ''
-                    }
-                    error={
-                      touched.specialisationThree && specialisationThree?.length < 3
-                        ? `Specialisation must contain at least 3 characters`
-                        : null
-                    }
-                    aria-invalid={touched.specialisationThree && specialisationThree?.length < 3}
-                  />
+                <InputField
+                  id="specialisation-three"
+                  label="Specialisation 3"
+                  placeholder="e.g., Rehabilitation"
+                  value={specialisationThree}
+                  onChange={(e) => setSpecialisationThree(e.target.value)}
+                  onBlur={() => handleBlur('specialisationThree')}
+                  type="text"
+                  name="specialisationThree"
+                  required
+                  hint="Additional area of expertise (minimum 3 characters)"
+                  className={
+                    touched.specialisationThree && specialisationThree?.length < 3
+                      ? 'invalid'
+                      : specialisationThree?.length >= 3
+                      ? 'entered'
+                      : ''
+                  }
+                  error={
+                    touched.specialisationThree && specialisationThree?.length < 3
+                      ? `Specialisation must contain at least 3 characters`
+                      : null
+                  }
+                  aria-invalid={touched.specialisationThree && specialisationThree?.length < 3}
+                />
 
-                  <InputField
-                    id="specialisation-four"
-                    label="Specialisation 4"
-                    placeholder="e.g., Youth Training"
-                    value={specialisationFour}
-                    onChange={(e) => setSpecialisationFour(e.target.value)}
-                    onBlur={() => handleBlur('specialisationFour')}
-                    type="text"
-                    name="specialisationFour"
-                    required
-                    hint="Additional area of expertise (minimum 3 characters)"
-                    className={
-                      touched.specialisationFour && specialisationFour?.length < 3
-                        ? 'invalid'
-                        : specialisationFour?.length >= 3
-                        ? 'entered'
-                        : ''
-                    }
-                    error={
-                      touched.specialisationFour && specialisationFour?.length < 3
-                        ? `Specialisation must contain at least 3 characters`
-                        : null
-                    }
-                    aria-invalid={touched.specialisationFour && specialisationFour?.length < 3}
-                  />
-                </div>
-              </div>
-              <div>
-                <h3>Specialisation</h3>
+                <InputField
+                  id="specialisation-four"
+                  label="Specialisation 4"
+                  placeholder="e.g., Youth Training"
+                  value={specialisationFour}
+                  onChange={(e) => setSpecialisationFour(e.target.value)}
+                  onBlur={() => handleBlur('specialisationFour')}
+                  type="text"
+                  name="specialisationFour"
+                  required
+                  hint="Additional area of expertise (minimum 3 characters)"
+                  className={
+                    touched.specialisationFour && specialisationFour?.length < 3
+                      ? 'invalid'
+                      : specialisationFour?.length >= 3
+                      ? 'entered'
+                      : ''
+                  }
+                  error={
+                    touched.specialisationFour && specialisationFour?.length < 3
+                      ? `Specialisation must contain at least 3 characters`
+                      : null
+                  }
+                  aria-invalid={touched.specialisationFour && specialisationFour?.length < 3}
+                />
+              </FormSectionAccordion>
+              <FormSectionAccordion
+                title="Specialisation"
+                isOpen={openSection === 'specialisation'}
+                onToggle={() =>
+                  setOpenSection((current) =>
+                    current === 'specialisation' ? '' : 'specialisation',
+                  )
+                }
+              >
                 <div className="input-border">
                   <label>Specialisation</label>
                   <QuillEditor
@@ -825,9 +888,16 @@ const ProfileEditView = () => {
                   title="Save specialisation"
                   disabled={false}
                 />
-              </div>
-              <div>
-                <h3>Qualifications</h3>
+              </FormSectionAccordion>
+              <FormSectionAccordion
+                title="Qualifications"
+                isOpen={openSection === 'qualifications'}
+                onToggle={() =>
+                  setOpenSection((current) =>
+                    current === 'qualifications' ? '' : 'qualifications',
+                  )
+                }
+              >
                 <div className="input-border">
                   <label>Qualifications</label>
                   <QuillEditor
@@ -846,9 +916,16 @@ const ProfileEditView = () => {
                   title="Save qualifications"
                   disabled={false}
                 />
-              </div>
-              <div>
-                <h3>Location</h3>
+              </FormSectionAccordion>
+              <FormSectionAccordion
+                title="Location"
+                isOpen={openSection === 'location'}
+                onToggle={() =>
+                  setOpenSection((current) =>
+                    current === 'location' ? '' : 'location',
+                  )
+                }
+              >
                 <div className="textarea-wrapper">
                   <label htmlFor="location">Location</label>
                   <textarea
@@ -878,29 +955,39 @@ const ProfileEditView = () => {
                   title="Save location"
                   disabled={false}
                 />
-              </div>
-              <InputField
-                id="profile-telephone"
-                label="Telephone Number"
-                value={telephoneNumber}
-                onChange={(e) => setTelephoneNumber(e.target.value)}
-                onBlur={() => handleBlur('telephoneNumber')}
-                type="tel"
-                name="telephoneNumber"
-                placeholder="07xxx xxxxxx"
-                required
-                hint="UK mobile: 07xxx xxxxxx or 447xxx xxxxxx"
-                className={showTelephoneError ? 'invalid' : isTelephoneValid ? 'entered' : ''}
-                error={
-                  showTelephoneError
-                    ? `Invalid UK mobile number. Use format: 07xxx xxxxxx or 447xxx xxxxxx`
-                    : null
+              </FormSectionAccordion>
+              <FormSectionAccordion
+                title="Telephone Number"
+                isOpen={openSection === 'telephone'}
+                onToggle={() =>
+                  setOpenSection((current) =>
+                    current === 'telephone' ? '' : 'telephone',
+                  )
                 }
-                aria-invalid={showTelephoneError}
-                aria-describedby={
-                  showTelephoneError ? 'profile-telephone-error' : undefined
-                }
-              />
+              >
+                <InputField
+                  id="profile-telephone"
+                  label="Telephone Number"
+                  value={telephoneNumber}
+                  onChange={(e) => setTelephoneNumber(e.target.value)}
+                  onBlur={() => handleBlur('telephoneNumber')}
+                  type="tel"
+                  name="telephoneNumber"
+                  placeholder="07xxx xxxxxx"
+                  required
+                  hint="UK mobile: 07xxx xxxxxx or 447xxx xxxxxx"
+                  className={showTelephoneError ? 'invalid' : isTelephoneValid ? 'entered' : ''}
+                  error={
+                    showTelephoneError
+                      ? `Invalid UK mobile number. Use format: 07xxx xxxxxx or 447xxx xxxxxx`
+                      : null
+                  }
+                  aria-invalid={showTelephoneError}
+                  aria-describedby={
+                    showTelephoneError ? 'profile-telephone-error' : undefined
+                  }
+                />
+              </FormSectionAccordion>
             </form>
           </fieldset>
 

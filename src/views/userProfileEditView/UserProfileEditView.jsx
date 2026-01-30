@@ -17,6 +17,7 @@ import Message from '../../components/message/Message';
 import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
 import LinkComp from '../../components/linkComp/LinkComp';
 import PasswordStrength from '../../components/passwordStrength/PasswordStrength';
+import FormSectionAccordion from '../../components/formSectionAccordion/FormSectionAccordion';
 import { isValidName, isValidEmail, isValidPassword } from '../../utils/validation';
 
 const UserProfileEditView = () => {
@@ -53,8 +54,9 @@ const UserProfileEditView = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [hidePassword, setHidePassword] = useState(true);
+  const [openSection, setOpenSection] = useState('');
   const [emailChanged, setEmailChanged] = useState(false);
+  const [pendingFocusId, setPendingFocusId] = useState('');
 
   // Touched state for blur-triggered validation
   const [touched, setTouched] = useState({
@@ -96,6 +98,7 @@ const UserProfileEditView = () => {
   // Validation helpers
   const isNameValid = nameRegEx.test(name);
   const isEmailValid = emailRegEx.test(email);
+  const hidePassword = openSection !== 'password';
   const isPasswordValid = !hidePassword && password.length > 0 ? passwordRegEx.test(password) : true;
   const isConfirmValid = !hidePassword && confirmPassword.length > 0 ? password === confirmPassword && passwordRegEx.test(confirmPassword) : true;
 
@@ -132,16 +135,32 @@ const UserProfileEditView = () => {
     };
   }, [dispatch, navigate, user, userInfo]);
 
+  useEffect(() => {
+    if (!pendingFocusId) return;
+
+    requestAnimationFrame(() => {
+      const element = document.getElementById(pendingFocusId);
+      if (element && typeof element.focus === 'function') {
+        element.focus();
+      }
+      setPendingFocusId('');
+    });
+  }, [openSection, pendingFocusId]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     // Validate all fields before submit
     if (!isValidName(name)) {
+      setOpenSection('basics');
+      setPendingFocusId('user-name');
       showNotification('Please enter a valid name (2-100 characters, letters, spaces, hyphens and apostrophes only)', 'error');
       return;
     }
 
     if (!isValidEmail(email)) {
+      setOpenSection('basics');
+      setPendingFocusId('user-email');
       showNotification('Please enter a valid email address', 'error');
       return;
     }
@@ -153,16 +172,22 @@ const UserProfileEditView = () => {
     if (!hidePassword && (password.length > 0 || confirmPassword.length > 0)) {
       // Require current password when changing password
       if (!currentPassword || currentPassword.length === 0) {
+        setOpenSection('password');
+        setPendingFocusId('user-current-password');
         showNotification('Current password is required to change your password', 'error');
         return;
       }
 
       if (!isValidPassword(password)) {
+        setOpenSection('password');
+        setPendingFocusId('user-password');
         showNotification('Password must be at least 8 characters and contain uppercase, lowercase, number, and special character (@$!%*?&)', 'error');
         return;
       }
 
       if (password !== confirmPassword) {
+        setOpenSection('password');
+        setPendingFocusId('user-confirm-password');
         showNotification('Passwords do not match', 'error');
         return;
       }
@@ -206,7 +231,7 @@ const UserProfileEditView = () => {
       setCurrentPassword('');
       setPassword('');
       setConfirmPassword('');
-      setHidePassword(true);
+      setOpenSection('');
     }
   };
 
@@ -221,12 +246,28 @@ const UserProfileEditView = () => {
 
   const uploadFileHandler = (e) => {
     const imageFile = e.target.files[0];
+    if (!imageFile) return;
+    if (imageFile.size > 5 * 1024 * 1024) {
+      showNotification('Image must be less than 5MB', 'error');
+      setOpenSection('image');
+      setPendingFocusId('userProfileImage');
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
     setPreviewImageFile(imageFile);
     previewFile(imageFile);
   };
 
   const handleUserProfileImageUpdate = (e) => {
     e.preventDefault();
+    if (!previewImageFile) {
+      showNotification('Please choose an image before uploading', 'error');
+      setOpenSection('image');
+      setPendingFocusId('userProfileImage');
+      return;
+    }
     const formImageData = new FormData();
     formImageData.append('userProfileImage', previewImageFile);
     //Dispatch upload action here
@@ -271,54 +312,53 @@ const UserProfileEditView = () => {
               UPDATE <span>USER</span>
             </legend>
             <form onSubmit={handleSubmit}>
-              <InputField
-                id="user-name"
-                label="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                onBlur={() => handleBlur('name')}
-                type="text"
-                name="name"
-                required
-                hint="First and last name required"
-                className={showNameError ? 'invalid' : isNameValid && name.length > 0 ? 'entered' : ''}
-                error={showNameError ? `Name must contain a first name and surname both of which must start with a capital letter.` : null}
-                aria-invalid={showNameError}
-                aria-describedby={showNameError ? 'user-name-error' : undefined}
-              />
-              <InputField
-                id="user-email"
-                label="Email"
-                type="email"
-                name="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onBlur={() => handleBlur('email')}
-                required
-                hint="Valid email format required"
-                className={showEmailError ? 'invalid' : isEmailValid && email.length > 0 ? 'entered' : ''}
-                error={showEmailError ? `Invalid email address.` : null}
-                aria-invalid={showEmailError}
-                aria-describedby={showEmailError ? 'user-email-error' : undefined}
-              />
+              <FormSectionAccordion
+                title="Account Basics"
+                isOpen={openSection === 'basics'}
+                onToggle={() =>
+                  setOpenSection((current) => (current === 'basics' ? '' : 'basics'))
+                }
+              >
+                <InputField
+                  id="user-name"
+                  label="Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onBlur={() => handleBlur('name')}
+                  type="text"
+                  name="name"
+                  required
+                  hint="First and last name required"
+                  className={showNameError ? 'invalid' : isNameValid && name.length > 0 ? 'entered' : ''}
+                  error={showNameError ? `Name must contain a first name and surname both of which must start with a capital letter.` : null}
+                  aria-invalid={showNameError}
+                  aria-describedby={showNameError ? 'user-name-error' : undefined}
+                />
+                <InputField
+                  id="user-email"
+                  label="Email"
+                  type="email"
+                  name="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onBlur={() => handleBlur('email')}
+                  required
+                  hint="Valid email format required"
+                  className={showEmailError ? 'invalid' : isEmailValid && email.length > 0 ? 'entered' : ''}
+                  error={showEmailError ? `Invalid email address.` : null}
+                  aria-invalid={showEmailError}
+                  aria-describedby={showEmailError ? 'user-email-error' : undefined}
+                />
+              </FormSectionAccordion>
 
-              <div className="password-toggle-wrapper">
-                <label htmlFor="password-toggle">
-                  <input
-                    id="password-toggle"
-                    type="checkbox"
-                    checked={!hidePassword}
-                    onChange={() => setHidePassword(!hidePassword)}
-                    aria-controls="password-section"
-                    aria-expanded={!hidePassword}
-                  />
-                  {!hidePassword
-                    ? 'Hide Password Settings'
-                    : 'Show Password Settings'}
-                </label>
-              </div>
-              {!hidePassword ? (
-                <div id="password-section" role="region" aria-labelledby="password-toggle">
+              <FormSectionAccordion
+                title="Password Settings"
+                isOpen={openSection === 'password'}
+                onToggle={() =>
+                  setOpenSection((current) => (current === 'password' ? '' : 'password'))
+                }
+              >
+                <div className="password-section" role="region" aria-label="Password settings">
                   <InputField
                     id="user-current-password"
                     label="Current Password"
@@ -374,15 +414,17 @@ const UserProfileEditView = () => {
                     </div>
                   )}
                 </div>
+              </FormSectionAccordion>
+              {openSection ? (
+                <Button
+                  type="submit"
+                  
+                  text="Update Profile"
+                  className="btn"
+                  title={!user.isConfirmed ? 'You must confirm your email before updating your profile' : null}
+                  disabled={!user.isConfirmed}
+                />
               ) : null}
-              <Button
-                type="submit"
-                
-                text="Update Profile"
-                className="btn"
-                title={!user.isConfirmed ? 'You must confirm your email before updating your profile' : null}
-                disabled={!user.isConfirmed}
-              />
             </form>
           </fieldset>
 
@@ -396,55 +438,63 @@ const UserProfileEditView = () => {
             {user.profileImage ? (
               <img src={user.profileImage} alt={user.name} className="image" />
             ) : (
-              <p>'No profile image'</p>
+              <p>No profile image</p>
             )}
 
-            <form onSubmit={handleUserProfileImageUpdate}>
-              <div className="file-input-wrapper">
-                <label htmlFor="userProfileImage" className="file-input-label">
-                  Change User Profile Image
-                </label>
-                <input
-                  ref={fileInputRef}
-                  id="userProfileImage"
-                  type="file"
-                  name="userProfileImage"
-                  onChange={uploadFileHandler}
-                  accept="image/jpeg,image/png,image/webp"
-                  aria-describedby="image-requirements"
-                />
-                <span id="image-requirements" className="field-hint">
-                  Supported formats: JPG, PNG, WebP. Maximum size: 5MB
-                </span>
-              </div>
-              {previewImage ? (
-                <div className="image-preview-wrapper">
-                  <h3>Image Preview</h3>
-                  <img
-                    src={previewImage}
-                    alt="Preview of new profile image"
-                    className="preview-image"
+            <FormSectionAccordion
+              title="Profile Image"
+              isOpen={openSection === 'image'}
+              onToggle={() =>
+                setOpenSection((current) => (current === 'image' ? '' : 'image'))
+              }
+            >
+              <form onSubmit={handleUserProfileImageUpdate}>
+                <div className="file-input-wrapper">
+                  <label htmlFor="userProfileImage" className="file-input-label">
+                    Change User Profile Image
+                  </label>
+                  <input
+                    ref={fileInputRef}
+                    id="userProfileImage"
+                    type="file"
+                    name="userProfileImage"
+                    onChange={uploadFileHandler}
+                    accept="image/jpeg,image/png,image/webp"
+                    aria-describedby="image-requirements"
                   />
-                  <div className="button-group">
-                    <Button
-                      type="submit"
-                      
-                      text="Upload Image"
-                      className="btn"
-                      disabled={userProfileImageLoading}
-                    />
-                    <Button
-                      type="button"
-                      
-                      text="Cancel"
-                      className="btn"
-                      onClick={handleCancelImageUpload}
-                      disabled={userProfileImageLoading}
-                    />
-                  </div>
+                  <span id="image-requirements" className="field-hint">
+                    Supported formats: JPG, PNG, WebP. Maximum size: 5MB
+                  </span>
                 </div>
-              ) : null}
-            </form>
+                {previewImage ? (
+                  <div className="image-preview-wrapper">
+                    <h3>Image Preview</h3>
+                    <img
+                      src={previewImage}
+                      alt="Preview of new profile image"
+                      className="preview-image"
+                    />
+                    <div className="button-group">
+                      <Button
+                        type="submit"
+                        
+                        text="Upload Image"
+                        className="btn"
+                        disabled={userProfileImageLoading}
+                      />
+                      <Button
+                        type="button"
+                        
+                        text="Cancel"
+                        className="btn"
+                        onClick={handleCancelImageUpload}
+                        disabled={userProfileImageLoading}
+                      />
+                    </div>
+                  </div>
+                ) : null}
+              </form>
+            </FormSectionAccordion>
 
             <p>Name: {user.name}</p>
             <p>Email address: {user.email}</p>
@@ -478,21 +528,21 @@ const UserProfileEditView = () => {
             <fieldset className="fieldSet item">
               <legend>{user.name} Options</legend>
               <h3>Admin Options</h3>
-              <p>
-                List all <LinkComp route="admin-users" routeName="USERS" /> with
-                a option to edit or delete a user.{' '}
-              </p>
-              <p>
-                List all{' '}
-                <LinkComp route="admin-profiles" routeName="PROFILES" /> with a
-                option to edit or delete a user.{' '}
-              </p>
-              <p>
-                List all{' '}
-                <LinkComp route="admin-reviewers" routeName="REVIEWERS" /> with
-                a option to edit or delete a user.{' '}
-              </p>
-              <p>Verify qualification</p>
+              <ul className="admin-options">
+                <li>
+                  List all <LinkComp route="admin-users" routeName="USERS" /> with
+                  an option to edit or delete a user.
+                </li>
+                <li>
+                  List all <LinkComp route="admin-profiles" routeName="PROFILES" /> with
+                  an option to edit or delete a user.
+                </li>
+                <li>
+                  List all <LinkComp route="admin-reviewers" routeName="REVIEWERS" /> with
+                  an option to edit or delete a user.
+                </li>
+                <li>Verify qualification</li>
+              </ul>
             </fieldset>
           ) : null}
 

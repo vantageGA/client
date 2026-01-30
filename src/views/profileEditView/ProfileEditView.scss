@@ -19,6 +19,7 @@
   }
   .quill {
     background-color: transparent;
+       
   }
   .quill.invalid {
     border-left: $rating-colour 1px solid;
@@ -95,6 +96,7 @@
     justify-content: space-between;
     align-items: center;
   }
+
 
   .search-algorithm {
     max-height: 200px;
