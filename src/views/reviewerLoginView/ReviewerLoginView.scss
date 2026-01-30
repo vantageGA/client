@@ -115,34 +115,73 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
 
   .item {
-    width: calc(50% - #{10px}); /* and this */
+    width: calc(50% - #{10px});
   }
+
   form {
     // background-color: black;
     padding: 0.5em;
   }
-  .review-specialisation-wrapper {
-    display: flex;
-    justify-content: space-between;
-    .review-specialisation {
-      width: 100%;
-      font-size: 0.75em;
-      padding: 0.5em;
-      margin-left: 0.2em;
-      text-align: center;
-      background-color: $main-bg-colour;
-      text-transform: uppercase;
+
+  .fieldSet {
+    padding: 1.5rem;
+    background-color: rgba(51, 51, 51, 0.3);
+    border-radius: 4px;
+    border: 1px solid $border-colour-light;
+    border-left: 1px solid $light-orange;
+    width: 100%;
+
+    legend {
+      font-family: 'Bebas Neue', cursive;
+      letter-spacing: 0.1em;
+      font-size: 1.5rem;
+      color: $light-orange;
+      padding: 0 0.5rem;
     }
   }
-  .full-profile-name {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 2.6em;
+
+  .form-section-accordion {
+    width: 100%;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .btn {
+    margin-top: 1rem;
+    min-height: 48px;
+
+    &:focus {
+      outline: 2px solid $burnt-orange;
+      outline-offset: 4px;
+    }
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    color: $light-orange;
+    margin: 1rem 0 0.5rem;
     text-transform: uppercase;
   }
-  & h3 {
-    color: $warning;
+
+  h3 {
+    font-size: 1.2rem;
+    color: $light-orange;
+    margin: 1rem 0 0.5rem;
+    text-transform: uppercase;
+  }
+
+  p {
+    margin: 0.5rem 0;
+    line-height: 1.6;
   }
   input[type='checkbox'] {
     height: 20px;
@@ -335,16 +374,93 @@
     }
   }
 }
+
+.profile-specialisation-header {
+  width: 100%;
+  padding: 0 20px;
+
+  .specialisation-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    .specialisation-tag {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background-color: #1a1a1a;
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+  }
+}
+
+.full-profile-wrapper {
+  display: flex;
+  align-items: stretch;
+
+  .item {
+    flex: 1;
+    padding: 0.5em;
+    display: flex;
+    flex-direction: column;
+
+    .full-profile-name {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 2.6em;
+      text-transform: uppercase;
+    }
+  }
+
+  .first-column {
+    .bg-image {
+      flex: 1;
+      min-height: 300px;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-specialisation-header {
+    padding: 0;
+
+    .specialisation-tags-container {
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      gap: 0;
+
+      .specialisation-tag {
+        font-size: 9px;
+        padding: 4px 5px;
+        flex: 1;
+        text-align: center;
+      }
+    }
+  }
+
+  .full-profile-wrapper {
+    flex-direction: column;
+  }
+}
+
 /* Responsive layout - makes a one column layout (100%) instead of a two-column layout (50%) */
 @media (max-width: 812px) {
   .reviewer-wrapper {
     flex-wrap: wrap;
     .item {
-      width: 100vw; /* and this */
+      width: 100%;
     }
+    padding: 0.75rem;
   }
 }
-
 // Respect reduced motion preference for accessibility
 @media (prefers-reduced-motion: reduce) {
   .reviewer-wrapper {

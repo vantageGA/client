@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import './ResetPassword.scss';
+import './ReviewerResetPassword.scss';
 
 import Message from '../../components/message/Message';
 import InputField from '../../components/inputField/InputField';
@@ -9,10 +9,10 @@ import Button from '../../components/button/Button';
 import LinkComp from '../../components/linkComp/LinkComp';
 import PasswordStrength from '../../components/passwordStrength/PasswordStrength';
 
-import { updateUserPasswordAction } from '../../store/actions/userActions';
+import { reviewerUpdatePasswordAction } from '../../store/actions/userReviewActions';
 import { isValidPassword } from '../../utils/validation';
 
-const ResetPassword = () => {
+const ReviewerResetPassword = () => {
   const params = useParams();
   const dispatch = useDispatch();
 
@@ -25,32 +25,31 @@ const ResetPassword = () => {
   });
   const [pendingFocusId, setPendingFocusId] = useState('');
 
-  const userUpdatePassword = useSelector((state) => state.userUpdatePassword);
-  const { success, error, message: SuccessMessage } = userUpdatePassword;
+  const reviewerUpdatePassword = useSelector(
+    (state) => state.reviewerUpdatePassword,
+  );
+  const { success, error, message: successMessage } = reviewerUpdatePassword;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!isValidPassword(password)) {
       setTouched((prev) => ({ ...prev, password: true }));
-      setMessage(null);
-      setPendingFocusId('reset-password');
+      setPendingFocusId('reviewer-reset-password');
       return;
     }
     if (!isValidPassword(confirmPassword)) {
       setTouched((prev) => ({ ...prev, confirmPassword: true }));
-      setMessage(null);
-      setPendingFocusId('reset-confirm-password');
+      setPendingFocusId('reviewer-reset-confirm-password');
       return;
     }
     if (password !== confirmPassword) {
-      setPendingFocusId('reset-confirm-password');
+      setPendingFocusId('reviewer-reset-confirm-password');
       setMessage('Passwords do not match');
     } else {
-      // Dispatch registration data
       dispatch(
-        updateUserPasswordAction({
+        reviewerUpdatePasswordAction({
           resetPasswordToken: params.token,
-          password: password,
+          password,
         }),
       );
       setMessage(null);
@@ -76,23 +75,23 @@ const ResetPassword = () => {
   }, [pendingFocusId]);
 
   return (
-    <div className="reset-pw-wrapper">
+    <div className="reviewer-reset-password-wrapper">
       {message ? <Message message={message} /> : null}
       {success ? (
         <>
-          <Message message={SuccessMessage} variant="success" autoClose={5000} />
+          <Message message={successMessage} variant="success" autoClose={5000} />
           <div className="reset-password-links">
-            <LinkComp route="login" routeName="Login" />
+            <LinkComp route="reviewer-login" routeName="Login" />
           </div>
         </>
       ) : (
         <fieldset className="fieldSet">
           <legend>
-            Member <span>Reset Password</span>
+            Reviewer <span>Reset Password</span>
           </legend>
           <form onSubmit={handleSubmit} noValidate>
             <InputField
-              id="reset-password"
+              id="reviewer-reset-password"
               label="Password"
               type="password"
               name="password"
@@ -113,7 +112,7 @@ const ResetPassword = () => {
             {password.length > 0 && <PasswordStrength password={password} />}
 
             <InputField
-              id="reset-confirm-password"
+              id="reviewer-reset-confirm-password"
               label="Confirm Password"
               type="password"
               name="confirmPassword"
@@ -163,9 +162,8 @@ const ResetPassword = () => {
         </fieldset>
       )}
       {error ? <Message message={error} /> : null}
-      {success}
     </div>
   );
 };
 
-export default ResetPassword;
+export default ReviewerResetPassword;

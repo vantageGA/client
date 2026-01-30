@@ -11,6 +11,7 @@ import LinkComp from '../../components/linkComp/LinkComp';
 import Rating from '../../components/rating/Rating';
 import Review from '../../components/review/Review';
 import { isValidEmail } from '../../utils/validation';
+import FormSectionAccordion from '../../components/formSectionAccordion/FormSectionAccordion';
 
 import {
   userReviewLoginAction,
@@ -48,9 +49,12 @@ const ReviewerLoginView = () => {
   let [showName, setShowName] = useState(false);
   const [comment, setComment] = useState('');
   const [showWarning, setShowWaring] = useState(true);
+  const [showGuidelinesAccepted, setShowGuidelinesAccepted] = useState(false);
   const [acceptConditions, setAcceptConditions] = useState(false);
   const [noUserProfile, setNoUserProfile] = useState('');
   const [touched, setTouched] = useState({ email: false, password: false });
+  const [showEmailVerificationMessage, setShowEmailVerificationMessage] = useState(false);
+  const [openSection, setOpenSection] = useState('');
 
   // Info stored in local storage
   const userReviewLogin = useSelector((state) => state.userReviewLogin);
@@ -76,9 +80,8 @@ const ReviewerLoginView = () => {
       dispatch(userReviewersDetailsAction(userReviewInfo._id));
     }
     setShowWaring(false);
-    if (reviewer?.isConfirmed) {
-      setAcceptConditions(true);
-    }
+    setAcceptConditions(true);
+    setShowGuidelinesAccepted(true);
   };
 
   const handleSubmit = (e) => {
@@ -92,6 +95,16 @@ const ReviewerLoginView = () => {
       );
     }
   };
+
+  React.useEffect(() => {
+    if (error && error.toLowerCase().includes('confirm')) {
+      setShowEmailVerificationMessage(true);
+    } else if (error && error.toLowerCase().includes('verify')) {
+      setShowEmailVerificationMessage(true);
+    } else {
+      setShowEmailVerificationMessage(false);
+    }
+  }, [error]);
 
   const handleBlur = (field) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
@@ -121,6 +134,7 @@ const ReviewerLoginView = () => {
         acceptConditions: true, // Always send boolean true
       }),
     );
+    setShowGuidelinesAccepted(false);
     setRating(5);
     setComment('');
   };
@@ -128,6 +142,12 @@ const ReviewerLoginView = () => {
   return (
     <div className="user-review-login-wrapper">
       {error ? <Message message={error} /> : null}
+      {showEmailVerificationMessage ? (
+        <Message
+          message="Please check your email and click the verification link to activate your reviewer account before logging in."
+          variant="warning"
+        />
+      ) : null}
       {noUserProfile ? <Message message={noUserProfile} /> : null}
 
       {!userReviewInfo ? (
@@ -223,92 +243,115 @@ const ReviewerLoginView = () => {
             {success ? (
               <Message message="Your review has been sent." variant="success" autoClose={5000} />
             ) : null}
-            <fieldset
-              className="fieldSet item"
-              style={{
-                backgroundImage: `url(${profile?.profileImage})`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center',
-                backgroundSize: 'cover',
-              }}
-            >
-              <legend>PROFILE</legend>
-              <div className="review-specialisation-wrapper">
-                <p className="review-specialisation">
-                  {profile?.specialisationOne}
-                </p>
-                <p className="review-specialisation">
-                  {profile?.specialisationTwo}
-                </p>
-                <p className="review-specialisation">
-                  {profile?.specialisationThree}
-                </p>
-                <p className="review-specialisation">
-                  {profile?.specialisationFour}
-                </p>
-              </div>
-
-              <div className="review-detail-wrapper ">
-                <div>
-                  <div className="full-profile-name">{profile?.name}</div>
-                  <Rating
-                    value={profile?.rating}
-                    text={`  from ${profile?.numReviews} reviews`}
-                  />
-                </div>
-                <h1>My BIO</h1>
-                <p
-                  dangerouslySetInnerHTML={{
-                    __html: sanitize(profile?.description),
-                  }}
-                ></p>
-
-                <h1>Specialisation</h1>
-                <p
-                  dangerouslySetInnerHTML={{
-                    __html: sanitize(profile?.specialisation),
-                  }}
-                ></p>
-
-                <h1>Qualifications</h1>
-                <p
-                  dangerouslySetInnerHTML={{
-                    __html: sanitize(profile?.qualifications),
-                  }}
-                ></p>
-              </div>
-              <div>
-                {profile?.reviews.length > 0 ? (
-                  <>
-                    <h1>Reviews</h1>
-                    {profile.reviews.map((review) => (
-                      <div key={review._id}>
-                        <Review
-                          reviewer={review.showName ? review.name : 'ANONYMOUS'}
-                          review={review.comment}
-                          reviewedOn={moment(review.createdAt).fromNow()}
-                        />
-                      </div>
+            {showGuidelinesAccepted ? (
+              <Message message="Review guidelines accepted." variant="success" autoClose={3000} />
+            ) : null}
+            <fieldset className="fieldSet">
+              <legend>Profile {profile?.name ? `- ${profile.name}` : ''}</legend>
+              <FormSectionAccordion
+                title={`Click to view ${profile?.name || 'trainer'} profile`}
+                isOpen={openSection === 'profile'}
+                onToggle={() =>
+                  setOpenSection((current) =>
+                    current === 'profile' ? '' : 'profile',
+                  )
+                }
+              >
+              <div className="profile-specialisation-header" aria-label="Professional specialisations">
+                <h2 className="sr-only">Specialisations</h2>
+                <div className="specialisation-tags-container">
+                  {[
+                    profile?.specialisationOne,
+                    profile?.specialisationTwo,
+                    profile?.specialisationThree,
+                    profile?.specialisationFour,
+                  ]
+                    .filter((spec) => spec && spec.trim())
+                    .map((spec, index) => (
+                      <span key={index} className="specialisation-tag">
+                        {spec}
+                      </span>
                     ))}
-                  </>
-                ) : (
-                  <>
-                    <h1>Reviews</h1>
-                    <p>There is currently no reviews for {profile?.name}.</p>
-                    <p>
-                      Be the first to review {profile?.name} by
-                      <LinkComp
-                        route="reviewer-login"
-                        routeName={` clicking here`}
-                      />
-                    </p>
-                  </>
-                )}
+                </div>
               </div>
+
+              <div className="full-profile-wrapper">
+                <div className="item first-column">
+                  <div>
+                    <div className="full-profile-name">{profile?.name}</div>
+                    <Rating
+                      value={profile?.rating}
+                      text={`  from ${profile?.numReviews} reviews`}
+                    />
+                  </div>
+
+                  <div
+                    className="bg-image"
+                    style={{
+                      backgroundImage: profile?.profileImage
+                        ? `url(${profile?.profileImage})`
+                        : null,
+                    }}
+                  ></div>
+                </div>
+
+                <div className="item">
+                  <h2>My BIO</h2>
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: sanitize(profile?.description),
+                    }}
+                  ></p>
+
+                  <h2>Specialisation</h2>
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: sanitize(profile?.specialisation),
+                    }}
+                  ></p>
+
+                  <h2>Qualifications</h2>
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: sanitize(profile?.qualifications),
+                    }}
+                  ></p>
+                </div>
+
+                <div className="item">
+                  {profile?.reviews.length > 0 ? (
+                    <>
+                      <h2>Reviews</h2>
+                      {profile.reviews.map((review) => (
+                        <div key={review._id}>
+                          <Review
+                            reviewer={review.showName ? review.name : 'ANONYMOUS'}
+                            review={review.comment}
+                            reviewedOn={moment(review.createdAt).fromNow()}
+                          />
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      <h2>Reviews</h2>
+                      <p>There is currently no reviews for {profile?.name}.</p>
+                      <p>
+                        Be the first to review {profile?.name} by
+                        <LinkComp
+                          route="reviewer-login"
+                          routeName={` clicking here`}
+                        />
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+              </FormSectionAccordion>
             </fieldset>
 
-            <fieldset className="fieldSet item">
-              <legend>Review {profile?.name}</legend>
+            <fieldset className="fieldSet">
+              <legend>Review {profile?.name || 'Trainer'}</legend>
 
               {showWarning ? (
                 <>
@@ -413,16 +456,16 @@ const ReviewerLoginView = () => {
                         name="comment"
                         required
                         className={
-                          comment?.length <= 10 ? 'invalid' : 'entered'
+                          comment?.length < 10 ? 'invalid' : 'entered'
                         }
-                        aria-invalid={comment?.length <= 10 && comment.length > 0}
+                        aria-invalid={comment?.length < 10 && comment.length > 0}
                         aria-describedby="comment-hint comment-error"
                         aria-required="true"
                       />
                       <span id="comment-hint" className="field-hint">
                         Minimum 10 characters required
                       </span>
-                      {comment?.length <= 10 && comment.length > 0 && (
+                      {comment?.length < 10 && comment.length > 0 && (
                         <p id="comment-error" className="validation-error" role="alert">
                           Comment must contain at least 10 characters
                         </p>
@@ -430,11 +473,11 @@ const ReviewerLoginView = () => {
                     </div>
                     <Button
                       
-                      text="submit"
+                      text="Submit"
                       className="btn"
                       disabled={
                         !rating ||
-                        comment.length <= 10 ||
+                        comment.length < 10 ||
                         reviewer?.isConfirmed !== true
                       }
                     ></Button>

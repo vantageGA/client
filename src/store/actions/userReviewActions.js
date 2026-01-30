@@ -10,9 +10,15 @@ import {
   USER_REVIEWER_DETAILS_FAILURE,
   USER_REVIEWER_DETAILS_REQUEST,
   USER_REVIEWER_DETAILS_SUCCESS,
+  USER_REVIEWER_FORGOT_PASSWORD_FAILURE,
+  USER_REVIEWER_FORGOT_PASSWORD_REQUEST,
+  USER_REVIEWER_FORGOT_PASSWORD_SUCCESS,
   USER_REVIEWER_REGISTER_FAILURE,
   USER_REVIEWER_REGISTER_REQUEST,
   USER_REVIEWER_REGISTER_SUCCESS,
+  USER_REVIEWER_UPDATE_PASSWORD_FAILURE,
+  USER_REVIEWER_UPDATE_PASSWORD_REQUEST,
+  USER_REVIEWER_UPDATE_PASSWORD_SUCCESS,
   USER_REVIEW_CREATE_COMMENT_FAILURE,
   USER_REVIEW_CREATE_COMMENT_REQUEST,
   USER_REVIEW_CREATE_COMMENT_SUCCESS,
@@ -183,6 +189,70 @@ export const reviewerRegisterAction =
     } catch (error) {
       dispatch({
         type: USER_REVIEWER_REGISTER_FAILURE,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
+
+// Reviewer forgot password
+export const reviewerForgotPasswordAction =
+  (email) => async (dispatch) => {
+    try {
+      dispatch({
+        type: USER_REVIEWER_FORGOT_PASSWORD_REQUEST,
+      });
+
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      const { data } = await axios.post(
+        '/api/reviewer-forgot-password',
+        { email },
+        config,
+      );
+
+      dispatch({ type: USER_REVIEWER_FORGOT_PASSWORD_SUCCESS, payload: data });
+    } catch (error) {
+      dispatch({
+        type: USER_REVIEWER_FORGOT_PASSWORD_FAILURE,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
+
+// Reviewer update password
+export const reviewerUpdatePasswordAction =
+  ({ resetPasswordToken, password }) => async (dispatch) => {
+    try {
+      dispatch({
+        type: USER_REVIEWER_UPDATE_PASSWORD_REQUEST,
+      });
+
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      const { data } = await axios.put(
+        '/api/reviewer-update-password',
+        { resetPasswordToken, password },
+        config,
+      );
+
+      dispatch({ type: USER_REVIEWER_UPDATE_PASSWORD_SUCCESS, payload: data });
+    } catch (error) {
+      dispatch({
+        type: USER_REVIEWER_UPDATE_PASSWORD_FAILURE,
         payload:
           error.response && error.response.data.message
             ? error.response.data.message

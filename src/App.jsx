@@ -19,6 +19,8 @@ import AdminProfileView from './views/adminProfileView/AdminProfileView';
 import AdminReviewersView from './views/adminReviewersView/AdminReviewersView';
 import ReviewerLoginView from './views/reviewerLoginView/ReviewerLoginView';
 import ReviewerRegisterView from './views/reviewerRegisterView/ReviewerRegisterView';
+import ReviewerForgotPassword from './views/reviewerForgotPassword/ReviewerForgotPassword';
+import ReviewerResetPassword from './views/reviewerResetPassword/ReviewerResetPassword';
 import CookiesView from './views/cookiesView/CookiesView';
 import PrivacyView from './views/privacyView/PrivacyView';
 import Cookies from './components/cookies/Cookies';
@@ -70,6 +72,14 @@ const App = () => {
             <Route
               path="/reviewer-register"
               element={<ReviewerRegisterView />}
+            />
+            <Route
+              path="/reviewer-forgot-password"
+              element={<ReviewerForgotPassword />}
+            />
+            <Route
+              path="/reviewer-reset-password/:token"
+              element={<ReviewerResetPassword />}
             />
             <Route path="/subscribe" element={<SubscriptionOptions />} exact />
             <Route path="/subscribe/success" element={<SubscriptionSuccess />} exact />
