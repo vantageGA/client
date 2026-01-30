@@ -103,6 +103,7 @@ header {
     position: relative;
     background: transparent;
     border: none;
+    appearance: none;
     transition: color 200ms ease;
 
     // Animated underline
@@ -260,7 +261,7 @@ header {
         padding: 0.5rem 0.5rem;
 
         .tab-label {
-          font-size: 0.85rem;
+          font-size: 1rem;
           letter-spacing: 0.05em;
         }
 
@@ -285,7 +286,7 @@ header {
       padding: 0.5rem 0.35rem;
 
       .tab-label {
-        font-size: 0.75rem;
+        font-size: 0.9rem;
       }
     }
   }

@@ -30,66 +30,62 @@ const Header = () => {
   };
 
   return (
-    <>
+    <header className="header-container">
+      <div className="header-content-wrapper">
+        <NavLink to="/" className="header-logo">
+          <img className="image-wrapper" src={logo} alt="Body Vantage Logo - Home" />
+        </NavLink>
 
-      <header className="header-container">
-        <div className="header-content-wrapper">
+        <nav className="nav-wrapper">
           <NavLink
-            to="/"
-            className="header-logo"
+            to="/about"
+            className={(nav) =>
+              `large-tabs ${nav.isActive ? 'is-active' : ''}`
+            }
           >
-            <img className="image-wrapper" src={logo} alt="Body Vantage Logo - Home" />
+            <span className="tab-label">Info</span>
           </NavLink>
 
-          <nav className="nav-wrapper">
+          <NavLink
+            to="/contact"
+            className={(nav) =>
+              `large-tabs ${nav.isActive ? 'is-active' : ''}`
+            }
+          >
+            <span className="tab-label">Contact</span>
+          </NavLink>
+
+          {userInfo ? (
             <NavLink
-              to="/about"
+              to="/user-profile-edit"
               className={(nav) =>
                 `large-tabs ${nav.isActive ? 'is-active' : ''}`
               }
             >
-              <span className="tab-label">Info</span>
+              <span className="tab-label">Settings</span>
             </NavLink>
+          ) : null}
 
-            <NavLink
-              to="/contact"
-              className={(nav) =>
-                `large-tabs ${nav.isActive ? 'is-active' : ''}`
-              }
+          {userReviewInfo ? (
+            <button
+              type="button"
+              className="large-tabs"
+              onClick={handleReviewerLogout}
+              title={`Logout ${userReviewInfo.name}`}
             >
-              <span className="tab-label">Contact</span>
-            </NavLink>
+              <span className="tab-label">Logout</span>
+            </button>
+          ) : null}
 
-            {userInfo ? (
-              <NavLink
-                to="/user-profile-edit"
-                className={(nav) =>
-                  `large-tabs ${nav.isActive ? 'is-active' : ''}`
-                }
-              >
-                <span className="tab-label">Settings</span>
-              </NavLink>
-            ) : null}
+          {userInfo ? (
+            <button type="button" className="large-tabs" onClick={handleLogout}>
+              <span className="tab-label">Logout</span>
+            </button>
+          ) : null}
 
-            {userReviewInfo ? (
-              <div className="large-tabs">
-                <LoginOut
-                  description={userReviewInfo.name}
-                  definition="Logout"
-                  onClick={handleReviewerLogout}
-                />
-              </div>
-            ) : null}
-
-            {userInfo ? (
-              <div className="large-tabs" onClick={handleLogout}>
-                <span className="tab-label">Logout</span>
-              </div>
-            ) : null}
-
-            {!userInfo && !userReviewInfo ? (
-              <NavLink
-                to="/login"
+          {!userInfo && !userReviewInfo ? (
+            <NavLink
+              to="/login"
               className={(nav) =>
                 `large-tabs ${nav.isActive ? 'is-active' : ''}`
               }
@@ -97,10 +93,9 @@ const Header = () => {
               <span className="tab-label">Login</span>
             </NavLink>
           ) : null}
-          </nav>
-        </div>
-      </header>
-    </>
+        </nav>
+      </div>
+    </header>
   );
 };
 
