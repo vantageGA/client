@@ -19,6 +19,10 @@ const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState(null);
+  const [touched, setTouched] = useState({
+    password: false,
+    confirmPassword: false,
+  });
 
   const userUpdatePassword = useSelector((state) => state.userUpdatePassword);
   const { success, error, message: SuccessMessage } = userUpdatePassword;
@@ -41,46 +45,68 @@ const ResetPassword = () => {
     }
   };
 
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
   return (
     <div className="reset-pw-wrapper">
       {message ? <Message message={message} /> : null}
       {success ? (
         <>
           <Message message={SuccessMessage} variant="success" autoClose={5000} />
-          <LinkComp route="login" routeName="Navigate to login form" />
+          <div className="reset-password-links">
+            <LinkComp route="login" routeName="Login" />
+          </div>
         </>
       ) : (
         <fieldset className="fieldSet">
           <legend>
-            Members <span>Reset Password</span> form
+            Member <span>Reset Password</span>
           </legend>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <InputField
+              id="reset-password"
               label="Password"
               type="password"
-              name={password}
+              name="password"
               value={password}
               required
-              className={!isValidPassword(password) && password.length > 0 ? 'invalid' : password.length > 0 ? 'entered' : ''}
+              onBlur={() => handleBlur('password')}
+              className={
+                touched.password && !isValidPassword(password) && password.length > 0
+                  ? 'invalid'
+                  : password.length > 0
+                  ? 'entered'
+                  : ''
+              }
               onChange={(e) => setPassword(e.target.value)}
+              aria-invalid={touched.password && !isValidPassword(password)}
             />
 
             {password.length > 0 && <PasswordStrength password={password} />}
 
             <InputField
+              id="reset-confirm-password"
               label="Confirm Password"
               type="password"
-              name={confirmPassword}
+              name="confirmPassword"
               value={confirmPassword}
               required
+              onBlur={() => handleBlur('confirmPassword')}
               className={
-                !isValidPassword(confirmPassword) && confirmPassword.length > 0
+                touched.confirmPassword &&
+                !isValidPassword(confirmPassword) &&
+                confirmPassword.length > 0
                   ? 'invalid'
                   : confirmPassword.length > 0
                   ? 'entered'
                   : ''
               }
               onChange={(e) => setConfirmPassword(e.target.value)}
+              aria-invalid={
+                touched.confirmPassword && !isValidPassword(confirmPassword)
+              }
             />
 
             {confirmPassword.length > 0 && (
@@ -99,7 +125,7 @@ const ResetPassword = () => {
 
             <Button
               
-              text="submit"
+              text="Reset password"
               className="btn"
               disabled={
                 !isValidPassword(password) ||

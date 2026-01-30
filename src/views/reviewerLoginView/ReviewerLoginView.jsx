@@ -10,6 +10,7 @@ import Button from '../../components/button/Button';
 import LinkComp from '../../components/linkComp/LinkComp';
 import Rating from '../../components/rating/Rating';
 import Review from '../../components/review/Review';
+import { isValidEmail } from '../../utils/validation';
 
 import {
   userReviewLoginAction,
@@ -41,9 +42,6 @@ const sanitize = (value) =>
 const ReviewerLoginView = () => {
   const dispatch = useDispatch();
   const passwordRegEx = /([^\s])/;
-  const emailRegEx =
-    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rating, setRating] = useState(5);
@@ -52,6 +50,7 @@ const ReviewerLoginView = () => {
   const [showWarning, setShowWaring] = useState(true);
   const [acceptConditions, setAcceptConditions] = useState(false);
   const [noUserProfile, setNoUserProfile] = useState('');
+  const [touched, setTouched] = useState({ email: false, password: false });
 
   // Info stored in local storage
   const userReviewLogin = useSelector((state) => state.userReviewLogin);
@@ -94,6 +93,10 @@ const ReviewerLoginView = () => {
     }
   };
 
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
   const handleReviewSubmit = (e) => {
     e.preventDefault();
 
@@ -132,59 +135,81 @@ const ReviewerLoginView = () => {
           <LoadingSpinner />
         ) : (
           <>
-            <fieldset className="fieldSet">
-              <legend>Review a Trainer Login form</legend>
-              <form onSubmit={handleSubmit}>
-                <InputField
-                  label="Email"
-                  type="email"
-                  name="email"
-                  value={email}
-                  required
-                  hint="Example: user@domain.com"
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={!emailRegEx.test(email) ? 'invalid' : 'entered'}
-                  error={
-                    !emailRegEx.test(email) && email.length !== 0
-                      ? `Invalid email address.`
-                      : null
-                  }
-                />
-                <InputField
-                  label="Password"
-                  type="password"
-                  name="password"
-                  value={password}
-                  required
-                  hint="Password must not be empty"
-                  className={
-                    !passwordRegEx.test(password) ? 'invalid' : 'entered'
-                  }
-                  error={
-                    !passwordRegEx.test(password) && password.length !== 0
-                      ? `Password can not be empty`
-                      : null
-                  }
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+            <div className="reviewer-login-form">
+              <fieldset className="fieldSet">
+                <legend>
+                  Reviewer <span>Login</span>
+                </legend>
+                <form onSubmit={handleSubmit} noValidate>
+                  <InputField
+                    id="reviewer-email"
+                    label="Email"
+                    type="email"
+                    name="email"
+                    value={email}
+                    required
+                    hint="Example: user@domain.com"
+                    onChange={(e) => setEmail(e.target.value)}
+                    onBlur={() => handleBlur('email')}
+                    className={
+                      touched.email && !isValidEmail(email) && email.length > 0
+                        ? 'invalid'
+                        : email.length > 0
+                        ? 'entered'
+                        : ''
+                    }
+                    error={
+                      touched.email && !isValidEmail(email) && email.length !== 0
+                        ? `Invalid email address.`
+                        : null
+                    }
+                    aria-invalid={touched.email && !isValidEmail(email)}
+                  />
+                  <InputField
+                    id="reviewer-password"
+                    label="Password"
+                    type="password"
+                    name="password"
+                    value={password}
+                    required
+                    hint="Password must not be empty"
+                    className={
+                      touched.password && !passwordRegEx.test(password) && password.length > 0
+                        ? 'invalid'
+                        : password.length > 0
+                        ? 'entered'
+                        : ''
+                    }
+                    error={
+                      touched.password && !passwordRegEx.test(password) && password.length !== 0
+                        ? `Password can not be empty`
+                        : null
+                    }
+                    onChange={(e) => setPassword(e.target.value)}
+                    onBlur={() => handleBlur('password')}
+                    aria-invalid={touched.password && !passwordRegEx.test(password)}
+                  />
 
-                <Button
-                  
-                  text="submit"
-                  className="btn"
-                  disabled={
-                    !passwordRegEx.test(password) || !emailRegEx.test(email)
-                  }
-                ></Button>
-              </form>
-            </fieldset>
-            <div>
-              <p>
+                  <Button
+                    
+                    text="Login"
+                    className="btn"
+                    disabled={
+                      !passwordRegEx.test(password) || !isValidEmail(email)
+                    }
+                  ></Button>
+                </form>
+              </fieldset>
+              <div className="reviewer-login-links">
                 <LinkComp
                   route="reviewer-register"
                   routeName="Register here to review"
                 />
-              </p>
+                <LinkComp
+                  route="reviewer-forgot-password"
+                  routeName="Forgot Password"
+                />
+              </div>
             </div>
           </>
         )

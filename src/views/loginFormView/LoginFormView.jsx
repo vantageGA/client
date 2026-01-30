@@ -67,13 +67,17 @@ const LoginFormView = () => {
         <LoadingSpinner />
       ) : (
         <fieldset className="fieldSet">
-          <legend>Member Login</legend>
+          <legend>
+            Member <span>Login</span>
+          </legend>
           <form onSubmit={handleSubmit} noValidate>
             <InputField
+              id="login-email"
               label="Email"
               type="email"
-              name={email}
+              name="email"
               value={email}
+              required
               onChange={(e) => setEmail(e.target.value)}
               onBlur={() => handleBlur('email')}
               className={
@@ -93,9 +97,10 @@ const LoginFormView = () => {
               aria-invalid={touched.email && !isValidEmail(email)}
             />
             <InputField
+              id="login-password"
               label="Password"
               type="password"
-              name={password}
+              name="password"
               value={password}
               required
               onBlur={() => handleBlur('password')}
@@ -117,7 +122,7 @@ const LoginFormView = () => {
 
             <Button
               
-              text="submit"
+              text="Login"
               className="btn"
               disabled={!password.length || !isValidEmail(email)}
             ></Button>
@@ -125,9 +130,9 @@ const LoginFormView = () => {
         </fieldset>
       )}
 
-      <div className="login-form-inner-wrapper">        
-        <div> <LinkComp route="registration" routeName="Register" /></div>
-        <div><LinkComp route="forgot-password" routeName="Forgot Password" /> </div>        
+      <div className="login-form-inner-wrapper">
+        <LinkComp route="registration" routeName="Register" />
+        <LinkComp route="forgot-password" routeName="Forgot Password" />
       </div>
     </div>
   );

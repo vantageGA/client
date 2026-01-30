@@ -104,10 +104,13 @@ const RegistrationView = () => {
 
           {/* Registration Form */}
           <fieldset className="fieldSet">
-              <legend>Member Registration</legend>
+              <legend>
+                Member <span>Registration</span>
+              </legend>
               <form onSubmit={handleSubmit} noValidate>
                 <div ref={nameInputRef}>
                   <InputField
+                    id="registration-name"
                     label="Name"
                     placeholder="Ben Smith"
                     value={name}
@@ -134,10 +137,12 @@ const RegistrationView = () => {
                 </div>
 
             <InputField
+              id="registration-email"
               label="Email"
               type="email"
               name="email"
               value={email}
+              required
               onChange={(e) => setEmail(e.target.value)}
               onBlur={() => handleBlur('email')}
               className={
@@ -156,6 +161,7 @@ const RegistrationView = () => {
             />
 
             <InputField
+              id="registration-password"
               label="Password"
               type="password"
               name="password"
@@ -178,6 +184,7 @@ const RegistrationView = () => {
             {password.length > 0 && <PasswordStrength password={password} />}
 
             <InputField
+              id="registration-confirm-password"
               label="Confirm Password"
               type="password"
               name="confirmPassword"

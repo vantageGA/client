@@ -2,6 +2,71 @@
 @use '../../scssMixIn.scss' as *;
 
 .user-review-login-wrapper {
+  .reviewer-login-form {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .fieldSet {
+    padding: 1.5rem;
+    background-color: rgba(51, 51, 51, 0.3);
+    border-radius: 4px;
+    border: 1px solid $border-colour-light;
+    border-left: 1px solid $light-orange;
+
+    legend {
+      font-family: 'Bebas Neue', cursive;
+      letter-spacing: 0.1em;
+      font-size: 1.5rem;
+      color: $light-orange;
+      padding: 0 0.5rem;
+    }
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .reviewer-login-links {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.5rem;
+
+    a {
+      color: $link-colour;
+      text-decoration: none;
+      transition: color 0.2s ease;
+      display: inline-block;
+      font-weight: 500;
+
+      &:hover {
+        color: $light-orange;
+        text-decoration: underline;
+      }
+
+      &:focus {
+        outline: 2px solid $burnt-orange;
+        outline-offset: 4px;
+        border-radius: 2px;
+      }
+    }
+  }
+
+  .btn {
+    margin-top: 1rem;
+    min-height: 48px;
+
+    &:focus {
+      outline: 2px solid $burnt-orange;
+      outline-offset: 4px;
+    }
+  }
+
   select {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -28,6 +93,21 @@
     outline: 2px solid $burnt-orange;
     outline-offset: 2px;
     border: 2px solid $burnt-orange;
+  }
+
+  @media (max-width: 812px) {
+    .reviewer-login-form {
+      padding: 0.75rem;
+    }
+
+    .fieldSet {
+      padding: 1rem;
+    }
+
+    .reviewer-login-links {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
   }
 }
 
