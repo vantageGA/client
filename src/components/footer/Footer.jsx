@@ -8,6 +8,14 @@ const Footer = () => {
   let buildLabel = normalizedVersion;
 
   if (buildLabel) {
+    const parts = buildLabel.split('-');
+    if (parts.length >= 3) {
+      const shortSha = parts.pop();
+      const runNumber = parts.pop();
+      const tagPart = parts.join('-');
+      const cleanTag = tagPart.replace(/^v/i, '');
+      buildLabel = `v${cleanTag} - ${runNumber} - ${shortSha}`;
+    } else {
     const semverMatch = buildLabel.match(/^v?(\d+\.\d+\.\d+)(?:[-+](.+))?$/);
 
     if (semverMatch) {
@@ -18,6 +26,7 @@ const Footer = () => {
         : `v${baseVersion}`;
     } else if (!/^v/i.test(buildLabel) && /\d/.test(buildLabel)) {
       buildLabel = `v${buildLabel}`;
+    }
     }
   }
 
