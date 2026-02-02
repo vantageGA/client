@@ -10,9 +10,9 @@ const PreRegistrationView = () => {
   return (
     <div className="pre-registration-wrapper">
       <fieldset className="fieldSet">
-        <legend>Join <BodyVantage /> – Become a Registered Member</legend>
+        <legend>Become Member</legend>
 
-        <p className="intro-text">
+        <p>
           <BodyVantage /> membership is designed for individual professionals
           working across fitness, beauty, rehabilitation, and wellbeing. Whether
           you operate independently, are self-employed, or work as part of a
@@ -25,8 +25,7 @@ const PreRegistrationView = () => {
           expertise, professional conduct, and recognised standards.
         </p>
 
-        {/* Who Membership Is For Section */}
-        <section className="content-section">
+        <div className="content-section">
           <h3>Who Membership Is For</h3>
           <p>
             <BodyVantage /> supports individual practitioners including:
@@ -42,10 +41,9 @@ const PreRegistrationView = () => {
             Membership is open to professionals who value credibility,
             accountability, and long-term trust over visibility alone.
           </p>
-        </section>
+        </div>
 
-        {/* Why Join Section */}
-        <section className="benefits-section">
+        <div className="content-section">
           <h3>Why Join <BodyVantage /></h3>
           <p>As a registered member, you benefit from:</p>
           <ul className="detailed-list">
@@ -80,10 +78,9 @@ const PreRegistrationView = () => {
               </span>
             </li>
           </ul>
-        </section>
+        </div>
 
-        {/* What Membership Includes Section */}
-        <section className="includes-section">
+        <div className="content-section">
           <h3>What Membership Includes</h3>
           <p>Registered members receive:</p>
           <ul className="detailed-list">
@@ -116,19 +113,17 @@ const PreRegistrationView = () => {
               </span>
             </li>
           </ul>
-        </section>
+        </div>
 
-        {/* Pricing Section */}
-        <section className="pricing-section">
+        <div className="content-section">
           <h3>Membership Pricing</h3>
           <p>
             Membership is <strong>£9.99 per month</strong> or{' '}
             <strong>£99 annually</strong>.
           </p>
-        </section>
+        </div>
 
-        {/* How to Become a Member Section */}
-        <section className="timeline-section">
+        <div className="content-section timeline-section">
           <h3>How to Become a Registered Member</h3>
           <div className="timeline-container">
             <div className="timeline-step">
@@ -172,10 +167,9 @@ const PreRegistrationView = () => {
               </div>
             </div>
           </div>
-        </section>
+        </div>
 
-        {/* Commitment Section */}
-        <section className="commitment-section">
+        <div className="content-section">
           <h3>Our Commitment to Members and the Public</h3>
           <p>
             <BodyVantage /> exists to recognise individual professionals, not
@@ -183,10 +177,9 @@ const PreRegistrationView = () => {
             and professional accountability, helping members and the public
             engage with confidence.
           </p>
-        </section>
+        </div>
 
-        {/* CTA Section */}
-        <section className="cta-section">
+        <div className="content-section cta-section">
           <div className="cta-buttons">
             <Button
               text="Register Now"
@@ -203,7 +196,7 @@ const PreRegistrationView = () => {
               title="Return to about page"
             />
           </div>
-        </section>
+        </div>
       </fieldset>
 
       <div className="support-link">

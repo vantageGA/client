@@ -21,7 +21,7 @@ const AboutView = () => {
           not marketing claims.
         </p>
 
-        <section className="content-section">
+        <div className="content-section">
           <h3>Why <BodyVantage /> Exists</h3>
           <p>
             Finding a trusted professional can be overwhelming. Credentials are
@@ -34,9 +34,9 @@ const AboutView = () => {
             confidence. Every member listed has been vetted to ensure they meet
             our requirements for credibility and professional alignment.
           </p>
-        </section>
+        </div>
 
-        <section className="content-section">
+        <div className="content-section">
           <h3>Who We Work With</h3>
           <p>
             <BodyVantage /> supports professionals across sectors where trust is
@@ -54,9 +54,9 @@ const AboutView = () => {
             recognition, accountability, and long-term standards above
             visibility alone.
           </p>
-        </section>
+        </div>
 
-        <section className="member-benefits">
+        <div className="content-section">
           <h3>What It Means to Be a <BodyVantage /> Member</h3>
           <p>
             As a registered member, professionals join a verified network that
@@ -83,7 +83,8 @@ const AboutView = () => {
             <br />
             It is about clarity, credibility, and professional alignment.
           </p>
-           <div className="cta-section">
+          <div className="cta-section">
+            <div className="cta-buttons">
             <Button
               text="Become a Member Today"
               disabled={false}
@@ -91,10 +92,11 @@ const AboutView = () => {
               type="button"
               title="Learn more about membership"
             />
+            </div>
           </div>
-        </section>
+        </div>
 
-        <section className="visitor-features">
+        <div className="content-section">
           <h3>Our Approach</h3>
           <p>
             We believe trust is earned through verification, transparency, and
@@ -107,17 +109,19 @@ const AboutView = () => {
             feature exists to support informed, confident decisions.
           </p>
           <div className="cta-section">
+            <div className="cta-buttons">
             <Button
               text="FAQ's"
               disabled={false}
               onClick={() => navigate('/faq')}
               type="button"
             />
+            </div>
           </div>
-        </section>
+        </div>
       </fieldset>
 
-      <div className="faq-link">
+      <div className="support-link">
         <p>
           Got any questions? <LinkComp route="faq" routeName="View our FAQ" />
         </p>

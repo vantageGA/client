@@ -509,19 +509,7 @@ const UserProfileEditView = () => {
                   {user.isConfirmed ? 'Confirmed' : 'Not Confirmed'}
                 </span>
               </span>
-            </p>
-            <p className="status-item">
-              <span className="label">Admin:</span>
-              <span className={`status-indicator ${user.isAdmin ? 'confirmed' : 'not-confirmed'}`}>
-                <i
-                  className={user.isAdmin ? 'fa fa-check' : 'fa fa-times'}
-                  aria-hidden="true"
-                />
-                <span className="status-text">
-                  {user.isAdmin ? 'Administrator' : 'User'}
-                </span>
-              </span>
-            </p>
+            </p>           
           </fieldset>
 
           {user.isAdmin ? (
