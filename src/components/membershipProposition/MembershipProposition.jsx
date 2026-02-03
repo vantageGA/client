@@ -11,18 +11,16 @@ const MembershipProposition = ({ onApplyClick, showSubscriptionLink = false }) =
   };
 
   return (
-    <fieldset className="fieldSet membership-proposition">
-      <legend>Membership</legend>
+    <div className="membership-proposition">
+      <div className="content-section">
+        <h3>Professional Recognition Starts Here</h3>
+        <p>
+          Professional recognition for individual practitioners in fitness,
+          beauty, rehabilitation, and wellbeing.
+        </p>
+      </div>
 
-      <p className="hero-text">Professional recognition starts here.</p>
-
-      <p className="intro-text">
-        Professional recognition for individual practitioners in fitness,
-        beauty, rehabilitation, and wellbeing.
-      </p>
-
-      {/* Pricing Section */}
-      <section className="pricing-section">
+      <section className="content-section pricing-section">
         <h3>Membership Pricing</h3>
         <div className="pricing-options">
           <div className="price-item">
@@ -55,34 +53,27 @@ const MembershipProposition = ({ onApplyClick, showSubscriptionLink = false }) =
         <p className="pricing-disclaimer">No contracts • Cancel anytime</p>
       </section>
 
-      {/* Benefits Section */}
-      <section className="benefits-section">
+      <section className="content-section benefits-section">
         <h3>What You Receive</h3>
         <ul className="detailed-list">
           <li>
-            <strong>Verified professional status</strong>
-            <span>Recognition as a Body Vantage professional following review and approval.</span>
+            Verified professional status — Recognition as a Body Vantage professional following review and approval.
           </li>
           <li>
-            <strong>Structured professional profile</strong>
-            <span>Designed to present your information consistently and responsibly.</span>
+            Structured professional profile — Designed to present your information consistently and responsibly.
           </li>
           <li>
-            <strong>Trust-led public visibility</strong>
-            <span>Allowing the public to discover professionals through a platform focused on credibility.</span>
+            Trust-led public visibility — Allowing the public to discover professionals through a platform focused on credibility.
           </li>
           <li>
-            <strong>Alignment with recognised standards</strong>
-            <span>Membership confirms you meet Body Vantage standards for qualifications and conduct.</span>
+            Alignment with recognised standards — Membership confirms you meet Body Vantage standards for qualifications and conduct.
           </li>
           <li>
-            <strong>Ongoing professional support</strong>
-            <span>Continued access to guidance and standards to support responsible representation.</span>
+            Ongoing professional support — Continued access to guidance and standards to support responsible representation.
           </li>
         </ul>
       </section>
-
-    </fieldset>
+    </div>
   );
 };
 

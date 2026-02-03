@@ -99,15 +99,14 @@ const RegistrationView = () => {
         <LoadingSpinner />
       ) : (
         <div className="registration-container">
-          {/* Membership Proposition */}
-          <MembershipProposition onApplyClick={handleMembershipClick} />
-
-          {/* Registration Form */}
           <fieldset className="fieldSet">
-              <legend>
-                Member <span>Registration</span>
-              </legend>
-              <form onSubmit={handleSubmit} noValidate>
+            <legend>
+              Member <span>Registration</span>
+            </legend>
+            <MembershipProposition onApplyClick={handleMembershipClick} />
+            <hr className="style-one" />
+            <h3>Member Registration Form</h3>
+            <form onSubmit={handleSubmit} noValidate>
                 <div ref={nameInputRef}>
                   <InputField
                     id="registration-name"

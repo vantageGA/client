@@ -10,12 +10,9 @@ import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
 import Message from '../../components/message/Message';
 import BodyVantage from '../../components/bodyVantage/BodyVantage';
 import SocialLinks from '../../components/socialLinks/SocialLinks';
+import { isValidName, isValidEmail } from '../../utils/validation';
 
 const ContactFormView = ({ type }) => {
-  // Simplified name regex - accepts letters, spaces, hyphens, apostrophes (min 2 chars)
-  const nameRegEx = /^[a-zA-Z\s'-]{2,}$/;
-  const emailRegEx =
-    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
   const dispatch = useDispatch();
   const contactForm = useSelector((state) => state.contactForm);
   const { loading, success, error, payload } = contactForm;
@@ -27,9 +24,6 @@ const ContactFormView = ({ type }) => {
 
   useEffect(() => {
     dispatch({ type: CONTACT_FORM_RESET });
-    return () => {
-      console.log('Contact form cleanup');
-    };
   }, [dispatch]);
 
   const handleBlur = (field) => {
@@ -48,8 +42,8 @@ const ContactFormView = ({ type }) => {
   };
 
   // Validation helpers
-  const isNameValid = nameRegEx.test(name);
-  const isEmailValid = emailRegEx.test(email);
+  const isNameValid = isValidName(name);
+  const isEmailValid = isValidEmail(email);
   const isMessageValid = message.length >= 10;
   const isFormValid = isNameValid && isEmailValid && isMessageValid;
 
@@ -61,27 +55,17 @@ const ContactFormView = ({ type }) => {
   return (
     <>
       {loading ? (
-        <div role="status" aria-live="polite" aria-busy="true">
-          <LoadingSpinner />
-        </div>
+        <LoadingSpinner />
       ) : (
         <div className="contact-form-view-wrapper" aria-busy="false">
-          {success && (
-            <div className="success-message-container">
-              <Message message="Form successfully submitted" variant="success" autoClose={5000} />
-            </div>
-          )}
-          {error && (
-            <div className="error-message-container">
-              <Message message={payload} error={error} />
-            </div>
-          )}
+          {success ? (
+            <Message message="Form successfully submitted" variant="success" autoClose={5000} />
+          ) : null}
+          {error ? <Message message={payload} error={error} /> : null}
 
-          <fieldset className="fieldSet contact-details-fieldset">
-            <legend>About BodyVantage</legend>
-
+          <fieldset className="fieldSet form-fieldset">
+            <legend>Contact Form</legend>
             <address className="contact-details">
-              {/* Value Proposition Section */}
               <div className="value-proposition">
                 <p>
                   <BodyVantage />{' '}is a professional membership network supporting trust, clarity
@@ -89,32 +73,30 @@ const ContactFormView = ({ type }) => {
                 </p>
               </div>
 
-              {/* Contact Information Section */}
+              <hr className="style-one" />
+
               <div className="contact-section">
                 <h3 className="contact-heading">Get in Touch</h3>
 
-                <div className="contact-detail-item">
-                  <strong>Contact:</strong>
-                  <a href="mailto:hello@bodyvantage.co.uk" aria-label="Email us at hello@bodyvantage.co.uk">
-                    hello@bodyvantage.co.uk
-                  </a>
-                </div>
+                <div className="contact-detail-grid">
+                  <div className="contact-detail-item">
+                    <strong>Contact:</strong>
+                    <a href="mailto:hello@bodyvantage.co.uk" aria-label="Email us at hello@bodyvantage.co.uk">
+                      hello@bodyvantage.co.uk
+                    </a>
+                  </div>
 
-                <div className="contact-detail-item">
-                  <strong>Member Support:</strong>
-                  <a href="mailto:membersupport@bodyvantage.co.uk" aria-label="Email member support at membersupport@bodyvantage.co.uk">
-                    membersupport@bodyvantage.co.uk
-                  </a>
+                  <div className="contact-detail-item">
+                    <strong>Member Support:</strong>
+                    <a href="mailto:membersupport@bodyvantage.co.uk" aria-label="Email member support at membersupport@bodyvantage.co.uk">
+                      membersupport@bodyvantage.co.uk
+                    </a>
+                  </div>
                 </div>
               </div>
 
-              {/* Social Media Links */}
-              <SocialLinks />
             </address>
-          </fieldset>
-
-          <fieldset className="fieldSet form-fieldset">
-            <legend>Contact Form</legend>
+            <hr className="style-one" />
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <InputField
@@ -130,7 +112,6 @@ const ContactFormView = ({ type }) => {
                   onChange={(e) => setName(e.target.value)}
                   onBlur={() => handleBlur('name')}
                   aria-invalid={showNameError}
-                  aria-describedby={showNameError ? 'name-error' : undefined}
                 />
               </div>
 
@@ -148,7 +129,6 @@ const ContactFormView = ({ type }) => {
                   className={showEmailError ? 'invalid' : isEmailValid ? 'entered' : ''}
                   error={showEmailError ? 'Invalid email address.' : null}
                   aria-invalid={showEmailError}
-                  aria-describedby={showEmailError ? 'email-error' : undefined}
                 />
               </div>
 
@@ -165,7 +145,6 @@ const ContactFormView = ({ type }) => {
                   className={showMessageError ? 'invalid' : isMessageValid ? 'entered' : ''}
                   aria-required="true"
                   aria-invalid={showMessageError}
-                  aria-describedby={`message-hint${showMessageError ? ' message-error' : ''}`}
                 />
                 <span id="message-hint" className="field-hint">
                   {message.length < 10
@@ -173,7 +152,7 @@ const ContactFormView = ({ type }) => {
                     : 'Message meets minimum length requirement'}
                 </span>
                 {showMessageError && (
-                  <p id="message-error" className="validation-error">
+                  <p className="validation-error">
                     Message must be at least 10 characters long.
                   </p>
                 )}
@@ -191,6 +170,7 @@ const ContactFormView = ({ type }) => {
                 disabled={!isFormValid}
               />
             </form>
+            <SocialLinks />
           </fieldset>
         </div>
       )}

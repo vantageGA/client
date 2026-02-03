@@ -8,8 +8,8 @@
 
   /* Two-column grid layout */
   .registration-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 2rem;
     align-items: start;
   }
@@ -28,6 +28,47 @@
       color: $light-orange;
       padding: 0 0.5rem;
     }
+  }
+
+  p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+
+  h3 {
+    font-family: 'Bebas Neue', cursive;
+    letter-spacing: 0.1em;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: $light-orange;
+  }
+
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0.75rem 0;
+
+    li {
+      margin-bottom: 0.75rem;
+      padding-left: 1.5em;
+      position: relative;
+      line-height: 1.6;
+
+      &::before {
+        content: '▸';
+        position: absolute;
+        left: 0;
+        color: $burnt-orange;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .content-section {
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    border-radius: 4px;
   }
 
   form {
@@ -64,11 +105,6 @@
   }
 
   .subscription-plan-section h3 {
-    font-family: 'Bebas Neue', cursive;
-    letter-spacing: 0.1em;
-    font-size: 1.25rem;
-    color: $light-orange;
-    margin-bottom: 1rem;
     text-transform: uppercase;
   }
 
@@ -132,7 +168,6 @@
   }
 
   .plan-content .discount {
-    font-size: 0.85rem;
     color: $success;
     font-weight: bold;
   }
@@ -141,7 +176,6 @@
     list-style: none;
     padding: 0;
     margin: 0;
-    font-size: 0.9rem;
     color: rgba(245, 245, 245, 0.8);
 
     li {
@@ -163,14 +197,6 @@
   @media (max-width: 812px) {
     .plan-options {
       grid-template-columns: 1fr;
-    }
-  }
-
-  /* Tablet: Stack layout at 1024px */
-  @media (max-width: 1024px) {
-    .registration-container {
-      grid-template-columns: 1fr;
-      gap: 2rem;
     }
   }
 
