@@ -55,6 +55,7 @@ const ReviewerLoginView = () => {
   const [touched, setTouched] = useState({ email: false, password: false });
   const [showEmailVerificationMessage, setShowEmailVerificationMessage] = useState(false);
   const [openSection, setOpenSection] = useState('');
+  const [notification, setNotification] = useState(null);
 
   // Info stored in local storage
   const userReviewLogin = useSelector((state) => state.userReviewLogin);
@@ -114,13 +115,19 @@ const ReviewerLoginView = () => {
     e.preventDefault();
 
     if (reviewer?.isConfirmed !== true) {
-      alert('Please confirm your email address before submitting a review.');
+      setNotification({
+        text: 'Please confirm your email address before submitting a review.',
+        variant: 'warning',
+      });
       return;
     }
 
     // Ensure acceptConditions is boolean true, not string or truthy value
     if (acceptConditions !== true) {
-      alert('You must accept the review conditions before submitting.');
+      setNotification({
+        text: 'You must accept the review conditions before submitting.',
+        variant: 'warning',
+      });
       return;
     }
 
@@ -137,6 +144,7 @@ const ReviewerLoginView = () => {
     setShowGuidelinesAccepted(false);
     setRating(5);
     setComment('');
+    setNotification(null);
   };
 
   return (
@@ -146,6 +154,14 @@ const ReviewerLoginView = () => {
         <Message
           message="Please check your email and click the verification link to activate your reviewer account before logging in."
           variant="warning"
+        />
+      ) : null}
+      {notification ? (
+        <Message
+          message={notification.text}
+          variant={notification.variant}
+          autoClose={5000}
+          onDismiss={() => setNotification(null)}
         />
       ) : null}
       {noUserProfile ? <Message message={noUserProfile} /> : null}

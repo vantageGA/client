@@ -111,7 +111,7 @@ const AboutView = () => {
           <div className="cta-section">
             <div className="cta-buttons">
             <Button
-              text="FAQ's"
+              text="FAQs"
               disabled={false}
               onClick={() => navigate('/faq')}
               type="button"

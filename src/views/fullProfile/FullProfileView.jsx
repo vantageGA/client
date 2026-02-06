@@ -308,7 +308,7 @@ const FullProfileView = () => {
               </div>
             </>
           )}
-          <LinkComp route="" routeName="GO BACK" />
+          <LinkComp route="" routeName="Go back" />
         </>
       )}
     </div>

@@ -10,7 +10,7 @@ const PreRegistrationView = () => {
   return (
     <div className="pre-registration-wrapper">
       <fieldset className="fieldSet">
-        <legend>Become Member</legend>
+        <legend>Become a Member</legend>
 
         <p>
           <BodyVantage /> membership is designed for individual professionals

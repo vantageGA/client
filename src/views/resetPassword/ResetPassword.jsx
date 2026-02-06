@@ -163,7 +163,6 @@ const ResetPassword = () => {
         </fieldset>
       )}
       {error ? <Message message={error} /> : null}
-      {success}
     </div>
   );
 };
