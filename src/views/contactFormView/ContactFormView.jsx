@@ -81,15 +81,15 @@ const ContactFormView = ({ type }) => {
                 <div className="contact-detail-grid">
                   <div className="contact-detail-item">
                     <strong>Contact:</strong>
-                    <a href="mailto:hello@bodyvantage.co.uk" aria-label="Email us at hello@bodyvantage.co.uk">
-                      hello@bodyvantage.co.uk
+                    <a href="mailto:info@bodyvantage.co.uk" aria-label="Email us at info@bodyvantage.co.uk">
+                      info@bodyvantage.co.uk
                     </a>
                   </div>
 
                   <div className="contact-detail-item">
                     <strong>Member Support:</strong>
-                    <a href="mailto:membersupport@bodyvantage.co.uk" aria-label="Email member support at membersupport@bodyvantage.co.uk">
-                      membersupport@bodyvantage.co.uk
+                    <a href="mailto:support@bodyvantage.co.uk" aria-label="Email member support at support@bodyvantage.co.uk">
+                      support@bodyvantage.co.uk
                     </a>
                   </div>
                 </div>
