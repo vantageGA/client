@@ -8,10 +8,12 @@ import {
   createProfileAction,
   profileUpdateAction,
   profileImagesAction,
+  updateOnboardingTutorialAction,
 } from '../../store/actions/profileActions';
 
 import {
   PROFILE_UPDATE_RESET,
+  PROFILE_ONBOARDING_TUTORIAL_UPDATE_RESET,
   PROFILE_OF_LOGGED_IN_USER_RESET,
 } from '../../store/constants/profileConstants';
 
@@ -26,6 +28,7 @@ import Message from '../../components/message/Message';
 import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
 import Rating from '../../components/rating/Rating';
 import FormSectionAccordion from '../../components/formSectionAccordion/FormSectionAccordion';
+import OnboardingTutorial from '../../components/onboardingTutorial/OnboardingTutorial';
 
 import moment from 'moment';
 import QuillEditor from '../../components/quillEditor/QuillEditor';
@@ -33,6 +36,7 @@ import DOMPurify from 'dompurify';
 import FaceBookComponent from '../../components/socialMedia/faceBook/FaceBookComponent';
 import InstagramComponent from '../../components/socialMedia/Instagram/InstagramComponent';
 import InfoComponent from '../../components/info/InfoComponent';
+import onboardingTutorialVideo from '../../assets/video/BV Onboarding 20.02.2026.mp4';
 
 const sanitize = (value) =>
   DOMPurify.sanitize(value || '', {
@@ -53,6 +57,17 @@ const sanitize = (value) =>
   });
 
 const stripHtml = (html) => html.replace(/<[^>]*>/g, '').trim();
+
+const defaultTutorialState = {
+  required: true,
+  hasInteracted: false,
+  interactionType: null,
+  watchProgressPercent: 0,
+  manualAcknowledged: false,
+  completionThresholdPercent: 90,
+  isCompleted: false,
+  completedAt: null,
+};
 
 const ProfileEditView = () => {
   const emailRegEx =
@@ -81,7 +96,21 @@ const ProfileEditView = () => {
 
   // Profile update state
   const profileUpdateState = useSelector((state) => state.profileUpdate);
-  const { success: updateSuccess, error: updateError } = profileUpdateState;
+  const {
+    success: updateSuccess,
+    error: updateError,
+    errorCode: updateErrorCode,
+  } = profileUpdateState;
+
+  // Onboarding tutorial update state
+  const profileOnboardingTutorialUpdateState = useSelector(
+    (state) => state.profileOnboardingTutorialUpdate,
+  );
+  const {
+    loading: tutorialUpdateLoading,
+    error: tutorialUpdateError,
+    onboardingTutorial: tutorialUpdateData,
+  } = profileOnboardingTutorialUpdateState;
 
   // PROFILE images
   const profileImagesState = useSelector((state) => state.profileImages);
@@ -113,6 +142,9 @@ const ProfileEditView = () => {
   const [showHelp, setShowHelp] = useState(false);
   const [openSection, setOpenSection] = useState('');
   const [pendingFocusId, setPendingFocusId] = useState('');
+  const [onboardingTutorial, setOnboardingTutorial] = useState(
+    defaultTutorialState,
+  );
 
   // Refs
   const fileInputRef = useRef(null);
@@ -139,6 +171,10 @@ const ProfileEditView = () => {
     specialisationThree: false,
     specialisationFour: false,
   });
+
+  const showNotification = (message, variant = 'error') => {
+    setNotification({ message, variant });
+  };
 
   useEffect(() => {
     if (!userInfo) {
@@ -169,6 +205,10 @@ const ProfileEditView = () => {
       setSpecialisationTwo(profile.specialisationTwo ?? '');
       setSpecialisationThree(profile.specialisationThree ?? '');
       setSpecialisationFour(profile.specialisationFour ?? '');
+      setOnboardingTutorial({
+        ...defaultTutorialState,
+        ...(profile.onboardingTutorial || {}),
+      });
     }
   }, [navigate, dispatch, userInfo, profile]);
 
@@ -184,10 +224,24 @@ const ProfileEditView = () => {
       dispatch({ type: PROFILE_UPDATE_RESET });
     }
     if (updateError) {
-      showNotification(updateError, 'error');
+      const isOnboardingServerGate =
+        updateErrorCode === 'ONBOARDING_TUTORIAL_REQUIRED';
+      showNotification(updateError, isOnboardingServerGate ? 'warning' : 'error');
+      if (isOnboardingServerGate) {
+        setOpenSection('');
+      }
       dispatch({ type: PROFILE_UPDATE_RESET });
     }
-  }, [updateSuccess, updateError, dispatch]);
+  }, [updateSuccess, updateError, updateErrorCode, dispatch]);
+
+  useEffect(() => {
+    if (!tutorialUpdateData) return;
+    setOnboardingTutorial((prev) => ({
+      ...prev,
+      ...tutorialUpdateData,
+    }));
+    dispatch({ type: PROFILE_ONBOARDING_TUTORIAL_UPDATE_RESET });
+  }, [tutorialUpdateData, dispatch]);
 
   useEffect(() => {
     if (!pendingFocusId) return;
@@ -232,6 +286,14 @@ const ProfileEditView = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!onboardingTutorial?.isCompleted) {
+      showNotification(
+        'Complete the onboarding tutorial before saving your profile.',
+        'warning',
+      );
+      return;
+    }
 
     // Validate all required fields before processing
     if (!name || name.trim().length === 0) {
@@ -334,6 +396,30 @@ const ProfileEditView = () => {
     );
   };
 
+  const handleTutorialUpdate = (tutorialPayload) => {
+    setOnboardingTutorial((prev) => {
+      const nextWatchProgressPercent =
+        tutorialPayload.watchProgressPercent ?? prev.watchProgressPercent ?? 0;
+      const completionThreshold = prev.completionThresholdPercent || 90;
+      const nextIsCompleted =
+        prev.isCompleted === true ||
+        nextWatchProgressPercent >= completionThreshold ||
+        tutorialPayload.manualAcknowledged === true;
+
+      return {
+        ...prev,
+        hasInteracted: true,
+        ...tutorialPayload,
+        watchProgressPercent: nextWatchProgressPercent,
+        isCompleted: nextIsCompleted,
+        completedAt:
+          tutorialPayload.completedAt || (nextIsCompleted ? prev.completedAt : null),
+      };
+    });
+
+    dispatch(updateOnboardingTutorialAction(tutorialPayload));
+  };
+
   // Profile image
   const [previewImage, setPreviewImage] = useState('');
   const [previewImageFile, setPreviewImageFile] = useState('');
@@ -363,6 +449,13 @@ const ProfileEditView = () => {
 
   const handleProfileImageUpdate = (e) => {
     e.preventDefault();
+    if (!onboardingTutorial?.isCompleted) {
+      showNotification(
+        'Complete the onboarding tutorial before saving profile images.',
+        'warning',
+      );
+      return;
+    }
     const formImageData = new FormData();
     formImageData.append('profileImage', previewImageFile);
     //Dispatch upload action here
@@ -391,10 +484,6 @@ const ProfileEditView = () => {
     setShowHelp(!showHelp);
   };
 
-  const showNotification = (message, variant = 'error') => {
-    setNotification({ message, variant });
-  };
-
   const handleBlur = (field) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
   };
@@ -408,6 +497,10 @@ const ProfileEditView = () => {
   const showNameError = touched.name && !isNameValid;
   const showEmailError = touched.email && !isEmailValid;
   const showTelephoneError = touched.telephoneNumber && !isTelephoneValid;
+  const isTutorialCompleted = onboardingTutorial?.isCompleted === true;
+  const saveDisabled = !isTutorialCompleted;
+  const tutorialVideoUrl =
+    import.meta.env.VITE_ONBOARDING_TUTORIAL_URL || onboardingTutorialVideo;
 
   return (
     <>
@@ -478,6 +571,30 @@ const ProfileEditView = () => {
             ></Button>
 
             <form onSubmit={handleSubmit}>
+              <FormSectionAccordion
+                title="Onboarding Tutorial"
+                isOpen={openSection === 'onboarding-tutorial'}
+                onToggle={() =>
+                  setOpenSection((current) =>
+                    current === 'onboarding-tutorial' ? '' : 'onboarding-tutorial',
+                  )
+                }
+              >
+                {openSection === 'onboarding-tutorial' ? (
+                  <OnboardingTutorial
+                    tutorial={onboardingTutorial}
+                    onTutorialUpdate={handleTutorialUpdate}
+                    isUpdating={tutorialUpdateLoading}
+                    updateError={tutorialUpdateError}
+                    videoUrl={tutorialVideoUrl}
+                    storageKey={
+                      profile?._id
+                        ? `onboarding-tutorial-last-played-${profile._id}`
+                        : 'onboarding-tutorial-last-played'
+                    }
+                  />
+                ) : null}
+              </FormSectionAccordion>
               <FormSectionAccordion
                 title="Profile Basics"
                 isOpen={openSection === 'basics'}
@@ -562,7 +679,7 @@ const ProfileEditView = () => {
                   text="Save profile basics"
                   className="btn sticky-save"
                   title="Save profile basics"
-                  disabled={false}
+                  disabled={saveDisabled}
                 />
               </FormSectionAccordion>
               <FormSectionAccordion
@@ -594,7 +711,7 @@ const ProfileEditView = () => {
                   text="Save description"
                   className="btn sticky-save"
                   title="Save description"
-                  disabled={false}
+                  disabled={saveDisabled}
                 />
               </FormSectionAccordion>
               <FormSectionAccordion
@@ -737,7 +854,7 @@ const ProfileEditView = () => {
                   text="Save keywords"
                   className="btn sticky-save"
                   title="Save keywords"
-                  disabled={false}
+                  disabled={saveDisabled}
                 />
                 <hr className="style-one" />
                 <div className="info-message">
@@ -886,7 +1003,7 @@ const ProfileEditView = () => {
                   text="Save specialisation"
                   className="btn sticky-save"
                   title="Save specialisation"
-                  disabled={false}
+                  disabled={saveDisabled}
                 />
               </FormSectionAccordion>
               <FormSectionAccordion
@@ -914,7 +1031,7 @@ const ProfileEditView = () => {
                   text="Save qualifications"
                   className="btn sticky-save"
                   title="Save qualifications"
-                  disabled={false}
+                  disabled={saveDisabled}
                 />
               </FormSectionAccordion>
               <FormSectionAccordion
@@ -953,7 +1070,7 @@ const ProfileEditView = () => {
                   text="Save location"
                   className="btn sticky-save"
                   title="Save location"
-                  disabled={false}
+                  disabled={saveDisabled}
                 />
               </FormSectionAccordion>
               <FormSectionAccordion
@@ -1062,7 +1179,7 @@ const ProfileEditView = () => {
                         text="Upload Image"
                         className="btn"
                         type="submit"
-                        disabled={profileImageLoading}
+                        disabled={profileImageLoading || saveDisabled}
                       />
                       <Button
                         

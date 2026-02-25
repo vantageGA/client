@@ -1,0 +1,100 @@
+@use '../../index.scss' as *;
+
+.onboarding-tutorial {
+  margin: 1rem 0 1.25rem;
+  padding: 1rem;
+  border: 1px solid $border-colour;
+  border-radius: 6px;
+  background: rgba(34, 35, 39, 0.35);
+
+  &__header {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    h2 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+  }
+
+  &__status {
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    &.is-complete {
+      background: rgba($success, 0.2);
+      color: $success;
+      border: 1px solid rgba($success, 0.5);
+    }
+
+    &.is-incomplete {
+      background: rgba($warning, 0.18);
+      color: $warning;
+      border: 1px solid rgba($warning, 0.45);
+    }
+  }
+
+  &__intro {
+    margin: 0.7rem 0;
+  }
+
+  &__gate {
+    margin: 0.5rem 0 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-left: 3px solid $warning;
+    background: rgba($warning, 0.1);
+    color: $main-font-colour;
+  }
+
+  &__player {
+    border: 1px solid rgba($border-colour, 0.7);
+    border-radius: 6px;
+    overflow: hidden;
+
+    video {
+      display: block;
+      width: 100%;
+      max-height: 420px;
+      background: #000;
+    }
+  }
+
+  &__fallback {
+    padding: 1rem;
+    color: $main-font-colour;
+  }
+
+  &__meta {
+    margin-top: 0.6rem;
+
+    p {
+      margin: 0.2rem 0;
+      font-size: 0.92rem;
+    }
+  }
+
+  &__actions {
+    margin-top: 0.8rem;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  &__saving {
+    margin-top: 0.7rem;
+    color: $link-colour;
+  }
+
+  &__error {
+    margin-top: 0.7rem;
+    color: $danger;
+    background: rgba($danger, 0.08);
+    border-left: 3px solid $danger;
+    padding: 0.5rem 0.7rem;
+  }
+}

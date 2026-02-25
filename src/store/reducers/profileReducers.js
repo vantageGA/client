@@ -30,6 +30,10 @@ import {
   PROFILE_OF_LOGGED_IN_USER_FAILURE,
   PROFILE_OF_LOGGED_IN_USER_REQUEST,
   PROFILE_OF_LOGGED_IN_USER_SUCCESS,
+  PROFILE_ONBOARDING_TUTORIAL_UPDATE_FAILURE,
+  PROFILE_ONBOARDING_TUTORIAL_UPDATE_REQUEST,
+  PROFILE_ONBOARDING_TUTORIAL_UPDATE_RESET,
+  PROFILE_ONBOARDING_TUTORIAL_UPDATE_SUCCESS,
   PROFILE_REQUEST,
   PROFILE_RESET,
   PROFILE_SUCCESS,
@@ -146,10 +150,36 @@ export const profileUpdateReducer = (state = {}, action) => {
         profile: action.payload,
       };
     case PROFILE_UPDATE_FAILURE:
-      return { ...state, loading: false, error: action.payload };
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+        errorCode: action.code || null,
+        errorStatus: action.status || null,
+      };
     case PROFILE_UPDATE_RESET:
       return { profile: {} };
 
+    default:
+      return { ...state };
+  }
+};
+
+export const profileOnboardingTutorialUpdateReducer = (state = {}, action) => {
+  switch (action.type) {
+    case PROFILE_ONBOARDING_TUTORIAL_UPDATE_REQUEST:
+      return { ...state, loading: true };
+    case PROFILE_ONBOARDING_TUTORIAL_UPDATE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: true,
+        onboardingTutorial: action.payload,
+      };
+    case PROFILE_ONBOARDING_TUTORIAL_UPDATE_FAILURE:
+      return { ...state, loading: false, error: action.payload };
+    case PROFILE_ONBOARDING_TUTORIAL_UPDATE_RESET:
+      return {};
     default:
       return { ...state };
   }

@@ -28,6 +28,9 @@ import {
   PROFILE_OF_LOGGED_IN_USER_FAILURE,
   PROFILE_OF_LOGGED_IN_USER_REQUEST,
   PROFILE_OF_LOGGED_IN_USER_SUCCESS,
+  PROFILE_ONBOARDING_TUTORIAL_UPDATE_FAILURE,
+  PROFILE_ONBOARDING_TUTORIAL_UPDATE_REQUEST,
+  PROFILE_ONBOARDING_TUTORIAL_UPDATE_SUCCESS,
   PROFILE_REQUEST,
   PROFILE_SUCCESS,
   PROFILE_UPDATE_FAILURE,
@@ -39,7 +42,7 @@ import {
 } from '../constants/profileConstants';
 
 // Get all profiles public - with pagination support
-export const profilesAction = (page = 1, limit = 20, filters = {}) => async (dispatch, getState) => {
+export const profilesAction = (page = 1, limit = 20, filters = {}) => async (dispatch) => {
   try {
     dispatch({
       type: PROFILE_REQUEST,
@@ -224,15 +227,59 @@ export const profileUpdateAction = (profile) => async (dispatch, getState) => {
 
     dispatch(profileOfLoggedInUserAction());
   } catch (error) {
+    const errorMessage =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+
     dispatch({
       type: PROFILE_UPDATE_FAILURE,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: errorMessage,
+      code: error?.response?.data?.code || null,
+      status: error?.response?.status || null,
     });
   }
 };
+
+// Update onboarding tutorial interaction status
+export const updateOnboardingTutorialAction =
+  (tutorialData) => async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: PROFILE_ONBOARDING_TUTORIAL_UPDATE_REQUEST,
+      });
+
+      const {
+        userLogin: { userInfo },
+      } = getState();
+
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      const { data } = await axios.patch(
+        `/api/profile/onboarding-tutorial`,
+        tutorialData,
+        config,
+      );
+
+      dispatch({
+        type: PROFILE_ONBOARDING_TUTORIAL_UPDATE_SUCCESS,
+        payload: data.onboardingTutorial,
+      });
+    } catch (error) {
+      dispatch({
+        type: PROFILE_ONBOARDING_TUTORIAL_UPDATE_FAILURE,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
 // Delete profile ADMIN
 export const deleteProfileAction = (id) => async (dispatch, getState) => {
   try {
@@ -404,7 +451,7 @@ export const profileImagesAction = (page = 1, limit = 20) => async (dispatch, ge
 };
 
 // Get Profile Images for ProfileImage model 'PUBLIC' - route changed, pagination added
-export const profileImagesPublicAction = (id, page = 1, limit = 20) => async (dispatch, getState) => {
+export const profileImagesPublicAction = (id, page = 1, limit = 20) => async (dispatch) => {
   try {
     dispatch({
       type: PROFILE_IMAGES_PUBLIC_REQUEST,
