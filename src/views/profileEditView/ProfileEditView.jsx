@@ -73,7 +73,8 @@ const ProfileEditView = () => {
   const emailRegEx =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 
-  const telephoneNumberRegEx = /^(07[\d]{8,12}|447[\d]{7,11})$/;
+  const telephoneNumberRegEx = /^(?:07\d{8,12}|447\d{7,11})$/;
+  const normalizeTelephoneNumber = (value) => value.replace(/\s+/g, '');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -310,7 +311,9 @@ const ProfileEditView = () => {
       return;
     }
 
-    if (!telephoneNumberRegEx.test(telephoneNumber)) {
+    const normalizedTelephoneNumber = normalizeTelephoneNumber(telephoneNumber);
+
+    if (!telephoneNumberRegEx.test(normalizedTelephoneNumber)) {
       setOpenSection('telephone');
       setPendingFocusId('profile-telephone');
       showNotification('Valid UK telephone number is required', 'error');
@@ -382,7 +385,7 @@ const ProfileEditView = () => {
         specialisation,
         qualifications,
         location,
-        telephoneNumber,
+        telephoneNumber: normalizedTelephoneNumber,
         keyWordSearchOne,
         keyWordSearchTwo,
         keyWordSearchThree,
@@ -491,7 +494,9 @@ const ProfileEditView = () => {
   // Validation helpers
   const isNameValid = name && name.length > 0;
   const isEmailValid = emailRegEx.test(email);
-  const isTelephoneValid = telephoneNumberRegEx.test(telephoneNumber);
+  const isTelephoneValid = telephoneNumberRegEx.test(
+    normalizeTelephoneNumber(telephoneNumber),
+  );
 
   // Show errors only after blur
   const showNameError = touched.name && !isNameValid;
@@ -570,7 +575,7 @@ const ProfileEditView = () => {
               onClick={handleHelp}
             ></Button>
 
-            <form onSubmit={handleSubmit}>
+            <form noValidate onSubmit={handleSubmit}>
               <FormSectionAccordion
                 title="Onboarding Tutorial"
                 isOpen={openSection === 'onboarding-tutorial'}
@@ -1227,7 +1232,7 @@ const ProfileEditView = () => {
             <div className="summary-wrapper">
               <p
                 dangerouslySetInnerHTML={{
-                  __html: sanitize(profile?.description),
+                  __html: sanitize(description),
                 }}
               ></p>
             </div>
@@ -1239,7 +1244,7 @@ const ProfileEditView = () => {
             <div className="summary-wrapper">
               <p
                 dangerouslySetInnerHTML={{
-                  __html: sanitize(profile?.specialisation),
+                  __html: sanitize(specialisation),
                 }}
               ></p>
             </div>
@@ -1247,7 +1252,7 @@ const ProfileEditView = () => {
             <div className="summary-wrapper">
               <p
                 dangerouslySetInnerHTML={{
-                  __html: sanitize(profile?.qualifications),
+                  __html: sanitize(qualifications),
                 }}
               ></p>
               <p className="status-item">
