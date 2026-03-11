@@ -30,6 +30,28 @@
   }
   .input-border {
     border: 1px solid $border-colour;
+
+    .input-border-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+
+      label {
+        margin: 0;
+      }
+    }
+
+    .character-count {
+      display: inline-block;
+      margin: 0;
+      text-align: right;
+
+      &.character-count-invalid {
+        color: $danger;
+      }
+    }
   }
   .profile-images-wrapper {
     border: 1px solid $border-colour;
@@ -283,6 +305,18 @@
     flex-wrap: wrap;
     .item {
       width: 100%; /* Fixed: was 100vw which caused horizontal scroll */
+    }
+
+    .input-border {
+      .input-border-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .character-count {
+        text-align: left;
+      }
     }
   }
 }

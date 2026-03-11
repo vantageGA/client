@@ -210,4 +210,26 @@ describe('ProfileEditView', () => {
     expect(within(summaryFieldset).getByText('Live specialisation preview')).toBeTruthy();
     expect(within(summaryFieldset).getByText('Live qualifications preview')).toBeTruthy();
   });
+
+  it('shows a specialisation character count and blocks saves over 400 characters', () => {
+    renderView();
+    const specialisationEditor = screen.getAllByTestId('quill-editor')[0];
+
+    fireEvent.click(screen.getByRole('button', { name: 'Specialisation' }));
+    expect(screen.getByText('35 / 400 characters')).toBeTruthy();
+
+    fireEvent.change(specialisationEditor, {
+      target: { value: 'a'.repeat(401) },
+    });
+
+    expect(screen.getByText('401 / 400 characters')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Save specialisation' }));
+
+    expect(mockedActions.profileUpdateAction).not.toHaveBeenCalled();
+    expect(
+      screen.getAllByText('Specialisation must not exceed 400 characters (401 entered)')
+        .length,
+    ).toBeGreaterThan(0);
+  });
 });

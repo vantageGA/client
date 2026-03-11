@@ -69,6 +69,8 @@ const defaultTutorialState = {
   completedAt: null,
 };
 
+const SPECIALISATION_MAX_CHARACTERS = 400;
+
 const ProfileEditView = () => {
   const emailRegEx =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
@@ -330,6 +332,16 @@ const ProfileEditView = () => {
       return;
     }
 
+    const specialisationTextLength = stripHtml(specialisation).length;
+    if (specialisationTextLength > SPECIALISATION_MAX_CHARACTERS) {
+      setOpenSection('specialisation');
+      showNotification(
+        `Specialisation must not exceed ${SPECIALISATION_MAX_CHARACTERS} characters (${specialisationTextLength} entered)`,
+        'error',
+      );
+      return;
+    }
+
     if (location.length < 10) {
       setOpenSection('location');
       setPendingFocusId('location');
@@ -504,6 +516,9 @@ const ProfileEditView = () => {
   const showTelephoneError = touched.telephoneNumber && !isTelephoneValid;
   const isTutorialCompleted = onboardingTutorial?.isCompleted === true;
   const saveDisabled = !isTutorialCompleted;
+  const specialisationCharacterCount = stripHtml(specialisation || '').length;
+  const specialisationTooLong =
+    specialisationCharacterCount > SPECIALISATION_MAX_CHARACTERS;
   const tutorialVideoUrl =
     import.meta.env.VITE_ONBOARDING_TUTORIAL_URL || onboardingTutorialVideo;
 
@@ -993,14 +1008,31 @@ const ProfileEditView = () => {
                 }
               >
                 <div className="input-border">
-                  <label>Specialisation</label>
+                  <div className="input-border-header">
+                    <label>Specialisation</label>
+                    <span
+                      className={`small-text character-count ${
+                        specialisationTooLong ? 'character-count-invalid' : ''
+                      }`.trim()}
+                    >
+                      {specialisationCharacterCount} / {SPECIALISATION_MAX_CHARACTERS} characters
+                    </span>
+                  </div>
                   <QuillEditor
                     value={specialisation}
                     onChange={setSpecialisation}
                     className={
-                      specialisation?.length < 10 ? 'invalid' : 'entered'
+                      stripHtml(specialisation || '').length < 10 || specialisationTooLong
+                        ? 'invalid'
+                        : 'entered'
                     }
                   />
+                  {specialisationTooLong ? (
+                    <p className="validation-error" role="alert">
+                      Specialisation must not exceed {SPECIALISATION_MAX_CHARACTERS}{' '}
+                      characters ({specialisationCharacterCount} entered)
+                    </p>
+                  ) : null}
                 </div>
                 <Button
                   type="submit"
@@ -1026,7 +1058,7 @@ const ProfileEditView = () => {
                     value={qualifications}
                     onChange={setQualifications}
                     className={
-                      qualifications?.length < 10 ? 'invalid' : 'entered'
+                      stripHtml(qualifications || '').length < 10 ? 'invalid' : 'entered'
                     }
                   />
                 </div>
