@@ -39,6 +39,30 @@ const sanitize = (value) =>
     ALLOWED_ATTR: ['href', 'target', 'rel'],
   });
 
+const getPublicQualificationVerificationState = (profile) => {
+  const status = (profile?.qualificationVerificationStatus || '')
+    .toString()
+    .trim()
+    .toLowerCase();
+
+  if (status === 'approved') {
+    return { isVerified: true, label: 'Verified' };
+  }
+
+  if (status === 'pending') {
+    return { isVerified: false, label: 'Pending review' };
+  }
+
+  if (status === 'rejected') {
+    return { isVerified: false, label: 'Not verified' };
+  }
+
+  return {
+    isVerified: profile?.isQualificationsVerified === true,
+    label: profile?.isQualificationsVerified === true ? 'Verified' : 'Not verified',
+  };
+};
+
 const FullProfileView = () => {
   const [profileImageIndex, setProfileImageIndex] = useState(0);
   const dispatch = useDispatch();
@@ -65,8 +89,7 @@ const FullProfileView = () => {
   const {
     loading: profileImageLoading,
     profileImages,
-    error: profileImageError,
-    pages: imagePagesCount
+    error: profileImageError
   } = profileImagesPublic;
 
   const handleProfileImage = (index) => {
@@ -83,6 +106,7 @@ const FullProfileView = () => {
     profile?.specialisationThree,
     profile?.specialisationFour
   ].filter(s => s && s.trim());
+  const qualificationVerification = getPublicQualificationVerificationState(profile);
 
   return (
     <div>
@@ -185,29 +209,22 @@ const FullProfileView = () => {
                   <div className="verified">
                     <h3>Qualifications Verified</h3>
 
-                    {profile?.isQualificationsVerified === true ? (
+                    {qualificationVerification.isVerified ? (
                       <i
-                        className="fa fa-check"
+                        className="fa fa-check qualification-status-icon is-verified"
                         role="img"
                         aria-label="Verified"
-                        style={{
-                          fontSize: 20 + 'px',
-                          color: 'rgba(92, 184, 92, 1)',
-                          marginLeft: 12 + 'px',
-                        }}
                       ></i>
                     ) : (
                       <i
-                        className="fa fa-times"
+                        className="fa fa-times qualification-status-icon is-not-verified"
                         role="img"
-                        aria-label="Not verified"
-                        style={{
-                          fontSize: 20 + 'px',
-                          color: 'crimson',
-                          marginLeft: 12 + 'px',
-                        }}
+                        aria-label={qualificationVerification.label}
                       ></i>
                     )}
+                    <span className="qualification-status-text">
+                      {qualificationVerification.label}
+                    </span>
                   </div>
                 </div>
                 <div className="item">

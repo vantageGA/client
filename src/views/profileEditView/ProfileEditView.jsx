@@ -10,12 +10,25 @@ import {
   profileImagesAction,
   updateOnboardingTutorialAction,
 } from '../../store/actions/profileActions';
+import {
+  deleteQualificationDocumentAction,
+  qualificationDocumentsAction,
+  replaceQualificationDocumentAction,
+} from '../../store/actions/qualificationDocumentActions';
+import {
+  uploadQualificationDocumentAction,
+} from '../../store/actions/qualificationDocumentActions';
 
 import {
   PROFILE_UPDATE_RESET,
   PROFILE_ONBOARDING_TUTORIAL_UPDATE_RESET,
   PROFILE_OF_LOGGED_IN_USER_RESET,
 } from '../../store/constants/profileConstants';
+import {
+  QUALIFICATION_DOCUMENT_DELETE_RESET,
+  QUALIFICATION_DOCUMENT_REPLACE_RESET,
+  QUALIFICATION_DOCUMENT_UPLOAD_RESET,
+} from '../../store/constants/qualificationDocumentConstants';
 
 import {
   profileImageUploadAction,
@@ -70,6 +83,122 @@ const defaultTutorialState = {
 };
 
 const SPECIALISATION_MAX_CHARACTERS = 400;
+const MAX_QUALIFICATION_DOCUMENT_SIZE_BYTES = 5 * 1024 * 1024;
+const ACCEPTED_QUALIFICATION_DOCUMENT_MIME_TYPES = new Set([
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+]);
+const QUALIFICATION_DOCUMENT_ACCEPT_ATTRIBUTE =
+  'application/pdf,image/jpeg,image/png';
+
+const formatQualificationDocumentStatus = (status) => {
+  switch (status) {
+    case 'approved':
+      return 'Approved';
+    case 'pending':
+      return 'Pending Review';
+    case 'rejected':
+      return 'Rejected';
+    default:
+      return 'Not Submitted';
+  }
+};
+
+const buildQualificationStatusMessage = ({
+  status,
+  activeDocument,
+}) => {
+  const rejectionReason = activeDocument?.rejectionReason?.trim();
+  const reviewedAt = activeDocument?.reviewedAt;
+  const uploadedAt = activeDocument?.createdAt || activeDocument?.uploadedAt;
+
+  switch (status) {
+    case 'approved':
+      return {
+        tone: 'approved',
+        title: 'Approved',
+        body:
+          'Your qualification document has been approved and your verification status is active on supported profile surfaces.',
+        meta: reviewedAt
+          ? `Approved on ${moment(reviewedAt).format('D MMM YYYY')}.`
+          : null,
+      };
+    case 'pending':
+      return {
+        tone: 'pending',
+        title: 'Pending',
+        body:
+          'Your latest qualification document has been received and is waiting for review.',
+        meta: uploadedAt
+          ? `Submitted on ${moment(uploadedAt).format('D MMM YYYY')}.`
+          : null,
+      };
+    case 'rejected':
+      return {
+        tone: 'rejected',
+        title: 'Rejected',
+        body:
+          'Your latest qualification document was reviewed but could not be approved yet. Please replace it with an updated file.',
+        meta: rejectionReason || null,
+      };
+    default:
+      return {
+        tone: 'none',
+        title: 'Not Submitted',
+        body:
+          'Upload a qualification document to start the verification process for your profile.',
+        meta: null,
+      };
+  }
+};
+
+const buildQualificationSummaryStatus = ({
+  status,
+  activeDocument,
+}) => {
+  const rejectionReason = activeDocument?.rejectionReason?.trim();
+  const reviewedAt = activeDocument?.reviewedAt;
+  const uploadedAt = activeDocument?.createdAt || activeDocument?.uploadedAt;
+
+  switch (status) {
+    case 'approved':
+      return {
+        icon: 'fa-check',
+        tone: 'confirmed',
+        label: 'Verified',
+        detail: reviewedAt
+          ? `Approved on ${moment(reviewedAt).format('D MMM YYYY')}.`
+          : 'Your qualification document has been approved.',
+      };
+    case 'pending':
+      return {
+        icon: 'fa-clock-o',
+        tone: 'pending',
+        label: 'Pending Review',
+        detail: uploadedAt
+          ? `Submitted on ${moment(uploadedAt).format('D MMM YYYY')} and awaiting review.`
+          : 'Your latest qualification document is awaiting review.',
+      };
+    case 'rejected':
+      return {
+        icon: 'fa-exclamation-circle',
+        tone: 'rejected',
+        label: 'Rejected',
+        detail: rejectionReason
+          ? `Reason: ${rejectionReason}`
+          : 'Replace your qualification document to continue verification.',
+      };
+    default:
+      return {
+        icon: 'fa-upload',
+        tone: 'not-submitted',
+        label: 'Not Submitted',
+        detail:
+          'Upload a qualification document to start the verification process for your profile.',
+      };
+  }
+};
 
 const ProfileEditView = () => {
   const emailRegEx =
@@ -119,6 +248,44 @@ const ProfileEditView = () => {
   const profileImagesState = useSelector((state) => state.profileImages);
   const { error: profileImagesError, profileImages } = profileImagesState;
 
+  // Qualification documents
+  const qualificationDocumentsState = useSelector(
+    (state) => state.qualificationDocuments,
+  );
+  const {
+    loading: qualificationDocumentsLoading,
+    error: qualificationDocumentsError,
+    documents: qualificationDocuments = [],
+    activeDocumentId,
+    profileStatus: qualificationDocumentProfileStatus,
+  } = qualificationDocumentsState;
+  const qualificationDocumentUploadState = useSelector(
+    (state) => state.qualificationDocumentUpload,
+  );
+  const {
+    loading: qualificationDocumentUploadLoading,
+    success: qualificationDocumentUploadSuccess,
+    error: qualificationDocumentUploadError,
+  } = qualificationDocumentUploadState;
+  const qualificationDocumentReplaceState = useSelector(
+    (state) => state.qualificationDocumentReplace,
+  );
+  const {
+    loading: qualificationDocumentReplaceLoading,
+    success: qualificationDocumentReplaceSuccess,
+    error: qualificationDocumentReplaceError,
+    message: qualificationDocumentReplaceMessage,
+  } = qualificationDocumentReplaceState;
+  const qualificationDocumentDeleteState = useSelector(
+    (state) => state.qualificationDocumentDelete,
+  );
+  const {
+    loading: qualificationDocumentDeleteLoading,
+    success: qualificationDocumentDeleteSuccess,
+    error: qualificationDocumentDeleteError,
+    message: qualificationDocumentDeleteMessage,
+  } = qualificationDocumentDeleteState;
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [faceBook, setFaceBook] = useState('');
@@ -130,6 +297,17 @@ const ProfileEditView = () => {
   const [qualifications, setQualifications] = useState('');
   const [location, setLocation] = useState('');
   const [telephoneNumber, setTelephoneNumber] = useState('');
+  const [selectedQualificationDocument, setSelectedQualificationDocument] =
+    useState(null);
+  const [qualificationDocumentValidationError, setQualificationDocumentValidationError] =
+    useState('');
+  const [isQualificationDragActive, setIsQualificationDragActive] =
+    useState(false);
+  const [qualificationDocumentActionTarget, setQualificationDocumentActionTarget] =
+    useState({
+      id: '',
+      type: '',
+    });
 
   const [keyWordSearchOne, setkeyWordSearchOne] = useState('');
   const [keyWordSearchTwo, setkeyWordSearchTwo] = useState('');
@@ -152,6 +330,8 @@ const ProfileEditView = () => {
   // Refs
   const fileInputRef = useRef(null);
   const descriptionEditorRef = useRef(null);
+  const qualificationDocumentInputRef = useRef(null);
+  const qualificationDocumentReplaceInputRef = useRef(null);
 
   // Notification state for centralized message management
   const [notification, setNotification] = useState({
@@ -220,6 +400,12 @@ const ProfileEditView = () => {
     dispatch(profileImagesAction());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (!profile?._id) return;
+
+    dispatch(qualificationDocumentsAction());
+  }, [dispatch, profile?._id]);
+
   // Watch profileUpdate state for success/error
   useEffect(() => {
     if (updateSuccess) {
@@ -279,6 +465,99 @@ const ProfileEditView = () => {
       setProfileImage(profileImages[0]?.avatar ?? '');
     }
   }, [profileImages, profileImage]);
+
+  useEffect(() => {
+    if (!qualificationDocumentUploadSuccess && !qualificationDocumentUploadError) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      if (qualificationDocumentUploadSuccess) {
+        showNotification('Qualification document uploaded successfully', 'success');
+        setSelectedQualificationDocument(null);
+        setQualificationDocumentValidationError('');
+        if (qualificationDocumentInputRef.current) {
+          qualificationDocumentInputRef.current.value = '';
+        }
+      }
+
+      if (qualificationDocumentUploadError) {
+        showNotification(qualificationDocumentUploadError, 'error');
+      }
+
+      dispatch({ type: QUALIFICATION_DOCUMENT_UPLOAD_RESET });
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    qualificationDocumentUploadSuccess,
+    qualificationDocumentUploadError,
+    dispatch,
+  ]);
+
+  useEffect(() => {
+    if (!qualificationDocumentReplaceSuccess && !qualificationDocumentReplaceError) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      if (qualificationDocumentReplaceSuccess) {
+        showNotification(
+          qualificationDocumentReplaceMessage ||
+            'Qualification document replaced successfully',
+          'success',
+        );
+      }
+
+      if (qualificationDocumentReplaceError) {
+        showNotification(qualificationDocumentReplaceError, 'error');
+      }
+
+      setQualificationDocumentActionTarget({ id: '', type: '' });
+      if (qualificationDocumentReplaceInputRef.current) {
+        qualificationDocumentReplaceInputRef.current.value = '';
+      }
+
+      dispatch({ type: QUALIFICATION_DOCUMENT_REPLACE_RESET });
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    qualificationDocumentReplaceSuccess,
+    qualificationDocumentReplaceError,
+    qualificationDocumentReplaceMessage,
+    dispatch,
+  ]);
+
+  useEffect(() => {
+    if (!qualificationDocumentDeleteSuccess && !qualificationDocumentDeleteError) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      if (qualificationDocumentDeleteSuccess) {
+        showNotification(
+          qualificationDocumentDeleteMessage ||
+            'Qualification document deleted successfully',
+          'success',
+        );
+      }
+
+      if (qualificationDocumentDeleteError) {
+        showNotification(qualificationDocumentDeleteError, 'error');
+      }
+
+      setQualificationDocumentActionTarget({ id: '', type: '' });
+      dispatch({ type: QUALIFICATION_DOCUMENT_DELETE_RESET });
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    qualificationDocumentDeleteSuccess,
+    qualificationDocumentDeleteError,
+    qualificationDocumentDeleteMessage,
+    dispatch,
+  ]);
 
   const handleCreateProfile = () => {
     // Dispatch create profile action
@@ -521,6 +800,210 @@ const ProfileEditView = () => {
     specialisationCharacterCount > SPECIALISATION_MAX_CHARACTERS;
   const tutorialVideoUrl =
     import.meta.env.VITE_ONBOARDING_TUTORIAL_URL || onboardingTutorialVideo;
+  const qualificationDocumentList = Array.isArray(qualificationDocuments)
+    ? qualificationDocuments
+    : [];
+  const activeQualificationDocument =
+    qualificationDocumentList.find((document) => document?._id === activeDocumentId) ||
+    qualificationDocumentList.find((document) => document?.isActive) ||
+    null;
+  const qualificationDocumentStatus =
+    qualificationDocumentProfileStatus ||
+    profile?.qualificationVerificationStatus ||
+    (profile?.isQualificationsVerified ? 'approved' : 'none');
+  const qualificationDocumentStatusLabel = formatQualificationDocumentStatus(
+    qualificationDocumentStatus,
+  );
+  const qualificationStatusMessage = buildQualificationStatusMessage({
+    status: qualificationDocumentStatus,
+    activeDocument: activeQualificationDocument,
+  });
+  const qualificationSummaryStatus = buildQualificationSummaryStatus({
+    status: qualificationDocumentStatus,
+    activeDocument: activeQualificationDocument,
+  });
+  const qualificationDocumentMutationLoading =
+    qualificationDocumentUploadLoading ||
+    qualificationDocumentReplaceLoading ||
+    qualificationDocumentDeleteLoading;
+  const qualificationDocumentSizeInMb = selectedQualificationDocument
+    ? (selectedQualificationDocument.size / (1024 * 1024)).toFixed(2)
+    : null;
+
+  const validateQualificationDocumentFile = (file) => {
+    if (!file) {
+      return 'Select a qualification document to continue.';
+    }
+
+    if (!ACCEPTED_QUALIFICATION_DOCUMENT_MIME_TYPES.has(file.type)) {
+      return 'Only PDF, JPG, and PNG qualification documents are allowed.';
+    }
+
+    if (file.size > MAX_QUALIFICATION_DOCUMENT_SIZE_BYTES) {
+      return 'Qualification document must be 5MB or less.';
+    }
+
+    return '';
+  };
+
+  const handleQualificationDocumentSelection = (file) => {
+    const validationError = validateQualificationDocumentFile(file);
+
+    if (validationError) {
+      setSelectedQualificationDocument(null);
+      setQualificationDocumentValidationError(validationError);
+      if (qualificationDocumentInputRef.current) {
+        qualificationDocumentInputRef.current.value = '';
+      }
+      return false;
+    }
+
+    setSelectedQualificationDocument(file);
+    setQualificationDocumentValidationError('');
+    return true;
+  };
+
+  const handleQualificationDocumentInputChange = (event) => {
+    const file = event.target.files?.[0];
+    handleQualificationDocumentSelection(file);
+  };
+
+  const handleQualificationDocumentBrowse = () => {
+    qualificationDocumentInputRef.current?.click();
+  };
+
+  const handleQualificationDocumentReplaceBrowse = (documentId) => {
+    if (!documentId) return;
+
+    if (!onboardingTutorial?.isCompleted) {
+      showNotification(
+        'Complete the onboarding tutorial before replacing qualification documents.',
+        'warning',
+      );
+      return;
+    }
+
+    setQualificationDocumentActionTarget({
+      id: documentId,
+      type: 'replace',
+    });
+    qualificationDocumentReplaceInputRef.current?.click();
+  };
+
+  const handleQualificationDocumentDragOver = (event) => {
+    event.preventDefault();
+    setIsQualificationDragActive(true);
+  };
+
+  const handleQualificationDocumentDragLeave = (event) => {
+    event.preventDefault();
+    setIsQualificationDragActive(false);
+  };
+
+  const handleQualificationDocumentDrop = (event) => {
+    event.preventDefault();
+    setIsQualificationDragActive(false);
+
+    const file = event.dataTransfer?.files?.[0];
+    handleQualificationDocumentSelection(file);
+  };
+
+  const handleQualificationDocumentKeyDown = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleQualificationDocumentBrowse();
+    }
+  };
+
+  const handleQualificationDocumentClear = () => {
+    setSelectedQualificationDocument(null);
+    setQualificationDocumentValidationError('');
+    if (qualificationDocumentInputRef.current) {
+      qualificationDocumentInputRef.current.value = '';
+    }
+  };
+
+  const handleQualificationDocumentUpload = () => {
+    if (!onboardingTutorial?.isCompleted) {
+      showNotification(
+        'Complete the onboarding tutorial before uploading qualification documents.',
+        'warning',
+      );
+      return;
+    }
+
+    const validationError = validateQualificationDocumentFile(
+      selectedQualificationDocument,
+    );
+    if (validationError) {
+      setQualificationDocumentValidationError(validationError);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('qualificationDocument', selectedQualificationDocument);
+
+    dispatch(
+      uploadQualificationDocumentAction(formData, {
+        page: 1,
+        limit: 20,
+      }),
+    );
+  };
+
+  const handleQualificationDocumentReplaceChange = (event) => {
+    const file = event.target.files?.[0];
+    const targetDocumentId = qualificationDocumentActionTarget.id;
+
+    if (!targetDocumentId) {
+      if (qualificationDocumentReplaceInputRef.current) {
+        qualificationDocumentReplaceInputRef.current.value = '';
+      }
+      return;
+    }
+
+    const validationError = validateQualificationDocumentFile(file);
+    if (validationError) {
+      setQualificationDocumentValidationError(validationError);
+      if (qualificationDocumentReplaceInputRef.current) {
+        qualificationDocumentReplaceInputRef.current.value = '';
+      }
+      return;
+    }
+
+    setQualificationDocumentValidationError('');
+
+    const formData = new FormData();
+    formData.append('qualificationDocument', file);
+
+    dispatch(
+      replaceQualificationDocumentAction(targetDocumentId, formData, {
+        page: 1,
+        limit: 20,
+      }),
+    );
+  };
+
+  const handleQualificationDocumentDelete = (document) => {
+    if (!document?._id) return;
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${document.originalFileName}?`,
+    );
+    if (!confirmed) return;
+
+    setQualificationDocumentActionTarget({
+      id: document._id,
+      type: 'delete',
+    });
+
+    dispatch(
+      deleteQualificationDocumentAction(document._id, {
+        page: 1,
+        limit: 20,
+      }),
+    );
+  };
 
   return (
     <>
@@ -1044,7 +1527,7 @@ const ProfileEditView = () => {
                 />
               </FormSectionAccordion>
               <FormSectionAccordion
-                title="Qualifications"
+                title="Qualifications & Documents"
                 isOpen={openSection === 'qualifications'}
                 onToggle={() =>
                   setOpenSection((current) =>
@@ -1061,6 +1544,285 @@ const ProfileEditView = () => {
                       stripHtml(qualifications || '').length < 10 ? 'invalid' : 'entered'
                     }
                   />
+                </div>
+                <div className="qualification-documents-section">
+                  <div className="qualification-documents-header">
+                    <div>
+                      <h4>Qualification Document</h4>
+                      <p className="small-text">
+                        Keep your written qualifications above and your
+                        verification document below. Supported formats are PDF,
+                        JPG, and PNG up to 5MB.
+                      </p>
+                    </div>
+                    <span
+                      className={`qualification-documents-status qualification-documents-status-${qualificationDocumentStatus}`}
+                    >
+                      {qualificationDocumentStatusLabel}
+                    </span>
+                  </div>
+
+                  <p className="qualification-documents-copy">
+                    One active document can be kept on file for review while
+                    previous submissions remain part of your verification
+                    history.
+                  </p>
+
+                  <div
+                    className={`qualification-status-message qualification-status-message-${qualificationStatusMessage.tone}`}
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <p className="qualification-status-message-title">
+                      Status: {qualificationStatusMessage.title}
+                    </p>
+                    <p className="qualification-status-message-body">
+                      {qualificationStatusMessage.body}
+                    </p>
+                    {qualificationStatusMessage.meta ? (
+                      <p className="qualification-status-message-meta">
+                        {qualificationDocumentStatus === 'rejected'
+                          ? `Reason: ${qualificationStatusMessage.meta}`
+                          : qualificationStatusMessage.meta}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div
+                    className={`qualification-upload-dropzone ${
+                      isQualificationDragActive ? 'drag-active' : ''
+                    }`.trim()}
+                    role="button"
+                    tabIndex={0}
+                    onClick={handleQualificationDocumentBrowse}
+                    onKeyDown={handleQualificationDocumentKeyDown}
+                    onDragOver={handleQualificationDocumentDragOver}
+                    onDragEnter={handleQualificationDocumentDragOver}
+                    onDragLeave={handleQualificationDocumentDragLeave}
+                    onDrop={handleQualificationDocumentDrop}
+                    aria-describedby="qualification-document-help"
+                  >
+                    <input
+                      ref={qualificationDocumentReplaceInputRef}
+                      id="replaceQualificationDocument"
+                      className="sr-only"
+                      type="file"
+                      name="replaceQualificationDocument"
+                      accept={QUALIFICATION_DOCUMENT_ACCEPT_ATTRIBUTE}
+                      onChange={handleQualificationDocumentReplaceChange}
+                      aria-label="Replace qualification document"
+                    />
+                    <input
+                      ref={qualificationDocumentInputRef}
+                      id="qualificationDocument"
+                      className="sr-only"
+                      type="file"
+                      name="qualificationDocument"
+                      accept={QUALIFICATION_DOCUMENT_ACCEPT_ATTRIBUTE}
+                      onChange={handleQualificationDocumentInputChange}
+                      aria-label="Select qualification document"
+                    />
+                    <p className="qualification-upload-title">
+                      Drag and drop your qualification document here
+                    </p>
+                    <p className="qualification-upload-subtitle">
+                      or select a file from your device
+                    </p>
+                    <Button
+                      type="button"
+                      
+                      text="Choose Document"
+                      title="Choose qualification document"
+                      disabled={qualificationDocumentMutationLoading}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleQualificationDocumentBrowse();
+                      }}
+                    />
+                    <span
+                      id="qualification-document-help"
+                      className="field-hint qualification-upload-help"
+                    >
+                      Accepted formats: PDF, JPG, PNG. Maximum file size: 5MB.
+                    </span>
+                  </div>
+
+                  {qualificationDocumentValidationError ? (
+                    <p className="validation-error" role="alert">
+                      {qualificationDocumentValidationError}
+                    </p>
+                  ) : null}
+
+                  {selectedQualificationDocument ? (
+                    <div className="qualification-upload-selection">
+                      <div>
+                        <p className="qualification-upload-selection-label">
+                          Selected document
+                        </p>
+                        <p>
+                          <strong>{selectedQualificationDocument.name}</strong>
+                        </p>
+                        <p>
+                          {selectedQualificationDocument.type || 'Unknown type'}{' '}
+                          · {qualificationDocumentSizeInMb} MB
+                        </p>
+                      </div>
+                      <div className="qualification-upload-actions">
+                        <Button
+                          type="button"
+                          
+                          text={
+                            qualificationDocumentUploadLoading
+                              ? 'Uploading...'
+                              : 'Upload Qualification'
+                          }
+                          title="Upload qualification document"
+                          disabled={
+                            qualificationDocumentMutationLoading || saveDisabled
+                          }
+                          onClick={handleQualificationDocumentUpload}
+                        />
+                        <Button
+                          type="button"
+                          
+                          text="Clear Selection"
+                          title="Clear selected qualification document"
+                          disabled={qualificationDocumentMutationLoading}
+                          onClick={handleQualificationDocumentClear}
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {qualificationDocumentsLoading ? (
+                    <LoadingSpinner />
+                  ) : qualificationDocumentsError ? (
+                    <p className="validation-error" role="alert">
+                      {qualificationDocumentsError}
+                    </p>
+                  ) : (
+                    <div className="qualification-documents-overview">
+                      <p>
+                        Documents on file:{' '}
+                        <strong>{qualificationDocumentList.length}</strong>
+                      </p>
+                      {activeQualificationDocument ? (
+                        <>
+                          <p>
+                            Active submission:{' '}
+                            <strong>
+                              {activeQualificationDocument.originalFileName}
+                            </strong>
+                          </p>
+                          <p>
+                            Submitted:{' '}
+                            <strong>
+                              {moment(activeQualificationDocument.createdAt).format(
+                                'D MMM YYYY',
+                              )}
+                            </strong>
+                          </p>
+                        </>
+                      ) : (
+                        <p>No qualification document uploaded yet.</p>
+                      )}
+                    </div>
+                  )}
+
+                  {qualificationDocumentList.length > 0 ? (
+                    <div className="qualification-documents-list">
+                      <h5>Uploaded Files</h5>
+                      {qualificationDocumentList.map((document) => {
+                        const uploadedAt =
+                          document.createdAt || document.uploadedAt || null;
+                        const isActiveDocument =
+                          document?._id === activeDocumentId || document?.isActive;
+                        const isReplacingThisDocument =
+                          qualificationDocumentActionTarget.type === 'replace' &&
+                          qualificationDocumentActionTarget.id === document?._id &&
+                          qualificationDocumentReplaceLoading;
+                        const isDeletingThisDocument =
+                          qualificationDocumentActionTarget.type === 'delete' &&
+                          qualificationDocumentActionTarget.id === document?._id &&
+                          qualificationDocumentDeleteLoading;
+
+                        return (
+                          <article
+                            key={document?._id}
+                            className={`qualification-document-card ${
+                              isActiveDocument ? 'is-active' : ''
+                            }`.trim()}
+                          >
+                            <div className="qualification-document-card-header">
+                              <div className="qualification-document-file">
+                                <p className="qualification-document-file-name">
+                                  {document?.originalFileName}
+                                </p>
+                                <p>
+                                  Uploaded:{' '}
+                                  <strong>
+                                    {uploadedAt
+                                      ? moment(uploadedAt).format('D MMM YYYY')
+                                      : 'Unknown'}
+                                  </strong>
+                                </p>
+                              </div>
+                              <div className="qualification-document-badges">
+                                <span
+                                  className={`qualification-document-badge ${
+                                    isActiveDocument
+                                      ? 'qualification-document-badge-active'
+                                      : 'qualification-document-badge-history'
+                                  }`.trim()}
+                                >
+                                  {isActiveDocument ? 'Active Submission' : 'Superseded'}
+                                </span>
+                                <span
+                                  className={`qualification-document-badge qualification-document-badge-status qualification-documents-status-${document?.status || 'none'}`}
+                                >
+                                  {formatQualificationDocumentStatus(document?.status)}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="qualification-document-card-actions">
+                              <Button
+                                type="button"
+                                
+                                text={
+                                  isReplacingThisDocument ? 'Replacing...' : 'Replace'
+                                }
+                                title={
+                                  isActiveDocument
+                                    ? 'Replace this qualification document'
+                                    : 'Only the active submission can be replaced'
+                                }
+                                disabled={
+                                  !isActiveDocument ||
+                                  qualificationDocumentMutationLoading ||
+                                  saveDisabled
+                                }
+                                onClick={() =>
+                                  handleQualificationDocumentReplaceBrowse(
+                                    document?._id,
+                                  )
+                                }
+                              />
+                              <Button
+                                type="button"
+                                
+                                text={isDeletingThisDocument ? 'Deleting...' : 'Delete'}
+                                title="Delete this qualification document"
+                                disabled={qualificationDocumentMutationLoading}
+                                onClick={() =>
+                                  handleQualificationDocumentDelete(document)
+                                }
+                              />
+                            </div>
+                          </article>
+                        );
+                      })}
+                    </div>
+                  ) : null}
                 </div>
                 <Button
                   type="submit"
@@ -1287,20 +2049,27 @@ const ProfileEditView = () => {
                   __html: sanitize(qualifications),
                 }}
               ></p>
-              <p className="status-item">
-                QualificationsVerified:{' '}
-                {profile.isQualificationsVerified === true ? (
-                  <>
-                    <i className="fa fa-check status-icon confirmed" aria-hidden="true"></i>
-                    <span className="status-text">Verified</span>
-                  </>
-                ) : (
-                  <>
-                    <i className="fa fa-times status-icon not-confirmed" aria-hidden="true"></i>
-                    <span className="status-text">Not Verified</span>
-                  </>
-                )}
-              </p>
+              <div
+                className="qualification-summary-status"
+                role="status"
+                aria-live="polite"
+              >
+                <p className="status-label">Qualification Status</p>
+                <p className="status-item">
+                  <i
+                    className={`fa ${qualificationSummaryStatus.icon} status-icon ${qualificationSummaryStatus.tone}`}
+                    aria-hidden="true"
+                  ></i>
+                  <span
+                    className={`status-text ${qualificationSummaryStatus.tone}`}
+                  >
+                    {qualificationSummaryStatus.label}
+                  </span>
+                </p>
+                <p className="status-detail">
+                  {qualificationSummaryStatus.detail}
+                </p>
+              </div>
             </div>
             <h3>Rating</h3>
             <div className="summary-wrapper">

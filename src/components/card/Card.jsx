@@ -1,11 +1,27 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import './Card.scss';
 import { Link } from 'react-router-dom';
 import Rating from '../rating/Rating';
 import Button from '../button/Button';
 
 import { profileClickCounterAction } from '../../store/actions/profileActions';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+
+const isQualificationVerifiedForCard = (
+  qualificationVerificationStatus,
+  isQualificationsVerified,
+) => {
+  const normalizedStatus = (qualificationVerificationStatus || '')
+    .toString()
+    .trim()
+    .toLowerCase();
+
+  if (normalizedStatus) {
+    return normalizedStatus === 'approved';
+  }
+
+  return isQualificationsVerified === true;
+};
 
 const Card = ({
   id,
@@ -18,6 +34,7 @@ const Card = ({
   telephoneNumber,
   specialisation,
   qualifications,
+  qualificationVerificationStatus,
   isQualificationsVerified,
   rating,
   reviews,
@@ -28,8 +45,10 @@ const Card = ({
   profileClickCounter,
 }) => {
   const dispatch = useDispatch();
-  const profilesState = useSelector((state) => state.profiles);
-  const { profiles } = profilesState;
+  const hasVerifiedQualification = isQualificationVerifiedForCard(
+    qualificationVerificationStatus,
+    isQualificationsVerified,
+  );
 
   // Server auto-increments click counter by 1, no need to pass count
   const handleProfileClickCounter = (_id) => {
@@ -56,11 +75,19 @@ const Card = ({
         <div>
           <div className="card-name">{name}</div>
           <Rating value={rating} text={`  from ${reviews} reviews`} />
+          {hasVerifiedQualification ? (
+            <div className="qualification-verified-badge">
+              <i
+                className="fa fa-check-circle qualification-verified-icon"
+                aria-hidden="true"
+              ></i>
+              <span>Verified Professional</span>
+            </div>
+          ) : null}
 
           {specialisation}
           {description}
           {location}
-          {isQualificationsVerified}
           {qualifications}
           {email}
           {telephoneNumber}

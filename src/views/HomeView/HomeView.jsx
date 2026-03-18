@@ -285,6 +285,10 @@ const HomeView = () => {
                         description={
                           <p>{truncateDescription(profile?.description || '')}</p>
                         }
+                        qualificationVerificationStatus={
+                          profile?.qualificationVerificationStatus
+                        }
+                        isQualificationsVerified={profile?.isQualificationsVerified}
                         rating={profile?.rating}
                         reviews={profile?.numReviews}
                       />

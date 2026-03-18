@@ -6,9 +6,16 @@ import './AdminProfileView.scss';
 import {
   profilesAdminAction,
   deleteProfileAction,
-  profileVerifyQualificationAction,
   deleteReviewProfileAction,
 } from '../../store/actions/profileActions';
+import {
+  qualificationDocumentsAdminAction,
+  reviewQualificationDocumentAction,
+} from '../../store/actions/qualificationDocumentActions';
+import {
+  QUALIFICATION_DOCUMENT_ADMIN_LIST_RESET,
+  QUALIFICATION_DOCUMENT_REVIEW_RESET,
+} from '../../store/constants/qualificationDocumentConstants';
 
 import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
 import Message from '../../components/message/Message';
@@ -16,6 +23,51 @@ import Button from '../../components/button/Button';
 import SearchInput from '../../components/searchInput/SearchInput';
 
 import moment from 'moment';
+
+const QUALIFICATION_DOCUMENTS_PER_PAGE = 10;
+const REJECTION_REASON_MIN_LENGTH = 10;
+const REJECTION_REASON_MAX_LENGTH = 500;
+const QUALIFICATION_DOCUMENT_STATUS_FILTERS = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'rejected', label: 'Rejected' },
+  { value: 'all', label: 'All' },
+];
+
+const getQualificationStatusLabel = (status) => {
+  switch (status) {
+    case 'approved':
+      return 'Approved';
+    case 'pending':
+      return 'Pending Review';
+    case 'rejected':
+      return 'Rejected';
+    default:
+      return 'Not Submitted';
+  }
+};
+
+const getQualificationStatusIcon = (status) => {
+  switch (status) {
+    case 'approved':
+      return 'fa-check';
+    case 'pending':
+      return 'fa-clock-o';
+    case 'rejected':
+      return 'fa-exclamation-circle';
+    default:
+      return 'fa-upload';
+  }
+};
+
+const getProfileQualificationStatus = (profile) =>
+  profile?.qualificationVerificationStatus ||
+  (profile?.isQualificationsVerified ? 'approved' : 'none');
+
+const getQualificationDocumentAdminFilters = (statusFilter) => ({
+  isActive: true,
+  ...(statusFilter !== 'all' ? { status: statusFilter } : {}),
+});
 
 const AdminProfileView = () => {
   const dispatch = useDispatch();
@@ -25,13 +77,18 @@ const AdminProfileView = () => {
   const [expandedReviewsId, setExpandedReviewsId] = useState(null);
   const [expandedCardId, setExpandedCardId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [currentDocumentPage, setCurrentDocumentPage] = useState(1);
+  const [documentStatusFilter, setDocumentStatusFilter] = useState('pending');
+  const [rejectEditorDocumentId, setRejectEditorDocumentId] = useState(null);
+  const [rejectValidationError, setRejectValidationError] = useState('');
+  const [rejectDraftByDocument, setRejectDraftByDocument] = useState({});
   const profilesPerPage = 50;
 
   // Loading states for async actions
   const [loadingStates, setLoadingStates] = useState({
     deleteProfile: null,
-    verifyQualification: null,
     deleteReview: null,
+    reviewDocument: null,
   });
 
   // Search state
@@ -44,12 +101,70 @@ const AdminProfileView = () => {
   useEffect(() => {
     if (!userInfo) {
       navigate('/');
+      return;
     }
     dispatch(profilesAdminAction(currentPage, profilesPerPage));
   }, [dispatch, navigate, userInfo, currentPage]);
 
+  useEffect(() => {
+    if (!userInfo) {
+      return;
+    }
+
+    dispatch(
+      qualificationDocumentsAdminAction(
+        currentDocumentPage,
+        QUALIFICATION_DOCUMENTS_PER_PAGE,
+        getQualificationDocumentAdminFilters(documentStatusFilter),
+      ),
+    );
+  }, [dispatch, userInfo, currentDocumentPage, documentStatusFilter]);
+
+  useEffect(
+    () => () => {
+      dispatch({ type: QUALIFICATION_DOCUMENT_REVIEW_RESET });
+      dispatch({ type: QUALIFICATION_DOCUMENT_ADMIN_LIST_RESET });
+    },
+    [dispatch],
+  );
+
   const profilesState = useSelector((state) => state.profilesAdmin);
   const { loading, error, success, profilesAdmin, page, pages, total } = profilesState;
+  const qualificationDocumentsAdminState = useSelector(
+    (state) => state.qualificationDocumentsAdmin,
+  );
+  const {
+    loading: qualificationDocumentsLoading,
+    error: qualificationDocumentsError,
+    documents: qualificationDocumentsAdmin = [],
+    page: qualificationDocumentsPage = 1,
+    pages: qualificationDocumentsPages = 1,
+    total: qualificationDocumentsTotal = 0,
+  } = qualificationDocumentsAdminState;
+  const qualificationDocumentReviewState = useSelector(
+    (state) => state.qualificationDocumentReview,
+  );
+  const {
+    success: qualificationDocumentReviewSuccess,
+    error: qualificationDocumentReviewError,
+    message: qualificationDocumentReviewMessage,
+  } = qualificationDocumentReviewState;
+
+  useEffect(() => {
+    if (!qualificationDocumentReviewSuccess && !qualificationDocumentReviewError) {
+      return undefined;
+    }
+
+    const timer = setTimeout(() => {
+      dispatch({ type: QUALIFICATION_DOCUMENT_REVIEW_RESET });
+    }, 6000);
+
+    return () => clearTimeout(timer);
+  }, [
+    dispatch,
+    qualificationDocumentReviewSuccess,
+    qualificationDocumentReviewError,
+  ]);
 
   const toggleReviews = (profileId) => {
     setExpandedReviewsId(prev => prev === profileId ? null : profileId);
@@ -69,16 +184,6 @@ const AdminProfileView = () => {
     }
   };
 
-  const handleVerify = (id, name) => {
-    // Dispatch verify qualification
-    if (window.confirm(`Are you sure you want to verify the qualifications for ${name}?`)) {
-      setLoadingStates(prev => ({ ...prev, verifyQualification: id }));
-      dispatch(profileVerifyQualificationAction(id)).finally(() => {
-        setLoadingStates(prev => ({ ...prev, verifyQualification: null }));
-      });
-    }
-  };
-
   const handleDeleteReview = (profileId, reviewId, profileName) => {
     //Dispatch delete Review action
     if (window.confirm(`Are you sure you want to delete this review for ${profileName}?`)) {
@@ -87,6 +192,110 @@ const AdminProfileView = () => {
         setLoadingStates(prev => ({ ...prev, deleteReview: null }));
       });
     }
+  };
+
+  const handleQualificationDocumentReview = (
+    document,
+    status,
+    rejectionReason = '',
+  ) => {
+    if (!document?._id) {
+      return;
+    }
+
+    const profileName =
+      document?.profile?.name || document?.user?.name || 'this profile';
+    const confirmationMessage =
+      status === 'approved'
+        ? `Approve the qualification document for ${profileName}?`
+        : `Reject the qualification document for ${profileName}?`;
+
+    if (!window.confirm(confirmationMessage)) {
+      return;
+    }
+
+    dispatch({ type: QUALIFICATION_DOCUMENT_REVIEW_RESET });
+    setLoadingStates((prev) => ({
+      ...prev,
+      reviewDocument: `${document._id}-${status}`,
+    }));
+
+    const reviewPayload =
+      status === 'approved'
+        ? { status: 'approved', rejectionReason: '' }
+        : {
+            status: 'rejected',
+            rejectionReason,
+          };
+
+    dispatch(
+      reviewQualificationDocumentAction(
+        document._id,
+        reviewPayload,
+        {
+          page: currentDocumentPage,
+          limit: QUALIFICATION_DOCUMENTS_PER_PAGE,
+          filters: getQualificationDocumentAdminFilters(documentStatusFilter),
+        },
+        {
+          page: currentPage,
+          limit: profilesPerPage,
+        },
+      ),
+    ).finally(() => {
+      setLoadingStates((prev) => ({
+        ...prev,
+        reviewDocument: null,
+      }));
+    });
+  };
+
+  const handleOpenRejectEditor = (document) => {
+    if (!document?._id) return;
+
+    setRejectValidationError('');
+    setRejectEditorDocumentId(document._id);
+    setRejectDraftByDocument((prev) => ({
+      ...prev,
+      [document._id]: prev[document._id] ?? document?.rejectionReason ?? '',
+    }));
+  };
+
+  const handleCancelRejectEditor = () => {
+    setRejectValidationError('');
+    setRejectEditorDocumentId(null);
+  };
+
+  const handleRejectDraftChange = (documentId, value) => {
+    setRejectDraftByDocument((prev) => ({
+      ...prev,
+      [documentId]: value,
+    }));
+    if (rejectValidationError) {
+      setRejectValidationError('');
+    }
+  };
+
+  const handleRejectSubmit = (document) => {
+    const reason = (rejectDraftByDocument[document?._id] || '').trim();
+
+    if (reason.length < REJECTION_REASON_MIN_LENGTH) {
+      setRejectValidationError(
+        `Rejection reason must be at least ${REJECTION_REASON_MIN_LENGTH} characters.`,
+      );
+      return;
+    }
+
+    if (reason.length > REJECTION_REASON_MAX_LENGTH) {
+      setRejectValidationError(
+        `Rejection reason must not exceed ${REJECTION_REASON_MAX_LENGTH} characters.`,
+      );
+      return;
+    }
+
+    handleQualificationDocumentReview(document, 'rejected', reason);
+    setRejectValidationError('');
+    setRejectEditorDocumentId(null);
   };
 
   const searchedProfiles = (profilesAdmin || []).filter((profile) => {
@@ -103,6 +312,33 @@ const AdminProfileView = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
+
+  const handleQualificationDocumentPageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= qualificationDocumentsPages) {
+      setCurrentDocumentPage(newPage);
+    }
+  };
+
+  const handleDocumentStatusFilterChange = (nextFilter) => {
+    if (documentStatusFilter === nextFilter) return;
+
+    setDocumentStatusFilter(nextFilter);
+    setCurrentDocumentPage(1);
+    setRejectEditorDocumentId(null);
+    setRejectValidationError('');
+  };
+
+  const prioritizedQualificationDocuments = [
+    ...(qualificationDocumentsAdmin || []),
+  ].sort((firstDocument, secondDocument) => {
+    const firstStatus = firstDocument?.status || '';
+    const secondStatus = secondDocument?.status || '';
+
+    if (firstStatus === secondStatus) return 0;
+    if (firstStatus === 'pending') return -1;
+    if (secondStatus === 'pending') return 1;
+    return 0;
+  });
 
   // Search
   const [newProfilesAdmin, setNewProfilesAdmin] = useState(profilesAdmin);
@@ -185,6 +421,315 @@ const AdminProfileView = () => {
                keyword ? `Found ${searchedProfiles.length} profile${searchedProfiles.length !== 1 ? 's' : ''} matching '${keyword}'` :
                `Showing ${searchedProfiles.length} profile${searchedProfiles.length !== 1 ? 's' : ''}`}
             </p>
+
+            <section className="qualification-review-section" aria-labelledby="qualification-review-heading">
+              <div className="qualification-review-header">
+                <div>
+                  <h2 id="qualification-review-heading">Qualification Documents</h2>
+                  <p>
+                    Pending documents are prioritised by default. Use the
+                    status filters to switch between pending, approved,
+                    rejected, or all active submissions.
+                  </p>
+                </div>
+                <span className="qualification-review-count">
+                  {qualificationDocumentsTotal}
+                  {' '}
+                  {documentStatusFilter === 'all'
+                    ? 'active'
+                    : getQualificationStatusLabel(documentStatusFilter).toLowerCase()}
+                  {' '}
+                  document{qualificationDocumentsTotal === 1 ? '' : 's'}
+                </span>
+              </div>
+              <div className="qualification-review-filters" role="group" aria-label="Qualification document status filters">
+                {QUALIFICATION_DOCUMENT_STATUS_FILTERS.map((filter) => (
+                  <button
+                    key={filter.value}
+                    type="button"
+                    className={`qualification-filter-btn ${
+                      documentStatusFilter === filter.value ? 'is-active' : ''
+                    }`.trim()}
+                    onClick={() =>
+                      handleDocumentStatusFilterChange(filter.value)
+                    }
+                    aria-pressed={documentStatusFilter === filter.value}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+
+              {qualificationDocumentReviewError ? (
+                <Message
+                  message={qualificationDocumentReviewError}
+                  variant="error"
+                  ariaLive="assertive"
+                />
+              ) : null}
+              {qualificationDocumentReviewSuccess ? (
+                <Message
+                  message={
+                    qualificationDocumentReviewMessage ||
+                    'Qualification document reviewed successfully'
+                  }
+                  variant="success"
+                  autoClose={6000}
+                  ariaLive="polite"
+                />
+              ) : null}
+              {qualificationDocumentsLoading ? (
+                <LoadingSpinner />
+              ) : qualificationDocumentsError ? (
+                <Message
+                  message={qualificationDocumentsError}
+                  variant="error"
+                  ariaLive="assertive"
+                />
+              ) : prioritizedQualificationDocuments.length === 0 ? (
+                <p className="qualification-review-empty">
+                  No
+                  {' '}
+                  {documentStatusFilter === 'all'
+                    ? 'active'
+                    : getQualificationStatusLabel(documentStatusFilter).toLowerCase()}
+                  {' '}
+                  qualification documents found in this queue.
+                </p>
+              ) : (
+                <>
+                  <div className="qualification-review-list">
+                    {prioritizedQualificationDocuments.map((document) => {
+                      const reviewStatus =
+                        document?.status || 'pending';
+                      const reviewTargetApprove =
+                        loadingStates.reviewDocument ===
+                        `${document?._id}-approved`;
+                      const reviewTargetReject =
+                        loadingStates.reviewDocument ===
+                        `${document?._id}-rejected`;
+                      const isReviewingDocument =
+                        loadingStates.reviewDocument?.startsWith(
+                          `${document?._id}-`,
+                        ) || false;
+                      const isRejectEditorOpenForDocument =
+                        rejectEditorDocumentId === document?._id;
+
+                      return (
+                        <article
+                          key={document?._id}
+                          className="qualification-review-card"
+                        >
+                          <div className="qualification-review-card-header">
+                            <div className="qualification-review-profile">
+                              <strong>
+                                {document?.profile?.name ||
+                                  document?.user?.name ||
+                                  'Unnamed profile'}
+                              </strong>
+                              <span>
+                                {document?.profile?.email ||
+                                  document?.user?.email ||
+                                  'No email available'}
+                              </span>
+                              {document?.profile?.telephoneNumber ? (
+                                <span>{document.profile.telephoneNumber}</span>
+                              ) : null}
+                            </div>
+                            <span
+                              className={`status-badge status-${reviewStatus}`}
+                            >
+                              <i
+                                className={`fa ${getQualificationStatusIcon(
+                                  reviewStatus,
+                                )}`}
+                                aria-hidden="true"
+                              ></i>
+                              {getQualificationStatusLabel(reviewStatus)}
+                            </span>
+                          </div>
+
+                          <div className="qualification-review-details">
+                            <div className="qualification-review-detail">
+                              <span>Document</span>
+                              <strong>
+                                {document?.originalFileName || 'Unknown file'}
+                              </strong>
+                            </div>
+                            <div className="qualification-review-detail">
+                              <span>Uploaded</span>
+                              <strong>
+                                {document?.createdAt
+                                  ? moment(document.createdAt).format(
+                                      'D MMM YYYY',
+                                    )
+                                  : 'Unknown'}
+                              </strong>
+                            </div>
+                            <div className="qualification-review-detail">
+                              <span>Profile Status</span>
+                              <strong>
+                                {getQualificationStatusLabel(
+                                  getProfileQualificationStatus(
+                                    document?.profile,
+                                  ),
+                                )}
+                              </strong>
+                            </div>
+                          </div>
+
+                          {document?.rejectionReason ? (
+                            <p className="qualification-review-reason">
+                              Reason:
+                              {' '}
+                              {document.rejectionReason}
+                            </p>
+                          ) : null}
+
+                          <div className="qualification-review-actions">
+                            <Button
+                              type="button"
+                              text={
+                                reviewTargetApprove
+                                  ? 'Approving...'
+                                  : 'Approve'
+                              }
+                              title="Approve qualification document"
+                              onClick={() =>
+                                handleQualificationDocumentReview(
+                                  document,
+                                  'approved',
+                                )
+                              }
+                              disabled={
+                                !document?._id ||
+                                isReviewingDocument ||
+                                isRejectEditorOpenForDocument ||
+                                reviewStatus === 'approved'
+                              }
+                            />
+                            <Button
+                              type="button"
+                              text={
+                                reviewTargetReject
+                                  ? 'Rejecting...'
+                                  : 'Reject'
+                              }
+                              title="Reject qualification document"
+                              onClick={() => handleOpenRejectEditor(document)}
+                              disabled={
+                                !document?._id ||
+                                isReviewingDocument ||
+                                isRejectEditorOpenForDocument ||
+                                reviewStatus === 'rejected'
+                              }
+                            />
+                          </div>
+                          {rejectEditorDocumentId === document?._id ? (
+                            <div className="qualification-reject-editor">
+                              <label
+                                className="qualification-reject-label"
+                                htmlFor={`rejection-reason-${document?._id}`}
+                              >
+                                Rejection reason
+                              </label>
+                              <textarea
+                                id={`rejection-reason-${document?._id}`}
+                                value={rejectDraftByDocument[document?._id] || ''}
+                                onChange={(event) =>
+                                  handleRejectDraftChange(
+                                    document?._id,
+                                    event.target.value,
+                                  )
+                                }
+                                maxLength={REJECTION_REASON_MAX_LENGTH}
+                                placeholder={`Provide actionable feedback (${REJECTION_REASON_MIN_LENGTH}-${REJECTION_REASON_MAX_LENGTH} characters).`}
+                                aria-describedby={`rejection-reason-help-${document?._id}`}
+                              ></textarea>
+                              <p
+                                className="qualification-reject-help"
+                                id={`rejection-reason-help-${document?._id}`}
+                              >
+                                {(rejectDraftByDocument[document?._id] || '').trim()
+                                  .length}
+                                /{REJECTION_REASON_MAX_LENGTH}
+                              </p>
+                              {rejectValidationError ? (
+                                <p
+                                  className="qualification-reject-error"
+                                  role="alert"
+                                >
+                                  {rejectValidationError}
+                                </p>
+                              ) : null}
+                              <div className="qualification-reject-actions">
+                                <button
+                                  type="button"
+                                  className="btn not-disabled"
+                                  onClick={() => handleRejectSubmit(document)}
+                                  disabled={isReviewingDocument}
+                                >
+                                  Submit Rejection
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn not-disabled"
+                                  onClick={handleCancelRejectEditor}
+                                  disabled={isReviewingDocument}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : null}
+                        </article>
+                      );
+                    })}
+                  </div>
+
+                  {qualificationDocumentsPages > 1 ? (
+                    <div className="qualification-review-pagination">
+                      <button
+                        type="button"
+                        className="pagination-btn"
+                        onClick={() =>
+                          handleQualificationDocumentPageChange(
+                            currentDocumentPage - 1,
+                          )
+                        }
+                        disabled={currentDocumentPage === 1}
+                      >
+                        Previous Documents
+                      </button>
+                      <span>
+                        Document page
+                        {' '}
+                        {qualificationDocumentsPage}
+                        {' '}
+                        of
+                        {' '}
+                        {qualificationDocumentsPages}
+                      </span>
+                      <button
+                        type="button"
+                        className="pagination-btn"
+                        onClick={() =>
+                          handleQualificationDocumentPageChange(
+                            currentDocumentPage + 1,
+                          )
+                        }
+                        disabled={
+                          currentDocumentPage === qualificationDocumentsPages
+                        }
+                      >
+                        Next Documents
+                      </button>
+                    </div>
+                  ) : null}
+                </>
+              )}
+            </section>
+
             <div className="admin-table-scroll">
               <table className="admin-table">
                 <thead className="admin-table-header">
@@ -233,9 +778,20 @@ const AdminProfileView = () => {
                         </div>
                       </td>
                       <td data-label="Status">
-                        <span className={`status-badge ${profile.isQualificationsVerified ? 'verified' : 'unverified'}`}>
-                          <i className={`fa ${profile.isQualificationsVerified ? 'fa-check' : 'fa-times'}`} aria-hidden="true"></i>
-                          {profile.isQualificationsVerified ? ' Verified' : ' Unverified'}
+                        <span
+                          className={`status-badge status-${getProfileQualificationStatus(
+                            profile,
+                          )}`}
+                        >
+                          <i
+                            className={`fa ${getQualificationStatusIcon(
+                              getProfileQualificationStatus(profile),
+                            )}`}
+                            aria-hidden="true"
+                          ></i>
+                          {getQualificationStatusLabel(
+                            getProfileQualificationStatus(profile),
+                          )}
                         </span>
                       </td>
                       <td data-label="Description">
@@ -260,13 +816,6 @@ const AdminProfileView = () => {
                       <td data-label="Updated">{moment(profile.updatedAt).fromNow()}</td>
                       <td data-label="Actions">
                         <div className="actions-cell">
-                          <Button
-                            text={loadingStates.verifyQualification === profile._id ? 'Verifying...' : 'Verify'}
-                            className="btn"
-                            title="Verify Qualifications"
-                            onClick={() => handleVerify(profile._id, profile.name)}
-                            disabled={!profile._id || loadingStates.verifyQualification === profile._id}
-                          />
                           <Button
                             text={loadingStates.deleteProfile === profile._id ? 'Deleting...' : 'Delete'}
                             className="btn btn-danger"
@@ -322,8 +871,14 @@ const AdminProfileView = () => {
                       <span>{profile.email}</span>
                     </div>
                     <div className="card-meta">
-                      <span className={`status-badge ${profile.isQualificationsVerified ? 'verified' : 'unverified'}`}>
-                        {profile.isQualificationsVerified ? 'Verified' : 'Unverified'}
+                      <span
+                        className={`status-badge status-${getProfileQualificationStatus(
+                          profile,
+                        )}`}
+                      >
+                        {getQualificationStatusLabel(
+                          getProfileQualificationStatus(profile),
+                        )}
                       </span>
                       <span className="rating-value">{profile.rating}</span>
                     </div>
@@ -372,13 +927,6 @@ const AdminProfileView = () => {
                       )}
 
                       <div className="card-actions">
-                        <Button
-                          text={loadingStates.verifyQualification === profile._id ? 'Verifying...' : 'Verify Qualifications'}
-                          className="btn"
-                          title="Verify Qualifications"
-                          onClick={() => handleVerify(profile._id, profile.name)}
-                          disabled={!profile._id || loadingStates.verifyQualification === profile._id}
-                        />
                         <Button
                           text={loadingStates.deleteProfile === profile._id ? 'Deleting...' : 'Delete Profile'}
                           className="btn btn-danger"

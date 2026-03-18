@@ -119,6 +119,325 @@
     align-items: center;
   }
 
+  .qualification-documents-section {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid $border-colour;
+    border-left: 3px solid $burnt-orange;
+    border-radius: 4px;
+    background-color: rgba(51, 51, 51, 0.28);
+  }
+
+  .qualification-documents-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+
+    h4 {
+      margin: 0 0 0.35rem;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.3rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+  }
+
+  .qualification-documents-copy {
+    margin: 0 0 0.75rem;
+    color: rgba($main-font-colour, 0.86);
+  }
+
+  .qualification-status-message {
+    margin-bottom: 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid $border-colour;
+    border-left: 3px solid $border-colour;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.03);
+
+    &.qualification-status-message-approved {
+      border-left-color: $success;
+      background-color: rgba($success, 0.08);
+    }
+
+    &.qualification-status-message-pending {
+      border-left-color: $warning;
+      background-color: rgba($warning, 0.08);
+    }
+
+    &.qualification-status-message-rejected {
+      border-left-color: $danger;
+      background-color: rgba($danger, 0.08);
+    }
+
+    &.qualification-status-message-none {
+      border-left-color: $burnt-orange;
+      background-color: rgba($burnt-orange, 0.06);
+    }
+  }
+
+  .qualification-status-message-title {
+    margin: 0 0 0.35rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .qualification-status-message-body,
+  .qualification-status-message-meta {
+    margin: 0;
+  }
+
+  .qualification-status-message-meta {
+    margin-top: 0.45rem;
+    color: rgba($main-font-colour, 0.86);
+  }
+
+  .qualification-upload-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 220px;
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    border: 2px dashed rgba($burnt-orange, 0.55);
+    border-radius: 6px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
+      rgba(12, 12, 12, 0.35);
+    text-align: center;
+    cursor: pointer;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease,
+      transform 160ms ease;
+
+    &:hover,
+    &:focus {
+      border-color: $burnt-orange;
+      background-color: rgba(255, 255, 255, 0.04);
+      outline: 2px solid rgba($burnt-orange, 0.22);
+      outline-offset: 3px;
+    }
+
+    &.drag-active {
+      border-color: $success;
+      background-color: rgba($success, 0.08);
+      transform: translateY(-1px);
+    }
+  }
+
+  .qualification-upload-title {
+    margin: 0;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.5rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .qualification-upload-subtitle {
+    margin: 0;
+    color: rgba($main-font-colour, 0.82);
+  }
+
+  .qualification-upload-help {
+    margin-top: 0;
+    text-align: center;
+  }
+
+  .qualification-upload-selection {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid $border-colour;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.03);
+
+    p {
+      margin: 0 0 0.35rem;
+    }
+  }
+
+  .qualification-upload-selection-label {
+    color: rgba($main-font-colour, 0.75);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .qualification-upload-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 220px;
+  }
+
+  .qualification-documents-list {
+    margin-top: 1rem;
+
+    h5 {
+      margin: 0 0 0.75rem;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.2rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+  }
+
+  .qualification-document-card {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    padding: 1rem;
+    border: 1px solid $border-colour;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.03);
+
+    &.is-active {
+      border-left: 3px solid $burnt-orange;
+      background-color: rgba($burnt-orange, 0.06);
+    }
+  }
+
+  .qualification-document-card-header {
+    display: flex;
+    flex: 1;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .qualification-document-file {
+    p {
+      margin: 0 0 0.35rem;
+    }
+  }
+
+  .qualification-document-file-name {
+    font-weight: 700;
+  }
+
+  .qualification-document-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  .qualification-document-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid $border-colour;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .qualification-document-badge-active {
+    color: $burnt-orange;
+    border-color: rgba($burnt-orange, 0.45);
+    background-color: rgba($burnt-orange, 0.1);
+  }
+
+  .qualification-document-badge-history {
+    color: rgba($main-font-colour, 0.78);
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .qualification-document-badge-status {
+    &.qualification-documents-status-approved {
+      color: $success;
+      border-color: rgba($success, 0.5);
+      background-color: rgba($success, 0.12);
+    }
+
+    &.qualification-documents-status-pending {
+      color: $warning;
+      border-color: rgba($warning, 0.5);
+      background-color: rgba($warning, 0.12);
+    }
+
+    &.qualification-documents-status-rejected {
+      color: $danger;
+      border-color: rgba($danger, 0.5);
+      background-color: rgba($danger, 0.12);
+    }
+
+    &.qualification-documents-status-none {
+      color: rgba($main-font-colour, 0.8);
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+  }
+
+  .qualification-document-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 180px;
+  }
+
+  .qualification-documents-overview {
+    display: grid;
+    gap: 0.5rem;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .qualification-documents-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 140px;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid $border-colour;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    &.qualification-documents-status-approved {
+      color: $success;
+      border-color: rgba($success, 0.5);
+      background-color: rgba($success, 0.12);
+    }
+
+    &.qualification-documents-status-pending {
+      color: $warning;
+      border-color: rgba($warning, 0.5);
+      background-color: rgba($warning, 0.12);
+    }
+
+    &.qualification-documents-status-rejected {
+      color: $danger;
+      border-color: rgba($danger, 0.5);
+      background-color: rgba($danger, 0.12);
+    }
+
+    &.qualification-documents-status-none {
+      color: rgba($main-font-colour, 0.8);
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+  }
+
 
   .search-algorithm {
     max-height: 200px;
@@ -130,7 +449,22 @@
   }
 
   // Status indicators for verification badges
+  .qualification-summary-status {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .status-label {
+    margin: 0;
+    color: rgba($main-font-colour, 0.74);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
   .status-item {
+    margin: 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -143,6 +477,18 @@
       color: $success;
     }
 
+    &.pending {
+      color: $warning;
+    }
+
+    &.rejected {
+      color: $danger;
+    }
+
+    &.not-submitted {
+      color: rgba($main-font-colour, 0.7);
+    }
+
     &.not-confirmed {
       color: $danger;
     }
@@ -151,6 +497,22 @@
   .status-text {
     font-weight: 500;
 
+    &.confirmed {
+      color: $success;
+    }
+
+    &.pending {
+      color: $warning;
+    }
+
+    &.rejected {
+      color: $danger;
+    }
+
+    &.not-submitted {
+      color: rgba($main-font-colour, 0.84);
+    }
+
     .confirmed + & {
       color: $success;
     }
@@ -158,6 +520,12 @@
     .not-confirmed + & {
       color: $danger;
     }
+  }
+
+  .status-detail {
+    margin: 0;
+    color: rgba($main-font-colour, 0.84);
+    line-height: 1.45;
   }
 
   // Textarea wrapper with error display
@@ -317,6 +685,45 @@
       .character-count {
         text-align: left;
       }
+    }
+
+    .qualification-documents-header {
+      flex-direction: column;
+    }
+
+    .qualification-documents-status {
+      min-width: 0;
+    }
+
+    .qualification-upload-dropzone {
+      min-height: 0;
+      padding: 1rem;
+    }
+
+    .qualification-upload-selection {
+      flex-direction: column;
+    }
+
+    .qualification-upload-actions {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .qualification-document-card {
+      flex-direction: column;
+    }
+
+    .qualification-document-card-header {
+      flex-direction: column;
+    }
+
+    .qualification-document-badges {
+      justify-content: flex-start;
+    }
+
+    .qualification-document-card-actions {
+      width: 100%;
+      min-width: 0;
     }
   }
 }

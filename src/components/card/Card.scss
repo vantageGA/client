@@ -43,6 +43,26 @@
       color: $light-orange;
       margin-bottom: 0.5rem;
     }
+    .qualification-verified-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.6rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(92, 184, 92, 0.7);
+      background-color: rgba(92, 184, 92, 0.16);
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: rgba(182, 239, 182, 1);
+    }
+
+    .qualification-verified-icon {
+      color: rgba(92, 184, 92, 1);
+      font-size: 0.9rem;
+    }
 
     > div {
       min-width: 0;

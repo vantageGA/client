@@ -50,6 +50,14 @@ import {
   profileImageReducer,
   profileImageDeleteReducer,
 } from './reducers/imageUploadReducers';
+import {
+  qualificationDocumentAdminListReducer,
+  qualificationDocumentDeleteReducer,
+  qualificationDocumentListReducer,
+  qualificationDocumentReplaceReducer,
+  qualificationDocumentReviewReducer,
+  qualificationDocumentUploadReducer,
+} from './reducers/qualificationDocumentReducers';
 
 import { cookiesReducer } from './reducers/cookiesReducer';
 import { stripeCheckoutReducer, stripeSubscriptionReducer } from './reducers/stripeReducers';
@@ -86,6 +94,12 @@ const reducer = combineReducers({
   profileImagesPublic: profileImagesPublicReducer,
   profileImageDelete: profileImageDeleteReducer,
   userProfileImage: userProfileImageReducer,
+  qualificationDocuments: qualificationDocumentListReducer,
+  qualificationDocumentUpload: qualificationDocumentUploadReducer,
+  qualificationDocumentReplace: qualificationDocumentReplaceReducer,
+  qualificationDocumentDelete: qualificationDocumentDeleteReducer,
+  qualificationDocumentsAdmin: qualificationDocumentAdminListReducer,
+  qualificationDocumentReview: qualificationDocumentReviewReducer,
   userReviewLogin: userReviewLoginReducer,
   userReviewId: userReviewIdReducer,
   userReviewerRegistration: userReviewerRegistrationReducer,
