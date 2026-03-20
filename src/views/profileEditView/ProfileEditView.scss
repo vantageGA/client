@@ -294,14 +294,15 @@
 
   .qualification-document-card {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
     gap: 1rem;
     margin-bottom: 0.75rem;
     padding: 1rem;
     border: 1px solid $border-colour;
     border-radius: 4px;
     background-color: rgba(255, 255, 255, 0.03);
+    overflow: hidden;
 
     &.is-active {
       border-left: 3px solid $burnt-orange;
@@ -311,39 +312,52 @@
 
   .qualification-document-card-header {
     display: flex;
-    flex: 1;
+    flex: 1 1 auto;
+    min-width: 0;
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
+    width: 100%;
   }
 
   .qualification-document-file {
+    min-width: 0;
+    flex: 1 1 16rem;
+
     p {
-      margin: 0 0 0.35rem;
+      margin: 0 0 0.25rem;
+      line-height: 1.4;
     }
   }
 
   .qualification-document-file-name {
     font-weight: 700;
+    margin-bottom: 0.45rem;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .qualification-document-badges {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
-    gap: 0.5rem;
+    flex: 0 1 auto;
+    align-items: flex-start;
+    gap: 0.4rem 0.5rem;
   }
 
   .qualification-document-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.3rem 0.7rem;
+    padding: 0.28rem 0.65rem;
     border: 1px solid $border-colour;
     border-radius: 999px;
-    font-size: 0.8rem;
+    font-size: 0.76rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.045em;
     text-transform: uppercase;
     white-space: nowrap;
   }
@@ -386,9 +400,18 @@
 
   .qualification-document-card-actions {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
     gap: 0.75rem;
-    min-width: 180px;
+    width: 100%;
+    max-width: none;
+
+    .btn {
+      flex: 1 1 0;
+      min-width: 0;
+      margin: 0;
+    }
   }
 
   .qualification-documents-overview {
@@ -667,6 +690,18 @@
   }
 }
 
+@media (max-width: 1180px) {
+  .profile-edit-wrapper {
+    .qualification-document-card-header {
+      flex-direction: column;
+    }
+
+    .qualification-document-badges {
+      justify-content: flex-start;
+    }
+  }
+}
+
 /* Responsive layout - makes a one column layout (100%) instead of a two-column layout (50%) */
 @media (max-width: 812px) {
   .profile-edit-wrapper {
@@ -724,6 +759,7 @@
     .qualification-document-card-actions {
       width: 100%;
       min-width: 0;
+      max-width: none;
     }
   }
 }
