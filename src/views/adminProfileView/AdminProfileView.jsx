@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
 import './AdminProfileView.scss';
 
 import {
@@ -82,6 +83,8 @@ const AdminProfileViewContent = () => {
   const [rejectEditorDocumentId, setRejectEditorDocumentId] = useState(null);
   const [rejectValidationError, setRejectValidationError] = useState('');
   const [rejectDraftByDocument, setRejectDraftByDocument] = useState({});
+  const [downloadError, setDownloadError] = useState('');
+  const [downloadErrorVersion, setDownloadErrorVersion] = useState(0);
   const profilesPerPage = 50;
 
   // Loading states for async actions
@@ -89,6 +92,7 @@ const AdminProfileViewContent = () => {
     deleteProfile: null,
     deleteReview: null,
     reviewDocument: null,
+    downloadDocument: null,
   });
 
   useEffect(() => {
@@ -134,6 +138,7 @@ const AdminProfileViewContent = () => {
     error: qualificationDocumentReviewError,
     message: qualificationDocumentReviewMessage,
   } = qualificationDocumentReviewState;
+  const { userInfo } = useSelector((state) => state.userLogin);
 
   const searchedProfiles = useMemo(() => {
     const normalizedKeyword = keyword.trim().toLowerCase();
@@ -262,6 +267,57 @@ const AdminProfileViewContent = () => {
         reviewDocument: null,
       }));
     });
+  };
+
+  const handleDownloadQualificationDocument = async (qualificationDocument) => {
+    if (!qualificationDocument?._id || !userInfo?.token) {
+      return;
+    }
+
+    setDownloadError('');
+    setLoadingStates((prev) => ({
+      ...prev,
+      downloadDocument: qualificationDocument._id,
+    }));
+
+    try {
+      const { data } = await axios.get(
+        `/api/profiles/admin/qualification-documents/${qualificationDocument._id}/download`,
+        {
+          responseType: 'blob',
+          headers: {
+            Authorization: `Bearer ${userInfo.token}`,
+          },
+        },
+      );
+
+      const downloadLink = window.document.createElement('a');
+      const objectUrl = window.URL.createObjectURL(data);
+
+      downloadLink.href = objectUrl;
+      downloadLink.download =
+        qualificationDocument.originalFileName || 'qualification-document';
+      downloadLink.rel = 'noopener noreferrer';
+      window.document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
+
+      window.setTimeout(() => {
+        window.URL.revokeObjectURL(objectUrl);
+      }, 1000);
+    } catch (error) {
+      setDownloadErrorVersion((prev) => prev + 1);
+      setDownloadError(
+        error?.response?.data?.message ||
+          error.message ||
+          'Failed to download qualification document',
+      );
+    } finally {
+      setLoadingStates((prev) => ({
+        ...prev,
+        downloadDocument: null,
+      }));
+    }
   };
 
   const handleOpenRejectEditor = (document) => {
@@ -454,6 +510,15 @@ const AdminProfileViewContent = () => {
                   ariaLive="polite"
                 />
               ) : null}
+              {downloadError ? (
+                <Message
+                  key={downloadErrorVersion}
+                  message={downloadError}
+                  variant="error"
+                  autoClose={6000}
+                  ariaLive="assertive"
+                />
+              ) : null}
               {qualificationDocumentsLoading ? (
                 <LoadingSpinner />
               ) : qualificationDocumentsError ? (
@@ -563,6 +628,22 @@ const AdminProfileViewContent = () => {
                           ) : null}
 
                           <div className="qualification-review-actions">
+                            <Button
+                              type="button"
+                              text={
+                                loadingStates.downloadDocument === document._id
+                                  ? 'Downloading...'
+                                  : 'Download'
+                              }
+                              title="Download certificate"
+                              onClick={() =>
+                                handleDownloadQualificationDocument(document)
+                              }
+                              disabled={
+                                !document?._id ||
+                                loadingStates.downloadDocument === document._id
+                              }
+                            />
                             <Button
                               type="button"
                               text={

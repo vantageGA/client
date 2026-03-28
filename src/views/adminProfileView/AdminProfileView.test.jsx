@@ -1,10 +1,21 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import React from 'react';
 import AdminProfileView from './AdminProfileView';
+
+const mockedAxios = vi.hoisted(() => ({
+  get: vi.fn(),
+}));
 
 const mockedActions = vi.hoisted(() => ({
   profilesAdminAction: vi.fn((page, limit) => ({
@@ -34,6 +45,10 @@ const mockedActions = vi.hoisted(() => ({
       },
     }),
   ),
+}));
+
+vi.mock('axios', () => ({
+  default: mockedAxios,
 }));
 
 vi.mock('../../store/actions/profileActions', () => ({
@@ -161,6 +176,7 @@ const renderView = (stateOverrides = {}) => {
 describe('AdminProfileView', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedAxios.get.mockReset();
   });
 
   afterEach(() => {
@@ -192,6 +208,53 @@ describe('AdminProfileView', () => {
         status: 'pending',
       },
     );
+  });
+
+  it('renders a certificate download action for qualification documents', async () => {
+    const clickSpy = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => {});
+    const createObjectUrlSpy = vi.fn(() => 'blob:certificate');
+    const revokeObjectUrlSpy = vi.fn();
+
+    Object.defineProperty(window.URL, 'createObjectURL', {
+      configurable: true,
+      value: createObjectUrlSpy,
+    });
+    Object.defineProperty(window.URL, 'revokeObjectURL', {
+      configurable: true,
+      value: revokeObjectUrlSpy,
+    });
+
+    mockedAxios.get.mockResolvedValue({
+      data: new Blob(['certificate'], { type: 'application/pdf' }),
+    });
+
+    renderView();
+
+    const reviewSection = screen
+      .getByRole('heading', { name: 'Qualification Documents' })
+      .closest('section');
+
+    fireEvent.click(
+      within(reviewSection).getByRole('button', { name: 'Download' }),
+    );
+
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        '/api/profiles/admin/qualification-documents/doc-1/download',
+        {
+          responseType: 'blob',
+          headers: {
+            Authorization: 'Bearer token',
+          },
+        },
+      );
+      expect(createObjectUrlSpy).toHaveBeenCalled();
+      expect(clickSpy).toHaveBeenCalled();
+    });
+
+    clickSpy.mockRestore();
   });
 
   it('changes the document queue filter and refetches with selected status', () => {
