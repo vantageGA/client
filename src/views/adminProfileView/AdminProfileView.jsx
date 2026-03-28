@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import './AdminProfileView.scss';
 
 import {
@@ -18,6 +17,7 @@ import {
 } from '../../store/constants/qualificationDocumentConstants';
 
 import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
+import AdminAccessGate from '../../components/adminAccessGate/AdminAccessGate';
 import Message from '../../components/message/Message';
 import Button from '../../components/button/Button';
 import SearchInput from '../../components/searchInput/SearchInput';
@@ -69,11 +69,11 @@ const getQualificationDocumentAdminFilters = (statusFilter) => ({
   ...(statusFilter !== 'all' ? { status: statusFilter } : {}),
 });
 
-const AdminProfileView = () => {
+const AdminProfileViewContent = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const [keyword, setKeyword] = useState('');
+  const [sortDirection, setSortDirection] = useState('none');
   const [expandedReviewsId, setExpandedReviewsId] = useState(null);
   const [expandedCardId, setExpandedCardId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -91,26 +91,11 @@ const AdminProfileView = () => {
     reviewDocument: null,
   });
 
-  // Search state
-  const [searching, setSearching] = useState(false);
-
-  // Logged in user Details saved in local storage
-  const userLogin = useSelector((state) => state.userLogin);
-  const { userInfo } = userLogin;
-
   useEffect(() => {
-    if (!userInfo) {
-      navigate('/');
-      return;
-    }
     dispatch(profilesAdminAction(currentPage, profilesPerPage));
-  }, [dispatch, navigate, userInfo, currentPage]);
+  }, [dispatch, currentPage]);
 
   useEffect(() => {
-    if (!userInfo) {
-      return;
-    }
-
     dispatch(
       qualificationDocumentsAdminAction(
         currentDocumentPage,
@@ -118,7 +103,7 @@ const AdminProfileView = () => {
         getQualificationDocumentAdminFilters(documentStatusFilter),
       ),
     );
-  }, [dispatch, userInfo, currentDocumentPage, documentStatusFilter]);
+  }, [dispatch, currentDocumentPage, documentStatusFilter]);
 
   useEffect(
     () => () => {
@@ -149,6 +134,35 @@ const AdminProfileView = () => {
     error: qualificationDocumentReviewError,
     message: qualificationDocumentReviewMessage,
   } = qualificationDocumentReviewState;
+
+  const searchedProfiles = useMemo(() => {
+    const normalizedKeyword = keyword.trim().toLowerCase();
+    const filteredProfiles = Array.isArray(profilesAdmin)
+      ? [...profilesAdmin].filter((profile) => {
+          if (!normalizedKeyword) {
+            return true;
+          }
+
+          return profile.name?.toLowerCase().includes(normalizedKeyword);
+        })
+      : [];
+
+    if (sortDirection === 'ratingUp') {
+      return filteredProfiles.sort(
+        (firstProfile, secondProfile) =>
+          Number(firstProfile.rating ?? 0) - Number(secondProfile.rating ?? 0),
+      );
+    }
+
+    if (sortDirection === 'ratingDown') {
+      return filteredProfiles.sort(
+        (firstProfile, secondProfile) =>
+          Number(secondProfile.rating ?? 0) - Number(firstProfile.rating ?? 0),
+      );
+    }
+
+    return filteredProfiles;
+  }, [keyword, profilesAdmin, sortDirection]);
 
   useEffect(() => {
     if (!qualificationDocumentReviewSuccess && !qualificationDocumentReviewError) {
@@ -298,14 +312,6 @@ const AdminProfileView = () => {
     setRejectEditorDocumentId(null);
   };
 
-  const searchedProfiles = (profilesAdmin || []).filter((profile) => {
-    if (keyword) {
-      return profile.name.toLowerCase().includes(keyword.toLowerCase());
-    } else {
-      return profilesAdmin;
-    }
-  });
-
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pages) {
       setCurrentPage(newPage);
@@ -341,48 +347,18 @@ const AdminProfileView = () => {
   });
 
   // Search
-  const [newProfilesAdmin, setNewProfilesAdmin] = useState(profilesAdmin);
   const handleSearch = (e) => {
     const value = e.target.value;
     setKeyword(value);
-    setSearching(true);
-
-    // Simulate search delay for better UX (remove in production)
-    setTimeout(() => {
-      setSearching(false);
-    }, 500);
   };
   const handleSearchClear = () => {
     setKeyword('');
   };
   //SearchInput
 
-  //sort
-  const sortByRatingUp = (a, b) => {
-    return parseInt(a.rating) - parseInt(b.rating);
-  };
-  const sortByRatingDown = (a, b) => {
-    return parseInt(b.rating) - parseInt(a.rating);
-  };
-
   const handleSort = (val) => {
-    const newProfilesAdmin = [...profilesAdmin];
-    switch (val) {
-      case 'ratingUp':
-        profilesAdmin.sort(sortByRatingUp);
-        break;
-      case 'ratingDown':
-        profilesAdmin.sort(sortByRatingDown);
-        break;
-      default:
-        return;
-    }
-    setNewProfilesAdmin(newProfilesAdmin);
+    setSortDirection(val);
   };
-
-  useEffect(() => {
-    setNewProfilesAdmin(newProfilesAdmin);
-  }, [newProfilesAdmin]);
 
   //sort
 
@@ -417,9 +393,9 @@ const AdminProfileView = () => {
             </div>
 
             <p>
-              {searching ? 'Searching...' :
-               keyword ? `Found ${searchedProfiles.length} profile${searchedProfiles.length !== 1 ? 's' : ''} matching '${keyword}'` :
-               `Showing ${searchedProfiles.length} profile${searchedProfiles.length !== 1 ? 's' : ''}`}
+              {keyword
+                ? `Found ${searchedProfiles.length} profile${searchedProfiles.length !== 1 ? 's' : ''} matching '${keyword}'`
+                : `Showing ${searchedProfiles.length} profile${searchedProfiles.length !== 1 ? 's' : ''}`}
             </p>
 
             <section className="qualification-review-section" aria-labelledby="qualification-review-heading">
@@ -742,6 +718,7 @@ const AdminProfileView = () => {
                         <button
                           onClick={() => handleSort('ratingUp')}
                           aria-label="Sort by rating ascending"
+                          aria-pressed={sortDirection === 'ratingUp'}
                           className="sort-button"
                           title="Sort ascending"
                         >
@@ -751,6 +728,7 @@ const AdminProfileView = () => {
                         <button
                           onClick={() => handleSort('ratingDown')}
                           aria-label="Sort by rating descending"
+                          aria-pressed={sortDirection === 'ratingDown'}
                           className="sort-button"
                           title="Sort descending"
                         >
@@ -985,5 +963,11 @@ const AdminProfileView = () => {
     </>
   );
 };
+
+const AdminProfileView = () => (
+  <AdminAccessGate>
+    <AdminProfileViewContent />
+  </AdminAccessGate>
+);
 
 export default AdminProfileView;

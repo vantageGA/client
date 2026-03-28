@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import './AdminUserView.scss';
 
 import {
@@ -10,12 +9,13 @@ import {
 } from '../../store/actions/userActions';
 
 import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
+import AdminAccessGate from '../../components/adminAccessGate/AdminAccessGate';
 import Message from '../../components/message/Message';
 import Button from '../../components/button/Button';
 
 import moment from 'moment';
 
-const AdminView = () => {
+const AdminUserViewContent = () => {
   const [showAdmin, setShowAdmin] = useState(false);
   const [expandedCardId, setExpandedCardId] = useState(null);
 
@@ -26,18 +26,10 @@ const AdminView = () => {
   });
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  // Logged in user Details saved in local storage
-  const userLogin = useSelector((state) => state.userLogin);
-  const { userInfo } = userLogin;
 
   useEffect(() => {
-    if (!userInfo) {
-      navigate('/');
-    }
     dispatch(usersAction());
-  }, [dispatch, navigate, userInfo]);
+  }, [dispatch]);
 
   const usersState = useSelector((state) => state.users);
   const { loading, error, userProfiles } = usersState;
@@ -217,4 +209,10 @@ const AdminView = () => {
   );
 };
 
-export default AdminView;
+const AdminUserView = () => (
+  <AdminAccessGate>
+    <AdminUserViewContent />
+  </AdminAccessGate>
+);
+
+export default AdminUserView;

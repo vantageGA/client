@@ -212,6 +212,112 @@ describe('AdminProfileView', () => {
     );
   });
 
+  it('filters profiles by the name search input', () => {
+    renderView({
+      profilesAdmin: {
+        loading: false,
+        error: null,
+        success: false,
+        profilesAdmin: [
+          buildProfile({
+            _id: 'profile-a',
+            name: 'Alpha Profile',
+            rating: 2.1,
+          }),
+          buildProfile({
+            _id: 'profile-b',
+            name: 'Beta Profile',
+            rating: 4.9,
+          }),
+          buildProfile({
+            _id: 'profile-c',
+            name: 'Charlie Profile',
+            rating: 3.4,
+          }),
+        ],
+        page: 1,
+        pages: 1,
+        total: 3,
+      },
+    });
+
+    fireEvent.change(screen.getByLabelText('SEARCH A NAME'), {
+      target: { value: 'Charlie' },
+    });
+
+    const table = screen.getByRole('table');
+    const bodyRows = within(table).getAllByRole('row').slice(1);
+
+    expect(bodyRows).toHaveLength(1);
+    expect(within(bodyRows[0]).getByText('Charlie Profile')).toBeTruthy();
+  });
+
+  it('sorts profiles by rating when the sort controls are used', () => {
+    renderView({
+      profilesAdmin: {
+        loading: false,
+        error: null,
+        success: false,
+        profilesAdmin: [
+          buildProfile({
+            _id: 'profile-a',
+            name: 'Alpha Profile',
+            rating: 2.1,
+          }),
+          buildProfile({
+            _id: 'profile-b',
+            name: 'Beta Profile',
+            rating: 4.9,
+          }),
+          buildProfile({
+            _id: 'profile-c',
+            name: 'Charlie Profile',
+            rating: 3.4,
+          }),
+        ],
+        page: 1,
+        pages: 1,
+        total: 3,
+      },
+    });
+
+    const table = screen.getByRole('table');
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Sort by rating ascending' }),
+    );
+
+    let bodyRows = within(table).getAllByRole('row').slice(1);
+    expect(within(bodyRows[0]).getByText('Alpha Profile')).toBeTruthy();
+    expect(within(bodyRows[1]).getByText('Charlie Profile')).toBeTruthy();
+    expect(within(bodyRows[2]).getByText('Beta Profile')).toBeTruthy();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Sort by rating descending' }),
+    );
+
+    bodyRows = within(table).getAllByRole('row').slice(1);
+    expect(within(bodyRows[0]).getByText('Beta Profile')).toBeTruthy();
+    expect(within(bodyRows[1]).getByText('Charlie Profile')).toBeTruthy();
+    expect(within(bodyRows[2]).getByText('Alpha Profile')).toBeTruthy();
+  });
+
+  it('blocks non-admin users before fetching admin data', () => {
+    renderView({
+      userLogin: {
+        userInfo: {
+          token: 'token',
+          isAdmin: false,
+        },
+      },
+    });
+
+    expect(screen.getByText('Not authorised as an ADMIN')).toBeTruthy();
+    expect(screen.queryByRole('table')).toBeNull();
+    expect(mockedActions.profilesAdminAction).not.toHaveBeenCalled();
+    expect(mockedActions.qualificationDocumentsAdminAction).not.toHaveBeenCalled();
+  });
+
   it('dispatches approve review with document and profile refresh options', () => {
     renderView();
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);

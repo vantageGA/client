@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 
 import './AdminReviewersView.scss';
 
@@ -10,12 +9,13 @@ import {
 } from '../../store/actions/userReviewActions';
 
 import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
+import AdminAccessGate from '../../components/adminAccessGate/AdminAccessGate';
 import Message from '../../components/message/Message';
 import Button from '../../components/button/Button';
 
 import moment from 'moment';
 
-const AdminReviewersView = () => {
+const AdminReviewersViewContent = () => {
   const [expandedCardId, setExpandedCardId] = useState(null);
 
   // Loading states for async actions
@@ -24,18 +24,10 @@ const AdminReviewersView = () => {
   });
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  // Logged in user Details saved in local storage
-  const userLogin = useSelector((state) => state.userLogin);
-  const { userInfo } = userLogin;
 
   useEffect(() => {
-    if (!userInfo) {
-      navigate('/');
-    }
     dispatch(userAdminReviewersDetailsAction());
-  }, [dispatch, navigate, userInfo]);
+  }, [dispatch]);
 
   const userAdminReviewersDetails = useSelector(
     (state) => state.userAdminReviewersDetails,
@@ -143,5 +135,11 @@ const AdminReviewersView = () => {
     </>
   );
 };
+
+const AdminReviewersView = () => (
+  <AdminAccessGate>
+    <AdminReviewersViewContent />
+  </AdminAccessGate>
+);
 
 export default AdminReviewersView;
