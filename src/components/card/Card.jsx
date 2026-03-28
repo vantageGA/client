@@ -1,6 +1,6 @@
 import React from 'react';
 import './Card.scss';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Rating from '../rating/Rating';
 import Button from '../button/Button';
 
@@ -45,15 +45,18 @@ const Card = ({
   profileClickCounter,
 }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const hasVerifiedQualification = isQualificationVerifiedForCard(
     qualificationVerificationStatus,
     isQualificationsVerified,
   );
 
   // Server auto-increments click counter by 1, no need to pass count
-  const handleProfileClickCounter = (_id) => {
-    if (!_id) return;
-    dispatch(profileClickCounterAction(_id));
+  const handleProfileClickCounter = () => {
+    if (!id) return;
+
+    dispatch(profileClickCounterAction(id));
+    navigate(`/fullProfile/${id}`);
   };
 
   return (
@@ -92,15 +95,14 @@ const Card = ({
           {email}
           {telephoneNumber}
           {profileClickCounter}
-          <Link className="link" to={`/fullProfile/${id}`}>
+          <div className="link">
             <Button
-              
+              type="button"
               text="VIEW FULL PROFILE"
-              className="btn link"
               disabled={false}
-              onClick={() => handleProfileClickCounter(id)}
+              onClick={handleProfileClickCounter}
             ></Button>
-          </Link>
+          </div>
         </div>
       </div>
     </div>

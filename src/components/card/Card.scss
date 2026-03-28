@@ -70,7 +70,7 @@
   }
 
   .link {
-    &:focus-visible {
+    .btn:focus-visible {
       outline: 2px solid $burnt-orange;
       outline-offset: 4px;
       border-radius: 2px;

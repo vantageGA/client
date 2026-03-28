@@ -286,7 +286,15 @@ export const profileImagesPublicReducer = (
 ) => {
   switch (action.type) {
     case PROFILE_IMAGES_PUBLIC_REQUEST:
-      return { ...state, loading: true };
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        profileImages: [],
+        page: 1,
+        pages: 1,
+        total: 0,
+      };
     case PROFILE_IMAGES__PUBLIC_SUCCESS:
       return {
         ...state,
@@ -294,10 +302,19 @@ export const profileImagesPublicReducer = (
         profileImages: action.payload.images,
         page: action.payload.page,
         pages: action.payload.pages,
-        total: action.payload.total
+        total: action.payload.total,
+        error: null,
       };
     case PROFILE_IMAGES__PUBLIC_FAILURE:
-      return { ...state, loading: false, error: action.payload };
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+        profileImages: [],
+        page: 1,
+        pages: 1,
+        total: 0,
+      };
 
     default:
       return { ...state };

@@ -1,20 +1,41 @@
 /* @vitest-environment jsdom */
 import { describe, expect, it, vi } from 'vitest';
 import { afterEach } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Card from './Card';
+
+const mockedActions = vi.hoisted(() => ({
+  dispatchSpy: vi.fn(),
+  navigateSpy: vi.fn(),
+  profileClickCounterAction: vi.fn(() => ({
+    type: 'PROFILE_CLICK_COUNTER_ACTION',
+  })),
+}));
 
 vi.mock('react-redux', async () => {
   const actual = await vi.importActual('react-redux');
   return {
     ...actual,
-    useDispatch: () => vi.fn(),
+    useDispatch: () => mockedActions.dispatchSpy,
   };
 });
 
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockedActions.navigateSpy,
+  };
+});
+
+vi.mock('../../store/actions/profileActions', () => ({
+  profileClickCounterAction: mockedActions.profileClickCounterAction,
+}));
+
 afterEach(() => {
   cleanup();
+  vi.clearAllMocks();
 });
 
 const renderCard = (props = {}) =>
@@ -59,5 +80,23 @@ describe('Card qualification badge treatment', () => {
     });
 
     expect(screen.getByText('Verified Professional')).toBeTruthy();
+  });
+
+  it('dispatches the click counter and navigates to the full profile', () => {
+    renderCard();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'VIEW FULL PROFILE' }),
+    );
+
+    expect(mockedActions.profileClickCounterAction).toHaveBeenCalledWith(
+      'profile-1',
+    );
+    expect(mockedActions.dispatchSpy).toHaveBeenCalledWith({
+      type: 'PROFILE_CLICK_COUNTER_ACTION',
+    });
+    expect(mockedActions.navigateSpy).toHaveBeenCalledWith(
+      '/fullProfile/profile-1',
+    );
   });
 });
