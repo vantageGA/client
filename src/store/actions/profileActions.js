@@ -51,6 +51,7 @@ export const profilesAction = (page = 1, limit = 20, filters = {}) => async (dis
     const params = new URLSearchParams({
       page,
       limit,
+      ...(filters.search && { search: filters.search }),
       ...(filters.location && { location: filters.location }),
       ...(filters.specialisation && { specialisation: filters.specialisation })
     });

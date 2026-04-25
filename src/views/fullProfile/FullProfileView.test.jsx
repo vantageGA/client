@@ -1,6 +1,6 @@
 /* @vitest-environment jsdom */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -139,6 +139,10 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+afterEach(() => {
+  cleanup();
+});
+
 describe('FullProfileView', () => {
   it('renders safely when reviews are missing and shows image loading state', async () => {
     renderView({
@@ -166,5 +170,36 @@ describe('FullProfileView', () => {
     expect(screen.getByText('Loading...')).toBeTruthy();
     expect(screen.getByAltText('Verified by Body Vantage')).toBeTruthy();
     expect(screen.queryByText('No images available')).toBeNull();
+  });
+
+  it('does not double-prefix existing website URLs in links or structured data', async () => {
+    renderView({
+      profileById: {
+        profile: buildProfile({ websiteUrl: 'https://example.com' }),
+      },
+      profileImagesPublic: {
+        loading: false,
+        error: null,
+        profileImages: [],
+      },
+    });
+
+    await waitFor(() => {
+      expect(mockedActions.profileByIdAction).toHaveBeenCalledWith('profile-1');
+    });
+
+    const websiteLink = screen
+      .getAllByRole('link')
+      .find((link) => link.getAttribute('href') === 'https://example.com');
+
+    expect(websiteLink.href).toBe('https://example.com/');
+    expect(
+      document.head.querySelector('script[type="application/ld+json"]')
+        ?.textContent,
+    ).toContain('"url":"https://example.com"');
+    expect(
+      document.head.querySelector('script[type="application/ld+json"]')
+        ?.textContent,
+    ).not.toContain('https://https://example.com');
   });
 });

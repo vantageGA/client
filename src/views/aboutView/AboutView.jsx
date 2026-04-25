@@ -3,11 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import BodyVantage from '../../components/bodyVantage/BodyVantage';
 import Button from '../../components/button/Button';
 import LinkComp from '../../components/linkComp/LinkComp';
+import PageMeta from '../../components/seo/PageMeta';
+import { buildBreadcrumbJsonLd, organizationJsonLd } from '../../config/seo';
 
 const AboutView = () => {
   const navigate = useNavigate();
   return (
     <div className="about-wrapper">
+      <PageMeta
+        title="Professional Verification Platform UK | Body Vantage"
+        description="Learn why Body Vantage verifies fitness, beauty, hair, barber, and wellbeing professionals across the UK to support trust and industry standards."
+        canonicalPath="/about"
+        jsonLd={[
+          organizationJsonLd,
+          buildBreadcrumbJsonLd([
+            { name: 'Home', path: '/' },
+            { name: 'About', path: '/about' },
+          ]),
+        ]}
+      />
       <fieldset className="fieldSet">
         <legend>About <BodyVantage /></legend>
 
@@ -44,6 +58,7 @@ const AboutView = () => {
           </p>
           <ul>
             <li>Fitness and personal training</li>
+            <li>Hairdressing and barbering</li>
             <li>Beauty and aesthetics</li>
             <li>Rehabilitation and physical therapy</li>
             <li>Massage, chiropractic, and manual therapies</li>

@@ -7,7 +7,7 @@ const faqs = [
   {
     id: 2,
     question: 'Who can join Body Vantage?',
-    answer: 'Body Vantage is open to individual professionals, whether they work independently or as part of a wider practice, provided they meet entry requirements and agree to platform standards.'
+    answer: 'Body Vantage is open to individual professionals, whether they work independently or as part of a wider practice, provided they meet entry requirements and agree to platform standards. This includes fitness professionals, barbers, hairdressers, beauty professionals, rehabilitation specialists, and wellbeing practitioners.'
   },
   {
     id: 3,
@@ -22,7 +22,7 @@ const faqs = [
   {
     id: 5,
     question: 'Are qualifications verified?',
-    answer: 'Members submit qualifications as part of registration. Verification status is shown transparently on profiles and may display as verified or in progress.'
+    answer: 'Members submit qualifications as part of registration. Verification status is shown transparently on profiles and may display as verified or in progress. The review process can apply to fitness certifications, therapy qualifications, hair and barbering certifications, and beauty or aesthetic training.'
   },
   {
     id: 6,
@@ -68,6 +68,16 @@ const faqs = [
     id: 14,
     question: 'Is Body Vantage right for everyone?',
     answer: 'Body Vantage is designed for professionals who value credibility, professional standards, and long-term trust. It may not be suitable for those seeking advertising, quick exposure, or guaranteed leads.'
+  },
+  {
+    id: 15,
+    question: 'Can clients find verified barbers, hairdressers, and beauty professionals?',
+    answer: 'Yes. Body Vantage is built to help clients find verified professionals across personal care, fitness, beauty, grooming, and wellbeing sectors. Profiles are structured around qualifications, expertise, professional focus, and clear service information.'
+  },
+  {
+    id: 16,
+    question: 'Why does professional verification matter?',
+    answer: 'Professional verification helps clients understand who is qualified and helps credible professionals stand out for the right reasons. It reduces guesswork by presenting verified qualifications and professional information clearly.'
   }
 ];
 

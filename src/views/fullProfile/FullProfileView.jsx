@@ -13,8 +13,14 @@ import Message from '../../components/message/Message';
 import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
 import ImageTooltip from '../../components/imageTooltip/ImageTooltip';
 import LinkComp from '../../components/linkComp/LinkComp';
+import PageMeta from '../../components/seo/PageMeta';
 import Rating from '../../components/rating/Rating';
 import Review from '../../components/review/Review';
+import {
+  buildAbsoluteUrl,
+  buildBreadcrumbJsonLd,
+  organizationJsonLd,
+} from '../../config/seo';
 
 import moment from 'moment';
 import DOMPurify from 'dompurify';
@@ -40,6 +46,18 @@ const sanitize = (value) =>
     ],
     ALLOWED_ATTR: ['href', 'target', 'rel'],
   });
+
+const stripHtml = (value) => (value || '').replace(/<[^>]*>/g, '').trim();
+
+const normalizeExternalUrl = (value) => {
+  const trimmed = (value || '').trim();
+
+  if (!trimmed) {
+    return '';
+  }
+
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+};
 
 const getPublicQualificationVerificationState = (profile) => {
   const status = (profile?.qualificationVerificationStatus || '')
@@ -122,9 +140,60 @@ const FullProfileView = () => {
   const reviewCount =
     typeof profile?.numReviews === 'number' ? profile.numReviews : reviews.length;
   const qualificationVerification = getPublicQualificationVerificationState(profile);
+  const primarySpecialisation = specialisations[0] || stripHtml(profile?.specialisation);
+  const profileTitle = profile?.name
+    ? `${profile.name}${primarySpecialisation ? ` | Verified ${primarySpecialisation}` : ''}${profile?.location ? ` in ${profile.location}` : ''} | Body Vantage`
+    : 'Verified Professional Profile | Body Vantage';
+  const profileDescription =
+    stripHtml(profile?.description).slice(0, 155) ||
+    `View ${profile?.name || 'this professional'} on Body Vantage, including qualifications, specialisations, reviews, and contact details.`;
+  const selectedProfileImage = publicProfileImages?.[0]?.avatar;
+  const websiteUrl = normalizeExternalUrl(profile?.websiteUrl);
+  const profileJsonLd = profile?.name
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'ProfilePage',
+        name: profileTitle,
+        url: buildAbsoluteUrl(`/fullProfile/${id}`),
+        mainEntity: {
+          '@type': 'Person',
+          name: profile.name,
+          description: profileDescription,
+          email: profile.email,
+          telephone: profile.telephoneNumber,
+          image: selectedProfileImage,
+          address: profile.location
+            ? {
+                '@type': 'PostalAddress',
+                addressLocality: profile.location,
+                addressCountry: 'GB',
+              }
+            : undefined,
+          jobTitle: primarySpecialisation || 'Verified professional',
+          url: websiteUrl || undefined,
+        },
+      }
+    : null;
 
   return (
     <div>
+      {!loading && !error && profile?.name ? (
+        <PageMeta
+          title={profileTitle}
+          description={profileDescription}
+          canonicalPath={`/fullProfile/${id}`}
+          image={selectedProfileImage}
+          type="profile"
+          jsonLd={[
+            organizationJsonLd,
+            buildBreadcrumbJsonLd([
+              { name: 'Home', path: '/' },
+              { name: profile.name, path: `/fullProfile/${id}` },
+            ]),
+            profileJsonLd,
+          ].filter(Boolean)}
+        />
+      ) : null}
       {loading ? (
         <LoadingSpinner />
       ) : (
@@ -337,13 +406,13 @@ const FullProfileView = () => {
                             </div>
                           </>
                         )}
-                        {!profile?.websiteUrl ? (
+                        {!websiteUrl ? (
                           <p>No website.</p>
                         ) : (
                           <p>
                             My website:{' '}
                             <a
-                              href={`https://${profile?.websiteUrl}`}
+                              href={websiteUrl}
                               target="_blank"
                               rel="noopener noreferrer"
                             >

@@ -9,8 +9,10 @@ import Button from '../../components/button/Button';
 import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
 import Message from '../../components/message/Message';
 import BodyVantage from '../../components/bodyVantage/BodyVantage';
+import PageMeta from '../../components/seo/PageMeta';
 import SocialLinks from '../../components/socialLinks/SocialLinks';
 import { isValidName, isValidEmail } from '../../utils/validation';
+import { buildBreadcrumbJsonLd, organizationJsonLd } from '../../config/seo';
 
 const ContactFormView = ({ type }) => {
   const dispatch = useDispatch();
@@ -54,6 +56,18 @@ const ContactFormView = ({ type }) => {
 
   return (
     <>
+      <PageMeta
+        title="Contact Body Vantage | Professional Verification UK"
+        description="Contact Body Vantage about UK professional verification, membership, profile support, or general enquiries."
+        canonicalPath="/contact"
+        jsonLd={[
+          organizationJsonLd,
+          buildBreadcrumbJsonLd([
+            { name: 'Home', path: '/' },
+            { name: 'Contact', path: '/contact' },
+          ]),
+        ]}
+      />
       {loading ? (
         <LoadingSpinner />
       ) : (

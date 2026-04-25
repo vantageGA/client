@@ -3,12 +3,26 @@ import { useNavigate } from 'react-router-dom';
 import BodyVantage from '../../components/bodyVantage/BodyVantage';
 import Button from '../../components/button/Button';
 import LinkComp from '../../components/linkComp/LinkComp';
+import PageMeta from '../../components/seo/PageMeta';
+import { buildBreadcrumbJsonLd, organizationJsonLd } from '../../config/seo';
 
 const PreRegistrationView = () => {
   const navigate = useNavigate();
 
   return (
     <div className="pre-registration-wrapper">
+      <PageMeta
+        title="Register as a Professional UK | Body Vantage"
+        description="Register as a fitness, barber, hairdresser, beauty, or wellbeing professional in the UK and build trust through Body Vantage verification."
+        canonicalPath="/pre-registration"
+        jsonLd={[
+          organizationJsonLd,
+          buildBreadcrumbJsonLd([
+            { name: 'Home', path: '/' },
+            { name: 'Become a Member', path: '/pre-registration' },
+          ]),
+        ]}
+      />
       <fieldset className="fieldSet">
         <legend>Become a Member</legend>
 
@@ -32,6 +46,7 @@ const PreRegistrationView = () => {
           </p>
           <ul>
             <li>Personal trainers and fitness professionals</li>
+            <li>Qualified barbers and hairdressers</li>
             <li>Beauticians and aesthetics practitioners</li>
             <li>Physiotherapists and rehabilitation specialists</li>
             <li>Massage therapists and chiropractors</li>
@@ -88,7 +103,8 @@ const PreRegistrationView = () => {
               <strong>Verified member status</strong>
               <span>
                 Recognition as a <BodyVantage /> professional following review
-                and approval.
+                and approval, including qualification verification for fitness,
+                barbering, hairdressing, beauty, and wellbeing disciplines.
               </span>
             </li>
             <li>

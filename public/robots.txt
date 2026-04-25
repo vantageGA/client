@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin-users
+Disallow: /admin-profiles
+Disallow: /admin-reviewers
+Disallow: /forgot-password
+Disallow: /login
+Disallow: /profile-edit
+Disallow: /registration
+Disallow: /reset-password
+Disallow: /reviewer-forgot-password
+Disallow: /reviewer-login
+Disallow: /reviewer-register
+Disallow: /reviewer-reset-password
+Disallow: /subscribe
+Disallow: /user-profile-edit
+Disallow: /verify-email
+Disallow: /verify-email-change
+
+Sitemap: https://www.bodyvantage.co.uk/sitemap.xml

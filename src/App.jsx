@@ -24,15 +24,19 @@ import ReviewerResetPassword from './views/reviewerResetPassword/ReviewerResetPa
 import CookiesView from './views/cookiesView/CookiesView';
 import PrivacyView from './views/privacyView/PrivacyView';
 import Cookies from './components/cookies/Cookies';
+import RouteMeta from './components/seo/RouteMeta';
 import AboutView from './views/aboutView/AboutView';
 import FaqsView from './views/faqsView/FaqsView';
 import PreRegistrationView from './views/preRegistrationView/PreRegistrationView';
+import SectorLandingView from './views/sectorLandingView/SectorLandingView';
 import SubscriptionOptions from './views/subscriptionView/SubscriptionOptions';
 import SubscriptionSuccess from './views/subscriptionView/SubscriptionSuccess';
 import SubscriptionCancel from './views/subscriptionView/SubscriptionCancel';
 
 // Change the display width by removing the --fluid after the container class
 const App = () => {
+  const privateElement = (element) => <RouteMeta>{element}</RouteMeta>;
+
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="container--fluid">
@@ -44,10 +48,14 @@ const App = () => {
 
             <Route
               path="/user-profile-edit"
-              element={<UserProfileEditView />}
+              element={privateElement(<UserProfileEditView />)}
               exact
             />
-            <Route path="/profile-edit" element={<ProfileEditView />} exact />
+            <Route
+              path="/profile-edit"
+              element={privateElement(<ProfileEditView />)}
+              exact
+            />
             <Route
               path="/fullProfile/:id"
               element={<FullProfileView />}
@@ -57,33 +65,89 @@ const App = () => {
             <Route path="/about" element={<AboutView />} />
             <Route path="/pre-registration" element={<PreRegistrationView />} />
             <Route path="/faq" element={<FaqsView />} />
+            <Route
+              path="/personal-trainers"
+              element={<SectorLandingView sectorSlug="personal-trainers" />}
+            />
+            <Route path="/barbers" element={<SectorLandingView sectorSlug="barbers" />} />
+            <Route
+              path="/hairdressers"
+              element={<SectorLandingView sectorSlug="hairdressers" />}
+            />
+            <Route
+              path="/beauty-professionals"
+              element={<SectorLandingView sectorSlug="beauty-professionals" />}
+            />
+            <Route
+              path="/wellbeing-practitioners"
+              element={<SectorLandingView sectorSlug="wellbeing-practitioners" />}
+            />
             <Route path="/cookies" element={<CookiesView />} />
             <Route path="/privacy" element={<PrivacyView />} />
-            <Route path="/login" element={<LoginFormView />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/registration" element={<RegistrationView />} />
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
-            <Route path="/verify-email" element={<VerifyEmail />} />
-            <Route path="/verify-email-change" element={<VerifyEmailChange />} />
-            <Route path="/admin-users" element={<AdminUserView />} />
-            <Route path="/admin-profiles" element={<AdminProfileView />} />
-            <Route path="/admin-reviewers" element={<AdminReviewersView />} />
-            <Route path="/reviewer-login" element={<ReviewerLoginView />} />
+            <Route path="/login" element={privateElement(<LoginFormView />)} />
+            <Route
+              path="/forgot-password"
+              element={privateElement(<ForgotPassword />)}
+            />
+            <Route
+              path="/registration"
+              element={privateElement(<RegistrationView />)}
+            />
+            <Route
+              path="/reset-password/:token"
+              element={privateElement(<ResetPassword />)}
+            />
+            <Route
+              path="/verify-email"
+              element={privateElement(<VerifyEmail />)}
+            />
+            <Route
+              path="/verify-email-change"
+              element={privateElement(<VerifyEmailChange />)}
+            />
+            <Route
+              path="/admin-users"
+              element={privateElement(<AdminUserView />)}
+            />
+            <Route
+              path="/admin-profiles"
+              element={privateElement(<AdminProfileView />)}
+            />
+            <Route
+              path="/admin-reviewers"
+              element={privateElement(<AdminReviewersView />)}
+            />
+            <Route
+              path="/reviewer-login"
+              element={privateElement(<ReviewerLoginView />)}
+            />
             <Route
               path="/reviewer-register"
-              element={<ReviewerRegisterView />}
+              element={privateElement(<ReviewerRegisterView />)}
             />
             <Route
               path="/reviewer-forgot-password"
-              element={<ReviewerForgotPassword />}
+              element={privateElement(<ReviewerForgotPassword />)}
             />
             <Route
               path="/reviewer-reset-password/:token"
-              element={<ReviewerResetPassword />}
+              element={privateElement(<ReviewerResetPassword />)}
             />
-            <Route path="/subscribe" element={<SubscriptionOptions />} exact />
-            <Route path="/subscribe/success" element={<SubscriptionSuccess />} exact />
-            <Route path="/subscribe/cancel" element={<SubscriptionCancel />} exact />
+            <Route
+              path="/subscribe"
+              element={privateElement(<SubscriptionOptions />)}
+              exact
+            />
+            <Route
+              path="/subscribe/success"
+              element={privateElement(<SubscriptionSuccess />)}
+              exact
+            />
+            <Route
+              path="/subscribe/cancel"
+              element={privateElement(<SubscriptionCancel />)}
+              exact
+            />
             <Route path="*" element={<ErrorView />} />
           </Routes>
         </div>

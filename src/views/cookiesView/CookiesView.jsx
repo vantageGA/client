@@ -1,9 +1,23 @@
 import React from 'react';
 import './CookiesView.scss';
+import PageMeta from '../../components/seo/PageMeta';
+import { buildBreadcrumbJsonLd, organizationJsonLd } from '../../config/seo';
 
 const CookiesView = () => {
   return (
     <div className="cookies-wrapper">
+      <PageMeta
+        title="Cookie Policy | Body Vantage"
+        description="Read the Body Vantage cookie policy for information about cookies and similar technologies used on the platform."
+        canonicalPath="/cookies"
+        jsonLd={[
+          organizationJsonLd,
+          buildBreadcrumbJsonLd([
+            { name: 'Home', path: '/' },
+            { name: 'Cookie Policy', path: '/cookies' },
+          ]),
+        ]}
+      />
       <fieldset className="fieldSet">
         <legend>Cookies Policy</legend>
         <h1>Cookie Policy for bodyvantage.co.uk</h1>

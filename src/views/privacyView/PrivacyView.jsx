@@ -1,9 +1,23 @@
 import React from 'react';
 import './PrivacyView.scss';
+import PageMeta from '../../components/seo/PageMeta';
+import { buildBreadcrumbJsonLd, organizationJsonLd } from '../../config/seo';
 
 const PrivacyView = () => {
   return (
     <div className="privacy-wrapper">
+      <PageMeta
+        title="Privacy Policy | Body Vantage"
+        description="Read the Body Vantage privacy policy for information about how the professional verification platform handles personal data."
+        canonicalPath="/privacy"
+        jsonLd={[
+          organizationJsonLd,
+          buildBreadcrumbJsonLd([
+            { name: 'Home', path: '/' },
+            { name: 'Privacy Policy', path: '/privacy' },
+          ]),
+        ]}
+      />
       <fieldset className="fieldSet">
         <legend>Privacy Policy</legend>
         <h1>Privacy Policy for Body Vantage Ltd</h1>

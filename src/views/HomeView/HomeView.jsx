@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { profilesAction } from '../../store/actions/profileActions';
 import './HomeView.scss';
 
@@ -8,20 +9,87 @@ import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
 import Message from '../../components/message/Message';
 import Card from '../../components/card/Card';
 import BodyVantage from '../../components/bodyVantage/BodyVantage';
+import Button from '../../components/button/Button';
+import PageMeta from '../../components/seo/PageMeta';
+import {
+  buildBreadcrumbJsonLd,
+  organizationJsonLd,
+  websiteJsonLd,
+} from '../../config/seo';
 
 const HomeView = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
+  const initialSearchTerm = searchParams.get('search') || '';
+  const [keyword, setKeyword] = useState(initialSearchTerm);
+  const [debouncedKeyword, setDebouncedKeyword] = useState(initialSearchTerm);
+  const lastSearchParamString = useRef(searchParams.toString());
+  const skipNextUrlWrite = useRef(false);
   const profilesPerPage = 20;
 
   useEffect(() => {
-    dispatch(profilesAction(currentPage, profilesPerPage));
-  }, [dispatch, currentPage]);
+    const timer = setTimeout(() => {
+      const nextKeyword = keyword.trim();
+      setDebouncedKeyword(nextKeyword);
+      setCurrentPage(1);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [keyword]);
+
+  useEffect(() => {
+    dispatch(
+      profilesAction(
+        currentPage,
+        profilesPerPage,
+        debouncedKeyword ? { search: debouncedKeyword } : {},
+      ),
+    );
+  }, [dispatch, currentPage, debouncedKeyword]);
+
+  useEffect(() => {
+    const currentSearchParamString = searchParams.toString();
+    const urlSearchTerm = searchParams.get('search') || '';
+
+    if (currentSearchParamString === lastSearchParamString.current) {
+      return;
+    }
+
+    lastSearchParamString.current = currentSearchParamString;
+
+    if (urlSearchTerm !== keyword) {
+      skipNextUrlWrite.current = true;
+      setKeyword(urlSearchTerm);
+    }
+  }, [keyword, searchParams]);
+
+  useEffect(() => {
+    if (skipNextUrlWrite.current) {
+      skipNextUrlWrite.current = false;
+      return;
+    }
+
+    const nextSearchParams = new URLSearchParams(searchParams);
+
+    if (debouncedKeyword) {
+      nextSearchParams.set('search', debouncedKeyword);
+    } else {
+      nextSearchParams.delete('search');
+    }
+
+    const nextSearchParamString = nextSearchParams.toString();
+
+    if (nextSearchParamString !== searchParams.toString()) {
+      lastSearchParamString.current = nextSearchParamString;
+      setSearchParams(nextSearchParams, { replace: true });
+    }
+  }, [debouncedKeyword, searchParams, setSearchParams]);
 
   const profilesState = useSelector((state) => state.profiles);
   const { loading, error, profiles, page, pages, total } = profilesState;
 
-  const [keyword, setKeyword] = useState('');
   const defaultHero =
     'linear-gradient(135deg, rgba(0,0,0,0.7), rgba(40,40,40,0.6))';
   // Store only an image URL; default gradient is applied separately so we always have a backdrop.
@@ -128,41 +196,9 @@ const HomeView = () => {
 
   const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-  const searchedProfiles = (profiles || []).filter((profile) => {
-    const searchTerms = keyword.trim().toLowerCase();
-
-    if (!searchTerms) return false;
-
-    // Get keywords array from profile
-    const keywords = Array.isArray(profile?.keywords)
-      ? profile.keywords.map(k => k.toLowerCase())
-      : [];
-
-    // Also include specialisation fields in searchable terms
-    const specialisations = [
-      profile?.specialisationOne,
-      profile?.specialisationTwo,
-      profile?.specialisationThree,
-      profile?.specialisationFour,
-      profile?.specialisation,
-      profile?.name,
-      profile?.location,
-    ]
-      .filter(Boolean)
-      .map(s => s.toLowerCase());
-
-    const allSearchableTerms = [...keywords, ...specialisations];
-
-    if (allSearchableTerms.length === 0) return false;
-
-    // Split search into individual words for multi-keyword matching
-    const searchWords = searchTerms.split(/\s+/).filter(word => word.length > 0);
-
-    // ALL search words must match at least one searchable term (exact match or contains)
-    return searchWords.every(searchWord =>
-      allSearchableTerms.some(term => term.includes(searchWord))
-    );
-  });
+  const visibleProfiles = profiles || [];
+  const isSearching = keyword.trim().length > 0;
+  const isSearchPending = keyword.trim() !== debouncedKeyword;
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pages) {
@@ -203,8 +239,17 @@ const HomeView = () => {
 
   return (
     <>
-      <section className="home-hero-section" aria-label="Trainer Search">
-        <h1 className="sr-only">Find a trainer near you</h1>
+      <PageMeta
+        title="Verified Fitness, Beauty & Wellbeing Professionals UK | Body Vantage"
+        description="Join or find verified fitness, hair, barber, and wellbeing professionals in the UK. Body Vantage helps qualified experts get recognised and trusted."
+        canonicalPath="/"
+        jsonLd={[
+          organizationJsonLd,
+          websiteJsonLd,
+          buildBreadcrumbJsonLd([{ name: 'Home', path: '/' }]),
+        ]}
+      />
+      <section className="home-hero-section" aria-label="Professional Search">
         {error && (
           <div role="alert" aria-live="assertive">
             <Message message={error} />
@@ -226,24 +271,65 @@ const HomeView = () => {
         >
           {keyword.length > 0 ? null : (
             <>
-              <div className="main-heading">
+              <div className="main-heading" aria-hidden="true">
                 <BodyVantage />
+              </div>
+              <div className="home-hero-copy">
+                <h1>Verified Professionals. Trusted by Clients.</h1>
+                <p>
+                  Body Vantage is the UK's professional registration and
+                  verification platform for fitness, beauty, and wellbeing
+                  professionals.
+                </p>
+                <p>
+                  From personal trainers to barbers and hairdressers, we help
+                  qualified professionals stand out and build trust instantly.
+                </p>
+                <nav
+                  className="home-sector-links"
+                  aria-label="Browse professional sectors"
+                >
+                  <Link to="/personal-trainers">Personal trainers</Link>
+                  <Link to="/barbers">Barbers</Link>
+                  <Link to="/hairdressers">Hairdressers</Link>
+                  <Link to="/beauty-professionals">Beauty professionals</Link>
+                  <Link to="/wellbeing-practitioners">Wellbeing practitioners</Link>
+                </nav>
+                <div className="home-hero-actions">
+                  <Button
+                    type="button"
+                    text="Get Registered"
+                    disabled={false}
+                    onClick={() => navigate('/pre-registration')}
+                    title="Get registered with Body Vantage"
+                  />
+                  <Button
+                    type="button"
+                    text="Verify My Qualifications"
+                    disabled={false}
+                    onClick={() => navigate('/login')}
+                    title="Log in to verify your qualifications"
+                  />
+                </div>
               </div>
             </>
           )}
 
-          <div className="search-input-position">
+          <div
+            className="search-input-position"
+            id="verified-professional-directory"
+          >
             <SearchInput
-              id="trainer-search"
+              id="professional-search"
               type="search"
               value={keyword}
               handleSearch={handleSearch}
-              placeholder="Search 'fat loss Guildford' for example"
-              ariaLabel="Search for trainers by specialty or location"
+              placeholder="Search 'barber', 'hairdresser', 'personal trainer' or a location"
+              ariaLabel="Search for verified professionals by specialty or location"
               ariaDescribedBy="search-hint"
             />
             <div id="search-hint" className="sr-only">
-              Enter keywords like 'fat loss', 'strength training' or location names
+              Enter keywords like barber, hairdresser, personal trainer, beauty professional or location names
             </div>
             {keyword.length > 0 ? (
               <div
@@ -252,10 +338,16 @@ const HomeView = () => {
                 aria-live="polite"
                 aria-atomic="true"
               >
-                <span className="keyword-length-highlight">
-                  {searchedProfiles.length}
-                </span>{' '}
-                {searchedProfiles.length === 1 ? 'profile' : 'profiles'} found that match your search criteria.
+                {isSearchPending ? (
+                  'Searching...'
+                ) : (
+                  <>
+                    <span className="keyword-length-highlight">
+                      {total || 0}
+                    </span>{' '}
+                    {total === 1 ? 'profile' : 'profiles'} found that match your search criteria.
+                  </>
+                )}
               </div>
             ) : null}
           </div>
@@ -263,13 +355,13 @@ const HomeView = () => {
           <div className="home-view">
             {keyword.length > 0 && (
               <div className="card-wrapper">
-                {loading ? (
+                {loading || isSearchPending ? (
                   <div className="loading-container">
                     <LoadingSpinner />
-                    <p>Loading trainers...</p>
+                    <p>Loading professionals...</p>
                   </div>
-                ) : searchedProfiles.length > 0 ? (
-                  searchedProfiles.map((profile) => (
+                ) : visibleProfiles.length > 0 ? (
+                  visibleProfiles.map((profile) => (
                     <div key={profile?._id}>
                       <Card
                         specialisationOne={profile?.specialisationOne || null}
@@ -296,15 +388,14 @@ const HomeView = () => {
                   ))
                 ) : (
                   <div className="no-results">
-                    <p>No trainers found matching "{keyword}"</p>
+                    <p>No professionals found matching "{keyword}"</p>
                     <p>Try adjusting your search criteria</p>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Pagination Controls - only show when not searching */}
-            {!keyword && pages > 1 && (
+            {pages > 1 && (
               <div className="pagination-wrapper">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
@@ -315,7 +406,8 @@ const HomeView = () => {
                 </button>
 
                 <span>
-                  Page {page} of {pages} ({total} total profiles)
+                  Page {page} of {pages} ({total} total{' '}
+                  {isSearching ? 'matching profiles' : 'profiles'})
                 </span>
 
                 <button
