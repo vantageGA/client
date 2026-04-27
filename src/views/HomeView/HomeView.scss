@@ -55,15 +55,27 @@
     border: 1px solid rgba(255, 255, 255, 0.65);
     border-radius: 4px;
     color: inherit;
+    font-size: 0.88rem;
     padding: 0.45rem 0.65rem;
     text-decoration: none;
+    text-transform: uppercase;
   }
 }
 
 .search-input-position {
   position: relative;
-  width: 60%;
+  width: 66%;
   margin: 0 auto;
+  padding: 0.15rem 0;
+
+  .search-input-wrapper {
+    input {
+      min-height: 54px;
+      background-color: rgba(0, 0, 0, 0.28);
+      border-color: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 0 0 1px rgba($burnt-orange, 0.12);
+    }
+  }
 }
 .home-image-wrapper {
   width: 20%;

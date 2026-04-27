@@ -271,46 +271,8 @@ const HomeView = () => {
         >
           {keyword.length > 0 ? null : (
             <>
-              <div className="main-heading" aria-hidden="true">
-                <BodyVantage />
-              </div>
               <div className="home-hero-copy">
                 <h1>Verified Professionals. Trusted by Clients.</h1>
-                <p>
-                  Body Vantage is the UK's professional registration and
-                  verification platform for fitness, beauty, and wellbeing
-                  professionals.
-                </p>
-                <p>
-                  From personal trainers to barbers and hairdressers, we help
-                  qualified professionals stand out and build trust instantly.
-                </p>
-                <nav
-                  className="home-sector-links"
-                  aria-label="Browse professional sectors"
-                >
-                  <Link to="/personal-trainers">Personal trainers</Link>
-                  <Link to="/barbers">Barbers</Link>
-                  <Link to="/hairdressers">Hairdressers</Link>
-                  <Link to="/beauty-professionals">Beauty professionals</Link>
-                  <Link to="/wellbeing-practitioners">Wellbeing practitioners</Link>
-                </nav>
-                <div className="home-hero-actions">
-                  <Button
-                    type="button"
-                    text="Get Registered"
-                    disabled={false}
-                    onClick={() => navigate('/pre-registration')}
-                    title="Get registered with Body Vantage"
-                  />
-                  <Button
-                    type="button"
-                    text="Verify My Qualifications"
-                    disabled={false}
-                    onClick={() => navigate('/login')}
-                    title="Log in to verify your qualifications"
-                  />
-                </div>
               </div>
             </>
           )}
@@ -351,6 +313,48 @@ const HomeView = () => {
               </div>
             ) : null}
           </div>
+
+          {keyword.length > 0 ? null : (
+            <>
+              <div className="home-hero-copy">
+                <p>
+                  <BodyVantage /> is the UK's professional registration and
+                  verification platform for fitness, beauty, and wellbeing
+                  professionals.
+                </p>
+                <p>
+                  From personal trainers to barbers and hairdressers, we help
+                  qualified professionals stand out and build trust instantly.
+                </p>
+                <nav
+                  className="home-sector-links"
+                  aria-label="Browse professional sectors"
+                >
+                  <Link to="/personal-trainers">Personal trainers</Link>
+                  <Link to="/barbers">Barbers</Link>
+                  <Link to="/hairdressers">Hairdressers</Link>
+                  <Link to="/beauty-professionals">Beauty professionals</Link>
+                  <Link to="/wellbeing-practitioners">Wellbeing practitioners</Link>
+                </nav>
+                <div className="home-hero-actions">
+                  <Button
+                    type="button"
+                    text="Get Registered"
+                    disabled={false}
+                    onClick={() => navigate('/pre-registration')}
+                    title="Get registered with Body Vantage"
+                  />
+                  <Button
+                    type="button"
+                    text="Verify My Qualifications"
+                    disabled={false}
+                    onClick={() => navigate('/login')}
+                    title="Log in to verify your qualifications"
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           <div className="home-view">
             {keyword.length > 0 && (

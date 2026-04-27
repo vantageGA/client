@@ -3,7 +3,7 @@
 
 .card-inner-wrapper {
   padding: 1rem;
-  background-color: rgba(51, 51, 51, 0.3);
+  background-color: $panel-bg-colour;
   flex: 1 1 calc(50% - 0.75rem);
   max-width: 600px;
   border: 1px solid $border-colour-light;

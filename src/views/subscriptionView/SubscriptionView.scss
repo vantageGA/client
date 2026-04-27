@@ -8,7 +8,7 @@
 
   .fieldSet {
     padding: 2rem;
-    background-color: transparent;
+    background-color: $panel-bg-colour;
     border-radius: 4px;
     border: 1px solid $border-colour-light;
     border-left: 3px solid $light-orange;
@@ -57,7 +57,7 @@
   .plan-card {
     position: relative;
     padding: 1.5rem;
-    background-color: rgba(51, 51, 51, 0.3);
+    background-color: $panel-bg-colour;
     border: 1px solid $border-colour-light;
     border-radius: 4px;
     text-align: center;
@@ -179,7 +179,7 @@
   .next-steps {
     margin: 2rem 0;
     padding: 1.5rem;
-    background-color: rgba(51, 51, 51, 0.3);
+    background-color: $panel-bg-colour;
     border-radius: 4px;
     text-align: left;
 
