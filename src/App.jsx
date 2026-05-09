@@ -1,4 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from 'react-router-dom';
+import { useEffect } from 'react';
 import './App.scss';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
@@ -33,12 +39,31 @@ import SubscriptionOptions from './views/subscriptionView/SubscriptionOptions';
 import SubscriptionSuccess from './views/subscriptionView/SubscriptionSuccess';
 import SubscriptionCancel from './views/subscriptionView/SubscriptionCancel';
 
+const ScrollToTop = () => {
+  const { pathname, search, hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      const target = document.getElementById(hash.replace('#', ''));
+      if (target) {
+        target.scrollIntoView({ block: 'start' });
+      }
+      return;
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [pathname, search, hash]);
+
+  return null;
+};
+
 // Change the display width by removing the --fluid after the container class
 const App = () => {
   const privateElement = (element) => <RouteMeta>{element}</RouteMeta>;
 
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <ScrollToTop />
       <div className="container--fluid">
         <Header />
         <div className="content-wrapper">
