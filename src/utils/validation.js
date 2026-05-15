@@ -10,9 +10,13 @@ export const emailRegEx =
 // Name validation regex - 2-100 chars, letters, spaces, hyphens, apostrophes only
 export const nameRegEx = /^[a-zA-Z\s'-]{2,100}$/;
 
+export const PASSWORD_SPECIAL_CHARACTERS = '@$!%*?&-';
+export const PASSWORD_MAX_LENGTH = 128;
+export const PASSWORD_REQUIREMENTS_TEXT = `Password must be 8-${PASSWORD_MAX_LENGTH} characters and contain uppercase, lowercase, number, and one special character (${PASSWORD_SPECIAL_CHARACTERS}).`;
+
 // Strong password validation - min 8 chars, uppercase, lowercase, number, special char
-// Backend requires: @$!%*?& as special chars
-export const passwordRegEx = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+// Keep this aligned with api/validators/userValidator.js.
+export const passwordRegEx = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&-])[A-Za-z\d@$!%*?&-]{8,128}$/;
 
 /**
  * Validate email format
@@ -60,7 +64,7 @@ export const getPasswordStrength = (password) => {
     hasUppercase: /[A-Z]/.test(password),
     hasLowercase: /[a-z]/.test(password),
     hasNumber: /\d/.test(password),
-    hasSpecial: /[@$!%*?&]/.test(password),
+    hasSpecial: /[@$!%*?&-]/.test(password),
   };
 
   const passedChecks = Object.values(checks).filter(Boolean).length;
@@ -102,6 +106,11 @@ export const getPasswordRequirements = (password = '') => {
       met: password.length >= 8,
     },
     {
+      id: 'maxLength',
+      label: `No more than ${PASSWORD_MAX_LENGTH} characters`,
+      met: password.length <= PASSWORD_MAX_LENGTH,
+    },
+    {
       id: 'hasUppercase',
       label: 'Contains uppercase letter',
       met: /[A-Z]/.test(password),
@@ -118,8 +127,8 @@ export const getPasswordRequirements = (password = '') => {
     },
     {
       id: 'hasSpecial',
-      label: 'Contains special character (@$!%*?&)',
-      met: /[@$!%*?&]/.test(password),
+      label: `Contains special character (${PASSWORD_SPECIAL_CHARACTERS})`,
+      met: /[@$!%*?&-]/.test(password),
     },
   ];
 };

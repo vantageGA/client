@@ -10,7 +10,10 @@ import LinkComp from '../../components/linkComp/LinkComp';
 import PasswordStrength from '../../components/passwordStrength/PasswordStrength';
 
 import { updateUserPasswordAction } from '../../store/actions/userActions';
-import { isValidPassword } from '../../utils/validation';
+import {
+  PASSWORD_REQUIREMENTS_TEXT,
+  isValidPassword,
+} from '../../utils/validation';
 
 const ResetPassword = () => {
   const params = useParams();
@@ -98,6 +101,7 @@ const ResetPassword = () => {
               name="password"
               value={password}
               required
+              hint={PASSWORD_REQUIREMENTS_TEXT}
               onBlur={() => handleBlur('password')}
               className={
                 touched.password && !isValidPassword(password) && password.length > 0
@@ -105,6 +109,11 @@ const ResetPassword = () => {
                   : password.length > 0
                   ? 'entered'
                   : ''
+              }
+              error={
+                touched.password && !isValidPassword(password) && password.length !== 0
+                  ? PASSWORD_REQUIREMENTS_TEXT
+                  : null
               }
               onChange={(e) => setPassword(e.target.value)}
               aria-invalid={touched.password && !isValidPassword(password)}
@@ -119,6 +128,7 @@ const ResetPassword = () => {
               name="confirmPassword"
               value={confirmPassword}
               required
+              hint="Must match the password above"
               onBlur={() => handleBlur('confirmPassword')}
               className={
                 touched.confirmPassword &&
@@ -128,6 +138,13 @@ const ResetPassword = () => {
                   : confirmPassword.length > 0
                   ? 'entered'
                   : ''
+              }
+              error={
+                touched.confirmPassword &&
+                !isValidPassword(confirmPassword) &&
+                confirmPassword.length !== 0
+                  ? PASSWORD_REQUIREMENTS_TEXT
+                  : null
               }
               onChange={(e) => setConfirmPassword(e.target.value)}
               aria-invalid={

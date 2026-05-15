@@ -18,17 +18,17 @@ import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
 import LinkComp from '../../components/linkComp/LinkComp';
 import PasswordStrength from '../../components/passwordStrength/PasswordStrength';
 import FormSectionAccordion from '../../components/formSectionAccordion/FormSectionAccordion';
-import { isValidName, isValidEmail, isValidPassword } from '../../utils/validation';
+import {
+  PASSWORD_REQUIREMENTS_TEXT,
+  isValidName,
+  isValidEmail,
+  isValidPassword,
+} from '../../utils/validation';
 
 const UserProfileEditView = () => {
   const nameRegEx = /^([\w])+\s+([\w\s])+$/i;
   const emailRegEx =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
-  // Fixed: Password regex now matches error message - alphanumeric only
-  const passwordRegEx = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{6,}$/;
-  const passwordConfirmRegEx =
-    /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{6,}$/;
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -55,7 +55,6 @@ const UserProfileEditView = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [openSection, setOpenSection] = useState('');
-  const [emailChanged, setEmailChanged] = useState(false);
   const [pendingFocusId, setPendingFocusId] = useState('');
 
   // Touched state for blur-triggered validation
@@ -99,8 +98,11 @@ const UserProfileEditView = () => {
   const isNameValid = nameRegEx.test(name);
   const isEmailValid = emailRegEx.test(email);
   const hidePassword = openSection !== 'password';
-  const isPasswordValid = !hidePassword && password.length > 0 ? passwordRegEx.test(password) : true;
-  const isConfirmValid = !hidePassword && confirmPassword.length > 0 ? password === confirmPassword && passwordRegEx.test(confirmPassword) : true;
+  const isPasswordValid = !hidePassword && password.length > 0 ? isValidPassword(password) : true;
+  const isConfirmValid =
+    !hidePassword && confirmPassword.length > 0
+      ? password === confirmPassword && isValidPassword(confirmPassword)
+      : true;
 
   // Show errors only after blur
   const showNameError = touched.name && !isNameValid && name.length !== 0;
@@ -181,7 +183,7 @@ const UserProfileEditView = () => {
       if (!isValidPassword(password)) {
         setOpenSection('password');
         setPendingFocusId('user-password');
-        showNotification('Password must be at least 8 characters and contain uppercase, lowercase, number, and special character (@$!%*?&)', 'error');
+        showNotification(PASSWORD_REQUIREMENTS_TEXT, 'error');
         return;
       }
 
@@ -221,7 +223,6 @@ const UserProfileEditView = () => {
     // Show appropriate success message
     if (emailHasChanged) {
       showNotification('Profile updated. Please check your email to verify your new email address.', 'success');
-      setEmailChanged(true);
     } else {
       showNotification('Profile updated successfully!', 'success');
     }
@@ -379,8 +380,9 @@ const UserProfileEditView = () => {
                     name="password"
                     value={password}
                     required={!hidePassword}
-                    hint="8+ characters: uppercase, lowercase, number, and special character (@$!%*?&)"
+                    hint={PASSWORD_REQUIREMENTS_TEXT}
                     className={password.length > 0 && !isValidPassword(password) ? 'invalid' : password.length > 0 ? 'entered' : ''}
+                    error={showPasswordError ? PASSWORD_REQUIREMENTS_TEXT : null}
                     onChange={(e) => setPassword(e.target.value)}
                     onBlur={() => handleBlur('password')}
                   />
@@ -396,6 +398,13 @@ const UserProfileEditView = () => {
                     required={!hidePassword}
                     hint="Must match new password field exactly"
                     className={confirmPassword.length > 0 && !isValidPassword(confirmPassword) ? 'invalid' : confirmPassword.length > 0 ? 'entered' : ''}
+                    error={
+                      showConfirmError
+                        ? password !== confirmPassword
+                          ? 'Passwords do not match'
+                          : PASSWORD_REQUIREMENTS_TEXT
+                        : null
+                    }
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     onBlur={() => handleBlur('confirmPassword')}
                   />

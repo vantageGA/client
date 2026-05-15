@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import './RegistrationView.scss';
 
 import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
@@ -9,12 +8,15 @@ import InputField from '../../components/inputField/InputField';
 import Button from '../../components/button/Button';
 import PasswordStrength from '../../components/passwordStrength/PasswordStrength';
 import MembershipProposition from '../../components/membershipProposition/MembershipProposition';
-import { registerAction } from '../../store/actions/userActions';
 import { createCheckoutSessionAction } from '../../store/actions/stripeActions';
-import { isValidName, isValidEmail, isValidPassword } from '../../utils/validation';
+import {
+  PASSWORD_REQUIREMENTS_TEXT,
+  isValidName,
+  isValidEmail,
+  isValidPassword,
+} from '../../utils/validation';
 
 const RegistrationView = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const nameInputRef = useRef(null);
 
@@ -22,14 +24,13 @@ const RegistrationView = () => {
   const { loading: registerLoading, error: registerError, success: registerSuccess, userInfo } = userRegistration;
 
   const stripeCheckout = useSelector((state) => state.stripeCheckout);
-  const { loading: checkoutLoading, error: checkoutError, success: checkoutSuccess } = stripeCheckout;
+  const { loading: checkoutLoading, error: checkoutError } = stripeCheckout;
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState(null);
-  const [registrationConfirmation, setRegistrationConfirmation] = useState('');
   const [touched, setTouched] = useState({
     name: false,
     email: false,
@@ -38,17 +39,13 @@ const RegistrationView = () => {
   });
   const [selectedPlan, setSelectedPlan] = useState('monthly');
 
-  useEffect(() => {
-    if (userInfo && userInfo !== undefined) {
-      const warn =
-        userInfo.message ||
-        userInfo.name +
-          ' your profile is created.' +
-          ' You should have received an email with a link asking to confirm your email address.' +
-          ' Please do this before logging in, in order to give you full functionality.';
-      setRegistrationConfirmation(warn);
-    }
-  }, [userInfo, navigate]);
+  const registrationConfirmation = userInfo
+    ? userInfo.message ||
+      userInfo.name +
+        ' your profile is created.' +
+        ' You should have received an email with a link asking to confirm your email address.' +
+        ' Please do this before logging in, in order to give you full functionality.'
+    : '';
 
   const handleBlur = (field) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
@@ -166,6 +163,7 @@ const RegistrationView = () => {
               name="password"
               value={password}
               required
+              hint={PASSWORD_REQUIREMENTS_TEXT}
               onBlur={() => handleBlur('password')}
               className={
                 touched.password &&
@@ -175,6 +173,11 @@ const RegistrationView = () => {
                   : password.length > 0
                   ? 'entered'
                   : ''
+              }
+              error={
+                touched.password && !isValidPassword(password) && password.length !== 0
+                  ? PASSWORD_REQUIREMENTS_TEXT
+                  : null
               }
               onChange={(e) => setPassword(e.target.value)}
               aria-invalid={touched.password && !isValidPassword(password)}
@@ -189,6 +192,7 @@ const RegistrationView = () => {
               name="confirmPassword"
               value={confirmPassword}
               required
+              hint="Must match the password above"
               onBlur={() => handleBlur('confirmPassword')}
               className={
                 touched.confirmPassword &&
@@ -198,6 +202,13 @@ const RegistrationView = () => {
                   : confirmPassword.length > 0
                   ? 'entered'
                   : ''
+              }
+              error={
+                touched.confirmPassword &&
+                !isValidPassword(confirmPassword) &&
+                confirmPassword.length !== 0
+                  ? PASSWORD_REQUIREMENTS_TEXT
+                  : null
               }
               onChange={(e) => setConfirmPassword(e.target.value)}
               aria-invalid={

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import './ReviewerRegisterView.scss';
 
@@ -9,7 +9,12 @@ import Message from '../../components/message/Message';
 import InputField from '../../components/inputField/InputField';
 import Button from '../../components/button/Button';
 import LinkComp from '../../components/linkComp/LinkComp';
-import { isValidEmail, isValidName, isValidPassword } from '../../utils/validation';
+import {
+  PASSWORD_REQUIREMENTS_TEXT,
+  isValidEmail,
+  isValidName,
+  isValidPassword,
+} from '../../utils/validation';
 
 const ReviewerRegisterView = () => {
   const dispatch = useDispatch();
@@ -28,7 +33,6 @@ const ReviewerRegisterView = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState(null);
-  const [registrationConfirmation, setRegistrationConfirmation] = useState('');
   const [touched, setTouched] = useState({
     name: false,
     email: false,
@@ -36,16 +40,12 @@ const ReviewerRegisterView = () => {
     confirmPassword: false,
   });
 
-  useEffect(() => {
-    if (userReviewerInfo && userReviewerInfo !== undefined) {
-      const warn =
-        userReviewerInfo.name +
-        ' your profile is created.' +
-        ' You will receive an email with a link asking to confirm your email address.' +
-        ' You will need to confirm your email in order to login.';
-      setRegistrationConfirmation(warn);
-    }
-  }, [userReviewerInfo]);
+  const registrationConfirmation = userReviewerInfo
+    ? userReviewerInfo.name +
+      ' your profile is created.' +
+      ' You will receive an email with a link asking to confirm your email address.' +
+      ' You will need to confirm your email in order to login.'
+    : '';
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -144,7 +144,7 @@ const ReviewerRegisterView = () => {
               name="password"
               value={password}
               required
-              hint="Minimum 6 characters: 1 uppercase, 1 lowercase, 1 number, 1 special character"
+              hint={PASSWORD_REQUIREMENTS_TEXT}
               className={
                 touched.password && !isValidPassword(password) && password.length > 0
                   ? 'invalid'
@@ -154,7 +154,7 @@ const ReviewerRegisterView = () => {
               }
               error={
                 touched.password && !isValidPassword(password) && password.length !== 0
-                  ? `Password must contain at least 1 Capital letter, 1 number and 1 special character.`
+                  ? PASSWORD_REQUIREMENTS_TEXT
                   : null
               }
               onChange={(e) => setPassword(e.target.value)}
@@ -183,7 +183,7 @@ const ReviewerRegisterView = () => {
                 touched.confirmPassword &&
                 !isValidPassword(confirmPassword) &&
                 confirmPassword.length !== 0
-                  ? `Password must contain at least 1 Capital letter, 1 number and 1 special character.`
+                  ? PASSWORD_REQUIREMENTS_TEXT
                   : null
               }
               onChange={(e) => setConfirmPassword(e.target.value)}
