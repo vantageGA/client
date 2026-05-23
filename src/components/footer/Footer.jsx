@@ -1,6 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './Footer.scss';
 import DateTime from '../dateTime/DateTime';
+import logo from '../../assets/logo/logo.svg';
 
 const formatBuildVersion = (value) => {
   const normalizedVersion = value ? value.trim() : '';
@@ -43,12 +45,34 @@ const Footer = () => {
   return (
     <footer>
       <div className="footer-wrapper">
-        <DateTime />
-        {buildDetails ? (
-          <div className="footer-build">Build {buildDetails}</div>
-        ) : null}
-        <div className="footer-copyright">
-          Copyright &copy; {new Date().getFullYear()} Body-Vantage
+        <div className="footer-brand">
+          <Link to="/" className="footer-logo-link" aria-label="Body Vantage home">
+            <img src={logo} alt="" aria-hidden="true" />
+          </Link>
+          <div className="footer-brand-copy">
+            <p className="footer-brand-name">Body Vantage</p>
+            <p className="footer-brand-line">Professional verification for trust-led services.</p>
+          </div>
+        </div>
+
+        <nav className="footer-nav" aria-label="Footer navigation">
+          <Link to="/about">Info</Link>
+          <Link to="/contact">Contact</Link>
+          <Link to="/faq">FAQ</Link>
+          <Link to="/privacy">Privacy</Link>
+          <Link to="/cookies">Cookies</Link>
+        </nav>
+
+        <div className="footer-meta">
+          <div className="footer-time">
+            <DateTime />
+          </div>
+          {buildDetails ? (
+            <div className="footer-build">Build {buildDetails}</div>
+          ) : null}
+          <div className="footer-copyright">
+            Copyright &copy; {new Date().getFullYear()} Body-Vantage
+          </div>
         </div>
       </div>
     </footer>
