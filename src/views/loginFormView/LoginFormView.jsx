@@ -53,7 +53,7 @@ const LoginFormView = () => {
   };
 
   return (
-    <div className="login-form-wrapper">
+    <main className="login-form-wrapper">
       {error ? <Message message={error} variant="error" /> : null}
 
       {showEmailVerificationMessage && (
@@ -66,75 +66,98 @@ const LoginFormView = () => {
       {loading ? (
         <LoadingSpinner />
       ) : (
-        <fieldset className="fieldSet">
-          <legend>
-            Member <span>Login</span>
-          </legend>
-          <form onSubmit={handleSubmit} noValidate>
-            <InputField
-              id="login-email"
-              label="Email"
-              type="email"
-              name="email"
-              value={email}
-              required
-              onChange={(e) => setEmail(e.target.value)}
-              onBlur={() => handleBlur('email')}
-              className={
-                touched.email && email.length > 0 && !isValidEmail(email)
-                  ? 'invalid'
-                  : email.length > 0
-                  ? 'entered'
-                  : ''
-              }
-              error={
-                touched.email &&
-                !isValidEmail(email) &&
-                email.length !== 0
-                  ? `Invalid email address.`
-                  : null
-              }
-              aria-invalid={touched.email && !isValidEmail(email)}
-            />
-            <InputField
-              id="login-password"
-              label="Password"
-              type="password"
-              name="password"
-              value={password}
-              required
-              onBlur={() => handleBlur('password')}
-              className={
-                touched.password && !password.length
-                  ? 'invalid'
-                  : password.length > 0
-                  ? 'entered'
-                  : ''
-              }
-              error={
-                touched.password && password.length === 0
-                  ? `Password cannot be empty`
-                  : null
-              }
-              onChange={(e) => setPassword(e.target.value)}
-              aria-invalid={touched.password && !password.length}
-            />
+        <article className="login-panel" aria-labelledby="login-title">
+          <header className="login-hero">
+            <p className="login-kicker">Login</p>
+            <h1 id="login-title">
+              Member <span>Login</span>
+            </h1>
+          </header>
 
-            <Button
-              
-              text="Login"
-              className="btn"
-              disabled={!password.length || !isValidEmail(email)}
-            ></Button>
-          </form>
-        </fieldset>
+          <div className="login-layout">
+            <section className="login-context" aria-label="Member access">
+              <div className="section-heading">
+                <span>01</span>
+                <h2>Member Access</h2>
+              </div>
+              <p>
+                Sign in to manage your professional profile, membership details,
+                and verification information.
+              </p>
+            </section>
+
+            <section className="login-form-panel" aria-label="Member login form">
+              <div className="section-heading">
+                <span>02</span>
+                <h2>Credentials</h2>
+              </div>
+              <form onSubmit={handleSubmit} noValidate>
+                <InputField
+                  id="login-email"
+                  label="Email"
+                  type="email"
+                  name="email"
+                  value={email}
+                  required
+                  onChange={(e) => setEmail(e.target.value)}
+                  onBlur={() => handleBlur('email')}
+                  className={
+                    touched.email && email.length > 0 && !isValidEmail(email)
+                      ? 'invalid'
+                      : email.length > 0
+                      ? 'entered'
+                      : ''
+                  }
+                  error={
+                    touched.email &&
+                    !isValidEmail(email) &&
+                    email.length !== 0
+                      ? `Invalid email address.`
+                      : null
+                  }
+                  aria-invalid={touched.email && !isValidEmail(email)}
+                />
+                <InputField
+                  id="login-password"
+                  label="Password"
+                  type="password"
+                  name="password"
+                  value={password}
+                  required
+                  onBlur={() => handleBlur('password')}
+                  className={
+                    touched.password && !password.length
+                      ? 'invalid'
+                      : password.length > 0
+                      ? 'entered'
+                      : ''
+                  }
+                  error={
+                    touched.password && password.length === 0
+                      ? `Password cannot be empty`
+                      : null
+                  }
+                  onChange={(e) => setPassword(e.target.value)}
+                  aria-invalid={touched.password && !password.length}
+                />
+
+                <Button
+                  type="submit"
+                  text="Login"
+                  className="btn"
+                  disabled={!password.length || !isValidEmail(email)}
+                ></Button>
+              </form>
+            </section>
+          </div>
+        </article>
       )}
 
       <div className="login-form-inner-wrapper">
         <LinkComp route="registration" routeName="Register" />
         <LinkComp route="forgot-password" routeName="Forgot Password" />
       </div>
-    </div>
+    </main>
   );
 };
 

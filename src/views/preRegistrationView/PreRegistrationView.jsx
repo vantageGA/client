@@ -10,7 +10,7 @@ const PreRegistrationView = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="pre-registration-wrapper">
+    <main className="pre-registration-wrapper">
       <PageMeta
         title="Register as a Professional UK | Body Vantage"
         description="Register as a fitness, barber, hairdresser, beauty, or wellbeing professional in the UK and build trust through Body Vantage verification."
@@ -23,197 +23,237 @@ const PreRegistrationView = () => {
           ]),
         ]}
       />
-      <fieldset className="fieldSet">
-        <legend>Become a Member</legend>
+      <article className="pre-registration-panel" aria-labelledby="pre-registration-title">
+        <header className="pre-registration-hero">
+          <p className="pre-registration-kicker">Membership</p>
+          <h1 id="pre-registration-title">Become a Member</h1>
+        </header>
 
-        <p>
-          <BodyVantage /> membership is designed for individual professionals
-          working across fitness, beauty, rehabilitation, and wellbeing. Whether
-          you operate independently, are self-employed, or work as part of a
-          wider team, membership recognises you as a professional, not a
-          business listing.
-        </p>
-
-        <p>
-          Joining <BodyVantage /> confirms your commitment to verified
-          expertise, professional conduct, and recognised standards.
-        </p>
-
-        <div className="content-section">
-          <h3>Who Membership Is For</h3>
+        <div className="pre-registration-intro">
           <p>
-            <BodyVantage /> supports individual practitioners including:
+            <BodyVantage /> membership is designed for individual professionals
+            working across fitness, beauty, rehabilitation, and wellbeing. Whether
+            you operate independently, are self-employed, or work as part of a
+            wider team, membership recognises you as a professional, not a
+            business listing.
           </p>
-          <ul>
-            <li>Personal trainers and fitness professionals</li>
-            <li>Qualified barbers and hairdressers</li>
-            <li>Beauticians and aesthetics practitioners</li>
-            <li>Physiotherapists and rehabilitation specialists</li>
-            <li>Massage therapists and chiropractors</li>
-            <li>Wellbeing and holistic practitioners</li>
-          </ul>
+
           <p>
-            Membership is open to professionals who value credibility,
-            accountability, and long-term trust over visibility alone.
+            Joining <BodyVantage /> confirms your commitment to verified
+            expertise, professional conduct, and recognised standards.
           </p>
         </div>
 
-        <div className="content-section">
-          <h3>Why Join <BodyVantage /></h3>
-          <p>As a registered member, you benefit from:</p>
-          <ul className="detailed-list">
-            <li>
-              <strong>Individual professional recognition</strong>
-              <span>
-                Membership confirms that you meet <BodyVantage />{' '}
-                standards for qualifications, conduct, and professional
-                alignment.
-              </span>
-            </li>
-            <li>
-              <strong>Increased client confidence</strong>
-              <span>
-                Being a registered member helps potential clients feel reassured
-                before making contact.
-              </span>
-            </li>
-            <li>
-              <strong>Clear, professional representation</strong>
-              <span>
-                Your profile is structured to communicate your expertise
-                accurately, without reliance on marketing language or
-                self-promotion.
-              </span>
-            </li>
-            <li>
-              <strong>Alignment with a trusted network</strong>
-              <span>
-                Join a recognised community of professionals committed to
-                maintaining standards within their industry.
-              </span>
-            </li>
-          </ul>
-        </div>
+        <div className="pre-registration-sections">
+          <section className="content-section">
+            <div className="section-heading">
+              <span>01</span>
+              <h2>Who Membership Is For</h2>
+            </div>
+            <div className="section-copy">
+              <p>
+                <BodyVantage /> supports individual practitioners including:
+              </p>
+              <ul>
+                <li>Personal trainers and fitness professionals</li>
+                <li>Qualified barbers and hairdressers</li>
+                <li>Beauticians and aesthetics practitioners</li>
+                <li>Physiotherapists and rehabilitation specialists</li>
+                <li>Massage therapists and chiropractors</li>
+                <li>Wellbeing and holistic practitioners</li>
+              </ul>
+              <p>
+                Membership is open to professionals who value credibility,
+                accountability, and long-term trust over visibility alone.
+              </p>
+            </div>
+          </section>
 
-        <div className="content-section">
-          <h3>What Membership Includes</h3>
-          <p>Registered members receive:</p>
-          <ul className="detailed-list">
-            <li>
-              <strong>Verified member status</strong>
-              <span>
-                Recognition as a <BodyVantage /> professional following review
-                and approval, including qualification verification for fitness,
-                barbering, hairdressing, beauty, and wellbeing disciplines.
-              </span>
-            </li>
-            <li>
-              <strong>Structured professional profile</strong>
-              <span>
-                Designed to present your information consistently and
-                responsibly.
-              </span>
-            </li>
-            <li>
-              <strong>Trust-led visibility</strong>
-              <span>
-                Allowing the public to discover professionals through a platform
-                focused on credibility, not popularity.
-              </span>
-            </li>
-            <li>
-              <strong>Ongoing professional alignment</strong>
-              <span>
-                Continued access to guidance and standards to support
-                responsible representation.
-              </span>
-            </li>
-          </ul>
-        </div>
+          <section className="content-section content-section-feature">
+            <div className="section-heading">
+              <span>02</span>
+              <h2>Why Join <BodyVantage /></h2>
+            </div>
+            <div className="section-copy">
+              <p>As a registered member, you benefit from:</p>
+              <ul className="detailed-list">
+                <li>
+                  <strong>Individual professional recognition</strong>
+                  <span>
+                    Membership confirms that you meet <BodyVantage />{' '}
+                    standards for qualifications, conduct, and professional
+                    alignment.
+                  </span>
+                </li>
+                <li>
+                  <strong>Increased client confidence</strong>
+                  <span>
+                    Being a registered member helps potential clients feel
+                    reassured before making contact.
+                  </span>
+                </li>
+                <li>
+                  <strong>Clear, professional representation</strong>
+                  <span>
+                    Your profile is structured to communicate your expertise
+                    accurately, without reliance on marketing language or
+                    self-promotion.
+                  </span>
+                </li>
+                <li>
+                  <strong>Alignment with a trusted network</strong>
+                  <span>
+                    Join a recognised community of professionals committed to
+                    maintaining standards within their industry.
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </section>
 
-        <div className="content-section">
-          <h3>Membership Pricing</h3>
-          <p>
-            Membership is <strong>£9.99 per month</strong> or{' '}
-            <strong>£99 annually</strong>.
-          </p>
-        </div>
+          <section className="content-section">
+            <div className="section-heading">
+              <span>03</span>
+              <h2>What Membership Includes</h2>
+            </div>
+            <div className="section-copy">
+              <p>Registered members receive:</p>
+              <ul className="detailed-list">
+                <li>
+                  <strong>Verified member status</strong>
+                  <span>
+                    Recognition as a <BodyVantage /> professional following
+                    review and approval, including qualification verification
+                    for fitness, barbering, hairdressing, beauty, and wellbeing
+                    disciplines.
+                  </span>
+                </li>
+                <li>
+                  <strong>Structured professional profile</strong>
+                  <span>
+                    Designed to present your information consistently and
+                    responsibly.
+                  </span>
+                </li>
+                <li>
+                  <strong>Trust-led visibility</strong>
+                  <span>
+                    Allowing the public to discover professionals through a
+                    platform focused on credibility, not popularity.
+                  </span>
+                </li>
+                <li>
+                  <strong>Ongoing professional alignment</strong>
+                  <span>
+                    Continued access to guidance and standards to support
+                    responsible representation.
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </section>
 
-        <div className="content-section timeline-section">
-          <h3>How to Become a Registered Member</h3>
-          <div className="timeline-container">
-            <div className="timeline-step">
-              <span className="step-number">1</span>
-              <div className="step-content">
-                <strong>Apply as an individual professional</strong>
-                <p>
-                  Submit your personal details, qualifications, and professional
-                  information.
-                </p>
+          <section className="content-section pricing-section">
+            <div className="section-heading">
+              <span>04</span>
+              <h2>Membership Pricing</h2>
+            </div>
+            <div className="section-copy">
+              <p>
+                Membership is <strong>£9.99 per month</strong> or{' '}
+                <strong>£99 annually</strong>.
+              </p>
+            </div>
+          </section>
+
+          <section className="content-section timeline-section">
+            <div className="section-heading">
+              <span>05</span>
+              <h2>How to Become a Registered Member</h2>
+            </div>
+            <div className="section-copy timeline-container">
+              <div className="timeline-step">
+                <span className="step-number">1</span>
+                <div className="step-content">
+                  <strong>Apply as an individual professional</strong>
+                  <p>
+                    Submit your personal details, qualifications, and
+                    professional information.
+                  </p>
+                </div>
+              </div>
+              <div className="timeline-step">
+                <span className="step-number">2</span>
+                <div className="step-content">
+                  <strong>Verification and review</strong>
+                  <p>
+                    Your application is reviewed to ensure <BodyVantage />{' '}
+                    standards are met.
+                  </p>
+                </div>
+              </div>
+              <div className="timeline-step">
+                <span className="step-number">3</span>
+                <div className="step-content">
+                  <strong>Approval and registration</strong>
+                  <p>
+                    Once approved, your profile is activated and you become a
+                    registered <BodyVantage /> member.
+                  </p>
+                </div>
+              </div>
+              <div className="timeline-step">
+                <span className="step-number">4</span>
+                <div className="step-content">
+                  <strong>Maintain standards</strong>
+                  <p>
+                    Membership requires ongoing adherence to professional
+                    guidelines and responsible representation.
+                  </p>
+                </div>
               </div>
             </div>
-            <div className="timeline-step">
-              <span className="step-number">2</span>
-              <div className="step-content">
-                <strong>Verification and review</strong>
-                <p>
-                  Your application is reviewed to ensure <BodyVantage />{' '}
-                  standards are met.
-                </p>
-              </div>
-            </div>
-            <div className="timeline-step">
-              <span className="step-number">3</span>
-              <div className="step-content">
-                <strong>Approval and registration</strong>
-                <p>
-                  Once approved, your profile is activated and you become a
-                  registered <BodyVantage /> member.
-                </p>
-              </div>
-            </div>
-            <div className="timeline-step">
-              <span className="step-number">4</span>
-              <div className="step-content">
-                <strong>Maintain standards</strong>
-                <p>
-                  Membership requires ongoing adherence to professional
-                  guidelines and responsible representation.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+          </section>
 
-        <div className="content-section">
-          <h3>Our Commitment to Members and the Public</h3>
-          <p>
-            <BodyVantage /> exists to recognise individual professionals, not
-            promote businesses or practices. Our focus is on trust, credibility,
-            and professional accountability, helping members and the public
-            engage with confidence.
-          </p>
-        </div>
+          <section className="content-section">
+            <div className="section-heading">
+              <span>06</span>
+              <h2>Our Commitment to Members and the Public</h2>
+            </div>
+            <div className="section-copy">
+              <p>
+                <BodyVantage /> exists to recognise individual professionals, not
+                promote businesses or practices. Our focus is on trust, credibility,
+                and professional accountability, helping members and the public
+                engage with confidence.
+              </p>
+            </div>
+          </section>
 
-        <div className="content-section cta-section">
-          <div className="cta-buttons">
-            <Button
-              text="Register Now"
-              disabled={false}
-              onClick={() => navigate('/registration')}
-              type="button"
-              title="Proceed to registration"
-            />
-            <Button
-              text="Back to About"
-              disabled={false}
-              onClick={() => navigate('/about')}
-              type="button"
-              title="Return to about page"
-            />
-          </div>
+          <section className="content-section cta-section">
+            <div className="section-heading">
+              <span>07</span>
+              <h2>Next Step</h2>
+            </div>
+            <div className="section-copy cta-buttons">
+              <Button
+                text="Register Now"
+                disabled={false}
+                onClick={() => navigate('/registration')}
+                type="button"
+                title="Proceed to registration"
+              />
+              <Button
+                text="Back to About"
+                disabled={false}
+                onClick={() => navigate('/about')}
+                type="button"
+                title="Return to about page"
+              />
+            </div>
+          </section>
         </div>
-      </fieldset>
+      </article>
 
       <div className="support-link">
         <p>
@@ -222,7 +262,7 @@ const PreRegistrationView = () => {
           <LinkComp route="faq" routeName="Browse FAQs" />
         </p>
       </div>
-    </div>
+    </main>
   );
 };
 

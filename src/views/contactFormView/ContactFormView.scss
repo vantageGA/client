@@ -2,47 +2,207 @@
 @use '../../scssMixIn.scss' as *;
 
 .contact-form-view-wrapper {
-  max-width: 1200px;
+  position: relative;
+  max-width: min(1680px, calc(100vw - 2rem));
   width: 100%;
   margin: 0 auto;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  padding: clamp(1.25rem, 4vw, 3.5rem);
 
-  // Success and error message containers
-  .success-message-container,
-  .error-message-container {
-    margin-bottom: 2rem;
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 20% 12%, rgba($light-orange, 0.1), transparent 24rem),
+      linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
+    background-size: auto, 28px 28px, 28px 28px;
   }
 
-  // Fieldset styling following AboutView pattern
-  .fieldSet {
-    width: 100%;
-    padding: 1.5rem;
-    background-color: $panel-bg-colour;
-    border-radius: 4px;
-    border: 1px solid $border-colour-light;
+  .success-message-container,
+  .error-message-container {
+    margin-bottom: 1.25rem;
+  }
 
-    legend {
-      font-family: 'Bebas Neue', cursive;
-      letter-spacing: 0.1em;
-      font-size: 1.5rem;
-      color: $light-orange;
-      padding: 0 0.5rem;
+  .contact-panel {
+    position: relative;
+    padding: 0;
+
+    &::before {
+      content: none;
+    }
+
+    &::after {
+      content: none;
     }
   }
 
-  // Both fieldsets use consistent border-left color
-  .form-fieldset {
-    border-left: 1px solid $light-orange;
+  .contact-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 0.72fr) minmax(14rem, 0.28fr);
+    gap: clamp(0.75rem, 2vw, 2rem);
+    align-items: end;
+    padding-bottom: clamp(1.75rem, 4vw, 3rem);
+    border-bottom: 1px solid rgba($border-colour, 0.16);
+
+    &::after {
+      content: '';
+      justify-self: end;
+      width: clamp(5rem, 15vw, 11rem);
+      aspect-ratio: 1;
+      background-image: url('../../assets/logo/logo.svg');
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      opacity: 0.14;
+    }
   }
 
-  // Form styling
+  .contact-kicker {
+    grid-column: 1;
+    align-self: start;
+    width: fit-content;
+    margin-bottom: clamp(0.75rem, 2vw, 1.15rem);
+    padding: 0.35rem 0.55rem;
+    color: $light-orange;
+    background-color: rgba(51, 51, 51, 0.72);
+    border-left: 2px solid $burnt-orange;
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    letter-spacing: 0.2em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    grid-column: 1;
+    max-width: 14ch;
+    color: $main-font-colour;
+    font-size: clamp(2.1rem, 5.8vw, 4.8rem);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    text-wrap: balance;
+  }
+
+  h2,
+  .contact-heading {
+    font-family: 'Bebas Neue', cursive;
+    letter-spacing: 0.13em;
+    font-size: clamp(1.45rem, 3vw, 2.15rem);
+    line-height: 1;
+    color: $light-orange;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .contact-layout {
+    display: grid;
+    grid-template-columns: minmax(16rem, 0.36fr) minmax(0, 0.64fr);
+    gap: clamp(1.5rem, 5vw, 4.5rem);
+    padding-top: clamp(1.75rem, 4vw, 3rem);
+  }
+
+  .section-heading {
+    margin-bottom: 1.25rem;
+
+    span {
+      display: block;
+      margin-bottom: 0.65rem;
+      color: rgba($main-font-colour, 0.45);
+      font-family: 'Bebas Neue', cursive;
+      font-size: 0.95rem;
+      letter-spacing: 0.22em;
+    }
+  }
+
+  .contact-details {
+    font-style: normal;
+    min-width: 0;
+
+    .value-proposition {
+      margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+      padding-left: clamp(1rem, 2vw, 1.5rem);
+      border-left: 1px solid rgba($light-orange, 0.46);
+
+      p {
+        max-width: 34rem;
+        line-height: 1.75;
+        color: $main-font-colour;
+        margin: 0;
+        letter-spacing: 0.02em;
+        text-wrap: pretty;
+      }
+    }
+
+    .contact-section {
+      padding: clamp(1rem, 2vw, 1.4rem);
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba($border-colour, 0.13);
+      border-left-color: rgba($light-orange, 0.48);
+      border-radius: 6px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .contact-detail-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .contact-detail-item {
+      display: grid;
+      gap: 0.35rem;
+      min-width: 0;
+
+      strong {
+        color: $light-orange;
+        font-family: 'Bebas Neue', cursive;
+        font-size: 1.05rem;
+        font-weight: 400;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      a {
+        color: $main-font-colour;
+        line-height: 1.5;
+        text-decoration: none;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        transition:
+          color 260ms cubic-bezier(0.32, 0.72, 0, 1),
+          text-decoration-color 260ms cubic-bezier(0.32, 0.72, 0, 1);
+
+        &:hover {
+          color: $light-orange;
+          text-decoration: underline;
+          text-decoration-thickness: 1px;
+          text-underline-offset: 0.22em;
+        }
+
+        &:focus {
+          outline: 2px solid $burnt-orange;
+          outline-offset: 4px;
+          border-radius: 2px;
+        }
+      }
+    }
+  }
+
+  .contact-form-panel {
+    min-width: 0;
+    padding: clamp(1rem, 2.5vw, 1.75rem);
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba($border-colour, 0.13);
+    border-radius: 6px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
   form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.15rem;
   }
 
   .form-group {
@@ -52,7 +212,7 @@
 
   label {
     font-family: 'Comfortaa', cursive;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -60,43 +220,57 @@
     color: $main-font-colour;
     line-height: 1.4;
 
-    // Required asterisk styling (matching InputField pattern)
     .required-asterisk {
       color: $burnt-orange;
       margin-left: 0.25em;
     }
   }
 
+  .input-field-wrapper {
+    margin: 0;
+
+    input[type='text'],
+    input[type='email'] {
+      background-color: rgba(0, 0, 0, 0.14);
+      border-color: rgba($border-colour, 0.22);
+      transition:
+        border-color 260ms cubic-bezier(0.32, 0.72, 0, 1),
+        box-shadow 260ms cubic-bezier(0.32, 0.72, 0, 1),
+        background-color 260ms cubic-bezier(0.32, 0.72, 0, 1);
+
+      &:hover:not(:focus) {
+        border-color: rgba($light-orange, 0.34);
+      }
+    }
+  }
+
   textarea {
-    min-height: 250px;
-    padding: 0.75rem 1rem;
+    min-height: 230px;
+    width: 100%;
+    padding: 0.875rem 1rem;
     font-family: 'Comfortaa', cursive;
     font-size: 1rem;
     color: $main-font-colour;
-    line-height: 1.5;
-
-    // Transparent background
-    background-color: transparent;
-    border: 1px solid rgba(75, 75, 75, 1);
+    line-height: 1.55;
+    background-color: rgba(0, 0, 0, 0.14);
+    border: 1px solid rgba($border-colour, 0.22);
     border-radius: 4px;
     resize: vertical;
+    transition:
+      border-color 260ms cubic-bezier(0.32, 0.72, 0, 1),
+      box-shadow 260ms cubic-bezier(0.32, 0.72, 0, 1),
+      background-color 260ms cubic-bezier(0.32, 0.72, 0, 1);
 
-    // Smooth transitions
-    transition: border-color 150ms ease, box-shadow 150ms ease;
-
-    // Placeholder styling - WCAG AA compliant contrast (4.5:1)
     &::placeholder {
       color: rgba(190, 190, 190, 1);
       font-style: italic;
       opacity: 1;
     }
 
-    // Hover state
     &:hover:not(:focus) {
-      border-color: rgba(100, 100, 100, 1);
+      border-color: rgba($light-orange, 0.34);
     }
 
-    // Focus state with burnt-orange accent
     &:focus {
       border-color: $burnt-orange;
       border-left: 3px solid $burnt-orange;
@@ -105,7 +279,6 @@
       box-shadow: 0 0 0 3px rgba($burnt-orange, 0.1);
     }
 
-    // Invalid state - red border with 3px left accent
     &.invalid {
       border: 1px solid $danger;
       border-left: 3px solid $danger;
@@ -116,7 +289,6 @@
       }
     }
 
-    // Valid/Entered state - subtle green bottom border
     &.entered {
       border-bottom: 2px solid $success;
 
@@ -127,7 +299,6 @@
     }
   }
 
-  // Override browser autocomplete styling for textarea
   textarea:-webkit-autofill,
   textarea:-webkit-autofill:hover,
   textarea:-webkit-autofill:focus,
@@ -138,22 +309,19 @@
     transition: background-color 5000s ease-in-out 0s;
   }
 
-  // Field hint text (character counter, etc.) - WCAG AA compliant contrast
   .field-hint {
     display: block;
     font-size: 0.85em;
-    color: rgba(245, 190, 110, 1); // Lighter than $warning for 4.5:1+ contrast
+    color: rgba(245, 190, 110, 1);
     margin-top: 0.5rem;
     line-height: 1.4;
   }
 
-  // Response time note - informational text above submit button
   .response-time-note {
     display: block;
     font-size: 0.9rem;
     color: $light-orange;
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
+    margin: 0.25rem 0 0;
     padding: 0.75rem 1rem;
     background-color: rgba($light-orange, 0.08);
     border-left: 3px solid $light-orange;
@@ -162,7 +330,6 @@
     font-style: italic;
   }
 
-  // Validation error message with animation (matching InputField)
   .validation-error {
     display: block;
     color: $danger;
@@ -173,139 +340,115 @@
     font-weight: 600;
     border-left: 3px solid $danger;
     border-radius: 2px;
-    animation: slideIn 200ms ease-out;
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+    animation: slideIn 200ms cubic-bezier(0.32, 0.72, 0, 1);
   }
 
-  // Contact details styling with semantic address
-  .contact-details {
-    font-style: normal;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    line-height: 1.6;
-
-    // Value proposition section - main brand description
-    .value-proposition {
-      margin-bottom: 1.5rem;
-      padding-bottom: 0;
-
-      p {
-        line-height: 1.6;
-        color: $main-font-colour;
-        margin: 0;
-        font-weight: 400;
-        letter-spacing: 0.02em;
-      }
-    }
-
-    // Contact section with heading
-    .contact-section {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1.5rem;
-
-      .contact-heading {
-        font-family: 'Bebas Neue', cursive;
-        font-size: 1.1rem;
-        font-weight: 600;
-        letter-spacing: 0.1em;
-        color: $light-orange;
-        margin: 0;
-        text-transform: uppercase;
-        padding-bottom: 0.5rem;
-      }
-    }
-
-    .contact-detail-grid {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .contact-detail-item {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      flex: 1;
-      min-width: 240px;
-
-      strong {
-        color: $light-orange;
-        font-weight: 600;
-        font-size: 0.95em;
-        letter-spacing: 0.05em;
-      }
-
-      span {
-        color: $main-font-colour;
-      }
-
-      a {
-        color: $link-colour;
-        text-decoration: none;
-        transition: color 0.2s ease;
-        display: inline-block;
-        word-break: break-word;
-        overflow-wrap: break-word;
-
-        &:hover {
-          color: $light-orange;
-          text-decoration: underline;
-        }
-
-        &:focus {
-          outline: 2px solid $burnt-orange;
-          outline-offset: 4px;
-          border-radius: 2px;
-        }
-
-        &:active {
-          color: $burnt-orange;
-        }
-      }
-    }
-  }
-
-  // Button styling adjustments
   .btn {
-    margin-top: 1rem;
-    min-height: 48px; // Touch target minimum
+    align-self: flex-start;
+    min-width: min(100%, 13rem);
+    min-height: 48px;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border-color: rgba($light-orange, 0.46);
+    background: rgba($light-orange, 0.08);
+    letter-spacing: 0.08em;
     text-align: center;
+    transition:
+      transform 260ms cubic-bezier(0.32, 0.72, 0, 1),
+      border-color 260ms cubic-bezier(0.32, 0.72, 0, 1),
+      color 260ms cubic-bezier(0.32, 0.72, 0, 1),
+      background-color 260ms cubic-bezier(0.32, 0.72, 0, 1);
 
     &:focus {
       outline: 2px solid $burnt-orange;
       outline-offset: 4px;
     }
+
+    &.not-disabled:hover {
+      transform: translateY(-1px);
+      background: rgba($light-orange, 0.14);
+    }
+
+    &.not-disabled:active {
+      transform: translateY(1px) scale(0.99);
+    }
+  }
+
+  .social-links-section {
+    margin-top: clamp(1.25rem, 4vw, 2rem);
+    padding-top: clamp(1.25rem, 4vw, 2rem);
+    border-top: 1px solid rgba($border-colour, 0.14);
+
+    .social-heading {
+      font-size: clamp(1.25rem, 3vw, 1.8rem);
+      letter-spacing: 0.13em;
+    }
+
+    .social-links-container {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .social-link {
+      justify-content: flex-start;
+      width: 100%;
+      background-color: rgba($light-orange, 0.07);
+      border-color: rgba($border-colour, 0.18);
+      transition:
+        transform 260ms cubic-bezier(0.32, 0.72, 0, 1),
+        border-color 260ms cubic-bezier(0.32, 0.72, 0, 1),
+        background-color 260ms cubic-bezier(0.32, 0.72, 0, 1);
+
+      &:hover {
+        transform: translateY(-1px);
+        border-color: rgba($light-orange, 0.58);
+      }
+    }
   }
 }
 
-// Responsive layout - makes a one column layout (100%) instead of a two-column layout (50%)
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 812px) {
   .contact-form-view-wrapper {
-    flex-direction: column;
-    padding: 0.75rem;
-    gap: 1.5rem;
+    padding: 0.8rem;
 
-    .fieldSet {
+    .contact-hero,
+    .contact-layout {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .contact-hero {
+      padding-bottom: 1.5rem;
+
+      &::after {
+        justify-self: start;
+        width: clamp(4rem, 28vw, 7rem);
+      }
+    }
+
+    h1 {
+      max-width: 13ch;
+    }
+
+    .contact-form-panel,
+    .contact-details .contact-section {
       padding: 1rem;
     }
 
     textarea {
+      min-height: 210px;
       padding: 0.875rem 1rem;
     }
   }
@@ -315,19 +458,27 @@
   .contact-form-view-wrapper {
     textarea {
       padding: 1rem;
-      font-size: 1rem; // Prevents iOS zoom on focus
+      font-size: 1rem;
     }
 
     label {
       font-size: 0.9rem;
     }
+
+    .btn {
+      width: 100%;
+    }
   }
 }
 
-// Accessibility: Respect reduced motion preference
 @media (prefers-reduced-motion: reduce) {
   .contact-form-view-wrapper {
-    textarea {
+    textarea,
+    .btn,
+    .social-link,
+    .contact-detail-item a,
+    .input-field-wrapper input[type='text'],
+    .input-field-wrapper input[type='email'] {
       transition: none;
     }
 

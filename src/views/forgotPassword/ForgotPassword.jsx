@@ -29,7 +29,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="forgot-password-wrapper">
+    <main className="forgot-password-wrapper">
       {error ? <Message message={error} variant="error" /> : null}
       {success ? (
         <Message
@@ -38,44 +38,67 @@ const ForgotPassword = () => {
         />
       ) : null}
 
-      <fieldset className="fieldSet">
-        <legend>
-          Member <span>Forgot Password</span>
-        </legend>
-        <form onSubmit={handleSubmit}>
-          <InputField
-            id="forgot-password-email"
-            label="Your registered email address"
-            type="email"
-            name="email"
-            value={email}
-            required
-            onChange={(e) => setEmail(e.target.value)}
-            onBlur={handleBlur}
-            className={
-              touched.email && !isValidEmail(email) && email.length > 0
-                ? 'invalid'
-                : email.length > 0
-                ? 'entered'
-                : ''
-            }
-            error={
-              touched.email && !isValidEmail(email) && email.length !== 0
-                ? `Invalid email address.`
-                : null
-            }
-            aria-invalid={touched.email && !isValidEmail(email)}
-          />
+      <article className="forgot-password-panel" aria-labelledby="forgot-password-title">
+        <header className="forgot-password-hero">
+          <p className="forgot-password-kicker">Password</p>
+          <h1 id="forgot-password-title">
+            Member <span>Forgot Password</span>
+          </h1>
+        </header>
 
-          <Button
-            
-            text="Send reset link"
-            className="btn"
-            disabled={!isValidEmail(email)}
-          ></Button>
-        </form>
-      </fieldset>
-    </div>
+        <div className="forgot-password-layout">
+          <section className="forgot-password-context" aria-label="Password reset guidance">
+            <div className="section-heading">
+              <span>01</span>
+              <h2>Reset Access</h2>
+            </div>
+            <p>
+              Enter the email address connected to your member account. If it
+              matches an account, we will send password reset instructions.
+            </p>
+          </section>
+
+          <section className="forgot-password-form-panel" aria-label="Password reset form">
+            <div className="section-heading">
+              <span>02</span>
+              <h2>Registered Email</h2>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <InputField
+                id="forgot-password-email"
+                label="Your registered email address"
+                type="email"
+                name="email"
+                value={email}
+                required
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={handleBlur}
+                className={
+                  touched.email && !isValidEmail(email) && email.length > 0
+                    ? 'invalid'
+                    : email.length > 0
+                    ? 'entered'
+                    : ''
+                }
+                error={
+                  touched.email && !isValidEmail(email) && email.length !== 0
+                    ? `Invalid email address.`
+                    : null
+                }
+                aria-invalid={touched.email && !isValidEmail(email)}
+              />
+
+              <Button
+                text="Send reset link"
+                className="btn"
+                disabled={!isValidEmail(email)}
+              ></Button>
+            </form>
+          </section>
+        </div>
+      </article>
+    </main>
   );
 };
 

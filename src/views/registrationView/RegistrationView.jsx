@@ -86,7 +86,7 @@ const RegistrationView = () => {
   };
 
   return (
-    <div className="registrationView-wrapper">
+    <main className="registrationView-wrapper">
       {registerError ? <Message message={registerError} /> : null}
       {checkoutError ? <Message message={checkoutError} /> : null}
       {message ? <Message message={message} /> : null}
@@ -95,15 +95,30 @@ const RegistrationView = () => {
       {!userInfo && (registerLoading || checkoutLoading) ? (
         <LoadingSpinner />
       ) : (
-        <div className="registration-container">
-          <fieldset className="fieldSet">
-            <legend>
+        <article className="registration-panel" aria-labelledby="registration-title">
+          <header className="registration-hero">
+            <p className="registration-kicker">Registration</p>
+            <h1 id="registration-title">
               Member <span>Registration</span>
-            </legend>
-            <MembershipProposition onApplyClick={handleMembershipClick} />
-            <hr className="style-one" />
-            <h3>Member Registration Form</h3>
-            <form onSubmit={handleSubmit} noValidate>
+            </h1>
+          </header>
+
+          <div className="registration-layout">
+            <section className="registration-proposition" aria-label="Membership proposition">
+              <div className="section-heading">
+                <span>01</span>
+                <h2>Membership</h2>
+              </div>
+              <MembershipProposition onApplyClick={handleMembershipClick} />
+            </section>
+
+            <section className="registration-form-panel" aria-label="Member registration form">
+              <div className="section-heading">
+                <span>02</span>
+                <h2>Member Registration Form</h2>
+              </div>
+
+              <form onSubmit={handleSubmit} noValidate>
                 <div ref={nameInputRef}>
                   <InputField
                     id="registration-name"
@@ -132,150 +147,152 @@ const RegistrationView = () => {
                   />
                 </div>
 
-            <InputField
-              id="registration-email"
-              label="Email"
-              type="email"
-              name="email"
-              value={email}
-              required
-              onChange={(e) => setEmail(e.target.value)}
-              onBlur={() => handleBlur('email')}
-              className={
-                touched.email && !isValidEmail(email) && email.length > 0
-                  ? 'invalid'
-                  : email.length > 0
-                  ? 'entered'
-                  : ''
-              }
-              error={
-                touched.email && !isValidEmail(email) && email.length !== 0
-                  ? `Invalid email address.`
-                  : null
-              }
-              aria-invalid={touched.email && !isValidEmail(email)}
-            />
+                <InputField
+                  id="registration-email"
+                  label="Email"
+                  type="email"
+                  name="email"
+                  value={email}
+                  required
+                  onChange={(e) => setEmail(e.target.value)}
+                  onBlur={() => handleBlur('email')}
+                  className={
+                    touched.email && !isValidEmail(email) && email.length > 0
+                      ? 'invalid'
+                      : email.length > 0
+                      ? 'entered'
+                      : ''
+                  }
+                  error={
+                    touched.email && !isValidEmail(email) && email.length !== 0
+                      ? `Invalid email address.`
+                      : null
+                  }
+                  aria-invalid={touched.email && !isValidEmail(email)}
+                />
 
-            <InputField
-              id="registration-password"
-              label="Password"
-              type="password"
-              name="password"
-              value={password}
-              required
-              hint={PASSWORD_REQUIREMENTS_TEXT}
-              onBlur={() => handleBlur('password')}
-              className={
-                touched.password &&
-                !isValidPassword(password) &&
-                password.length > 0
-                  ? 'invalid'
-                  : password.length > 0
-                  ? 'entered'
-                  : ''
-              }
-              error={
-                touched.password && !isValidPassword(password) && password.length !== 0
-                  ? PASSWORD_REQUIREMENTS_TEXT
-                  : null
-              }
-              onChange={(e) => setPassword(e.target.value)}
-              aria-invalid={touched.password && !isValidPassword(password)}
-            />
+                <InputField
+                  id="registration-password"
+                  label="Password"
+                  type="password"
+                  name="password"
+                  value={password}
+                  required
+                  hint={PASSWORD_REQUIREMENTS_TEXT}
+                  onBlur={() => handleBlur('password')}
+                  className={
+                    touched.password &&
+                    !isValidPassword(password) &&
+                    password.length > 0
+                      ? 'invalid'
+                      : password.length > 0
+                      ? 'entered'
+                      : ''
+                  }
+                  error={
+                    touched.password && !isValidPassword(password) && password.length !== 0
+                      ? PASSWORD_REQUIREMENTS_TEXT
+                      : null
+                  }
+                  onChange={(e) => setPassword(e.target.value)}
+                  aria-invalid={touched.password && !isValidPassword(password)}
+                />
 
-            {password.length > 0 && <PasswordStrength password={password} />}
+                {password.length > 0 && <PasswordStrength password={password} />}
 
-            <InputField
-              id="registration-confirm-password"
-              label="Confirm Password"
-              type="password"
-              name="confirmPassword"
-              value={confirmPassword}
-              required
-              hint="Must match the password above"
-              onBlur={() => handleBlur('confirmPassword')}
-              className={
-                touched.confirmPassword &&
-                !isValidPassword(confirmPassword) &&
-                confirmPassword.length > 0
-                  ? 'invalid'
-                  : confirmPassword.length > 0
-                  ? 'entered'
-                  : ''
-              }
-              error={
-                touched.confirmPassword &&
-                !isValidPassword(confirmPassword) &&
-                confirmPassword.length !== 0
-                  ? PASSWORD_REQUIREMENTS_TEXT
-                  : null
-              }
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              aria-invalid={
-                touched.confirmPassword &&
-                !isValidPassword(confirmPassword)
-              }
-            />
+                <InputField
+                  id="registration-confirm-password"
+                  label="Confirm Password"
+                  type="password"
+                  name="confirmPassword"
+                  value={confirmPassword}
+                  required
+                  hint="Must match the password above"
+                  onBlur={() => handleBlur('confirmPassword')}
+                  className={
+                    touched.confirmPassword &&
+                    !isValidPassword(confirmPassword) &&
+                    confirmPassword.length > 0
+                      ? 'invalid'
+                      : confirmPassword.length > 0
+                      ? 'entered'
+                      : ''
+                  }
+                  error={
+                    touched.confirmPassword &&
+                    !isValidPassword(confirmPassword) &&
+                    confirmPassword.length !== 0
+                      ? PASSWORD_REQUIREMENTS_TEXT
+                      : null
+                  }
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  aria-invalid={
+                    touched.confirmPassword &&
+                    !isValidPassword(confirmPassword)
+                  }
+                />
 
-            {touched.confirmPassword && confirmPassword.length > 0 && (
-              <div
-                className={
-                  password === confirmPassword
-                    ? 'password-match'
-                    : 'password-mismatch'
-                }
-              >
-                {password === confirmPassword
-                  ? '\u2713 Passwords match'
-                  : '\u2717 Passwords do not match'}
-              </div>
-            )}
-
-            {/* Subscription Plan Selection */}
-            <div className="subscription-plan-section">
-              <h3>Select Your Membership Plan</h3>
-              <div className="plan-options">
-                <label className={`plan-option ${selectedPlan === 'monthly' ? 'selected' : ''}`}>
-                  <input
-                    type="radio"
-                    name="plan"
-                    value="monthly"
-                    checked={selectedPlan === 'monthly'}
-                    onChange={() => setSelectedPlan('monthly')}
-                    aria-label="Monthly membership plan"
-                  />
-                  <div className="plan-content">
-                    <h4>Monthly Membership</h4>
-                    <p className="price">£9.99 <span>/month</span></p>
-                    <ul className="plan-features">
-                      <li>Cancel anytime</li>
-                      <li>No long-term contract</li>
-                      <li>Full access to all features</li>
-                    </ul>
+                {touched.confirmPassword && confirmPassword.length > 0 && (
+                  <div
+                    className={
+                      password === confirmPassword
+                        ? 'password-match'
+                        : 'password-mismatch'
+                    }
+                  >
+                    {password === confirmPassword
+                      ? '\u2713 Passwords match'
+                      : '\u2717 Passwords do not match'}
                   </div>
-                </label>
-                <label className={`plan-option ${selectedPlan === 'annual' ? 'selected' : ''}`}>
-                  <input
-                    type="radio"
-                    name="plan"
-                    value="annual"
-                    checked={selectedPlan === 'annual'}
-                    onChange={() => setSelectedPlan('annual')}
-                    aria-label="Annual membership plan"
-                  />
-                  <div className="plan-content">
-                    <h4>Annual Membership</h4>
-                    <p className="price">£99 <span>/year</span></p>
-                    <p className="discount">Save 20% compared to monthly</p>
-                    <ul className="plan-features">
-                      <li>Cancel anytime</li>
-                      <li>20% discount</li>
-                      <li>Full access to all features</li>
-                    </ul>
+                )}
+
+                <div className="subscription-plan-section">
+                  <div className="section-heading compact">
+                    <span>03</span>
+                    <h2>Select Your Membership Plan</h2>
                   </div>
-                </label>
-              </div>
-            </div>
+                  <div className="plan-options">
+                    <label className={`plan-option ${selectedPlan === 'monthly' ? 'selected' : ''}`}>
+                      <input
+                        type="radio"
+                        name="plan"
+                        value="monthly"
+                        checked={selectedPlan === 'monthly'}
+                        onChange={() => setSelectedPlan('monthly')}
+                        aria-label="Monthly membership plan"
+                      />
+                      <div className="plan-content">
+                        <h3>Monthly Membership</h3>
+                        <p className="price">£9.99 <span>/month</span></p>
+                        <ul className="plan-features">
+                          <li>Cancel anytime</li>
+                          <li>No long-term contract</li>
+                          <li>Full access to all features</li>
+                        </ul>
+                      </div>
+                    </label>
+                    <label className={`plan-option ${selectedPlan === 'annual' ? 'selected' : ''}`}>
+                      <input
+                        type="radio"
+                        name="plan"
+                        value="annual"
+                        checked={selectedPlan === 'annual'}
+                        onChange={() => setSelectedPlan('annual')}
+                        aria-label="Annual membership plan"
+                      />
+                      <div className="plan-content">
+                        <h3>Annual Membership</h3>
+                        <p className="price">£99 <span>/year</span></p>
+                        <p className="discount">Save 20% compared to monthly</p>
+                        <ul className="plan-features">
+                          <li>Cancel anytime</li>
+                          <li>20% discount</li>
+                          <li>Full access to all features</li>
+                        </ul>
+                      </div>
+                    </label>
+                  </div>
+                </div>
 
                 <Button
                   text={checkoutLoading ? 'Processing...' : 'Subscribe Now'}
@@ -290,10 +307,11 @@ const RegistrationView = () => {
                   }
                 ></Button>
               </form>
-            </fieldset>
-        </div>
+            </section>
+          </div>
+        </article>
       )}
-    </div>
+    </main>
   );
 };
 

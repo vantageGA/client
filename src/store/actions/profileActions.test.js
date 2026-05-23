@@ -1,8 +1,13 @@
 /* @vitest-environment jsdom */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import axios from 'axios';
-import { profilesAction } from './profileActions';
-import { PROFILE_REQUEST, PROFILE_SUCCESS } from '../constants/profileConstants';
+import { profileAIDraftAction, profilesAction } from './profileActions';
+import {
+  PROFILE_AI_DRAFT_FAILURE,
+  PROFILE_AI_DRAFT_REQUEST,
+  PROFILE_REQUEST,
+  PROFILE_SUCCESS,
+} from '../constants/profileConstants';
 
 vi.mock('axios');
 
@@ -38,6 +43,47 @@ describe('profilesAction', () => {
         pages: 1,
         total: 1,
       },
+    });
+  });
+});
+
+describe('profileAIDraftAction', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('uses the API message when profile draft generation fails', async () => {
+    const dispatch = vi.fn();
+    const getState = vi.fn(() => ({
+      userLogin: {
+        userInfo: {
+          token: 'test-token',
+        },
+      },
+    }));
+
+    axios.post.mockRejectedValue({
+      response: {
+        data: {
+          message: 'Too many profile draft requests. Please try again after an hour.',
+        },
+      },
+    });
+
+    await profileAIDraftAction({
+      input:
+        'I am a Level 3 personal trainer in Manchester specialising in strength training and weight management.',
+      currentProfile: {
+        location: 'Manchester',
+      },
+    })(dispatch, getState);
+
+    expect(dispatch).toHaveBeenNthCalledWith(1, {
+      type: PROFILE_AI_DRAFT_REQUEST,
+    });
+    expect(dispatch).toHaveBeenNthCalledWith(2, {
+      type: PROFILE_AI_DRAFT_FAILURE,
+      payload: 'Too many profile draft requests. Please try again after an hour.',
     });
   });
 });

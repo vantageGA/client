@@ -2,110 +2,270 @@
 @use '../../scssMixIn.scss' as *;
 
 .registrationView-wrapper {
-  max-width: 1200px;
+  position: relative;
+  max-width: min(1680px, calc(100vw - 2rem));
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: clamp(1.25rem, 4vw, 3.5rem);
 
-  /* Two-column grid layout */
-  .registration-container {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    align-items: start;
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 20% 12%, rgba($light-orange, 0.1), transparent 24rem),
+      linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
+    background-size: auto, 28px 28px, 28px 28px;
   }
 
-  .fieldSet {
-    padding: 1.5rem;
-    background-color: $panel-bg-colour;
-    border-radius: 4px;
-    border: 1px solid $border-colour-light;
-    border-left: 1px solid $light-orange;
+  .registration-panel {
+    position: relative;
+    padding: 0;
 
-    legend {
-      font-family: 'Bebas Neue', cursive;
-      letter-spacing: 0.1em;
-      font-size: 1.5rem;
-      color: $light-orange;
-      padding: 0 0.5rem;
+    &::before {
+      content: none;
+    }
+
+    &::after {
+      content: none;
     }
   }
 
-  p {
-    margin-bottom: 1rem;
-    line-height: 1.6;
+  .registration-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 0.72fr) minmax(14rem, 0.28fr);
+    gap: clamp(0.75rem, 2vw, 2rem);
+    align-items: end;
+    padding-bottom: clamp(1.75rem, 4vw, 3rem);
+    border-bottom: 1px solid rgba($border-colour, 0.16);
+
+    &::after {
+      content: '';
+      justify-self: end;
+      width: clamp(5rem, 15vw, 11rem);
+      aspect-ratio: 1;
+      background-image: url('../../assets/logo/logo.svg');
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      opacity: 0.14;
+    }
+  }
+
+  .registration-kicker {
+    grid-column: 1;
+    align-self: start;
+    width: fit-content;
+    margin-bottom: clamp(0.75rem, 2vw, 1.15rem);
+    padding: 0.35rem 0.55rem;
+    color: $light-orange;
+    background-color: rgba(51, 51, 51, 0.72);
+    border-left: 2px solid $burnt-orange;
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    letter-spacing: 0.2em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    grid-column: 1;
+    max-width: 14ch;
+    color: $main-font-colour;
+    font-size: clamp(2.1rem, 5.8vw, 4.8rem);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    text-wrap: balance;
+
+    span {
+      color: $light-orange;
+    }
+  }
+
+  h2,
+  h3 {
+    font-family: 'Bebas Neue', cursive;
+    letter-spacing: 0.13em;
+    color: $light-orange;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  h2 {
+    font-size: clamp(1.45rem, 3vw, 2.15rem);
+    line-height: 1;
   }
 
   h3 {
-    font-family: 'Bebas Neue', cursive;
-    letter-spacing: 0.1em;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: $light-orange;
+    font-size: clamp(1.15rem, 2vw, 1.5rem);
+    line-height: 1.1;
   }
 
-  ul {
-    list-style: none;
-    padding-left: 0;
-    margin: 0.75rem 0;
+  p {
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
 
-    li {
-      margin-bottom: 0.75rem;
-      padding-left: 1.5em;
-      position: relative;
-      line-height: 1.6;
+  .registration-layout {
+    display: grid;
+    grid-template-columns: minmax(17rem, 0.4fr) minmax(0, 0.6fr);
+    gap: clamp(1.5rem, 5vw, 4.5rem);
+    padding-top: clamp(1.75rem, 4vw, 3rem);
+  }
 
-      &::before {
-        content: '▸';
-        position: absolute;
-        left: 0;
-        color: $burnt-orange;
-        font-weight: bold;
+  .section-heading {
+    margin-bottom: 1.25rem;
+
+    &.compact {
+      margin-bottom: 1rem;
+    }
+
+    span {
+      display: block;
+      margin-bottom: 0.65rem;
+      color: rgba($main-font-colour, 0.45);
+      font-family: 'Bebas Neue', cursive;
+      font-size: 0.95rem;
+      letter-spacing: 0.22em;
+    }
+  }
+
+  .registration-proposition {
+    min-width: 0;
+    padding-left: clamp(1rem, 2vw, 1.5rem);
+    border-left: 1px solid rgba($light-orange, 0.46);
+  }
+
+  .membership-proposition {
+    display: grid;
+    gap: 1.2rem;
+
+    .content-section {
+      margin: 0;
+      padding: clamp(1rem, 2vw, 1.35rem);
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba($border-colour, 0.13);
+      border-left-color: rgba($light-orange, 0.42);
+      border-radius: 6px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .pricing-section {
+      text-align: left;
+
+      .pricing-options {
+        justify-content: flex-start;
+        gap: 1rem;
+        margin: 1rem 0 1.2rem;
+      }
+
+      .price-item {
+        padding: 0.8rem 0.9rem;
+        background: rgba(0, 0, 0, 0.12);
+        border: 1px solid rgba($border-colour, 0.13);
+        border-radius: 4px;
+      }
+
+      .price-amount {
+        color: $light-orange;
+      }
+
+      .pricing-disclaimer {
+        margin-top: 0.8rem;
+      }
+
+      button {
+        margin: 0;
+      }
+    }
+
+    .detailed-list {
+      margin: 1rem 0 0;
+
+      li {
+        margin-bottom: 0.85rem;
       }
     }
   }
 
-  .content-section {
-    margin: 0;
-    padding: 0;
-    background-color: transparent;
-    border-radius: 4px;
+  .registration-form-panel {
+    min-width: 0;
+    padding: clamp(1rem, 2.5vw, 1.75rem);
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba($border-colour, 0.13);
+    border-left-color: rgba($light-orange, 0.48);
+    border-radius: 6px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
   form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.15rem;
   }
 
-  .btn {
-    margin-top: 1rem;
-    min-height: 48px;
+  .input-field-wrapper {
+    margin: 0;
 
-    &:focus {
-      outline: 2px solid $burnt-orange;
-      outline-offset: 4px;
+    input[type='text'],
+    input[type='email'],
+    input[type='password'] {
+      background-color: rgba(0, 0, 0, 0.14);
+      border-color: rgba($border-colour, 0.22);
+      transition:
+        border-color 260ms cubic-bezier(0.32, 0.72, 0, 1),
+        box-shadow 260ms cubic-bezier(0.32, 0.72, 0, 1),
+        background-color 260ms cubic-bezier(0.32, 0.72, 0, 1);
+
+      &:hover:not(:focus) {
+        border-color: rgba($light-orange, 0.34);
+      }
     }
+
+    label {
+      font-size: 0.92rem;
+    }
+  }
+
+  .password-strength-wrapper {
+    margin: 0;
+    background: rgba(0, 0, 0, 0.14);
+    border-color: rgba($border-colour, 0.16);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .password-match,
+  .password-mismatch {
+    margin-top: -0.25rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 2px;
+    font-size: 0.9em;
+    font-weight: 600;
   }
 
   .password-match {
     color: $success;
-    font-size: 0.9em;
-    margin-top: -0.5rem;
+    background: rgba($success, 0.1);
+    border-left: 3px solid $success;
   }
 
   .password-mismatch {
     color: $danger;
-    font-size: 0.9em;
-    margin-top: -0.5rem;
+    background: rgba($danger, 0.1);
+    border-left: 3px solid $danger;
   }
 
-  /* Subscription Plan Selection Styles */
   .subscription-plan-section {
-    margin: 1.5rem 0;
-  }
-
-  .subscription-plan-section h3 {
-    text-transform: uppercase;
+    margin: 1rem 0 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba($border-colour, 0.14);
   }
 
   .plan-options {
@@ -116,22 +276,27 @@
 
   .plan-option {
     position: relative;
+    min-width: 0;
     padding: 1rem;
-    border: 1px solid $border-colour-light;
-    border-radius: 4px;
-    background-color: $panel-bg-colour;
+    border: 1px solid rgba($border-colour, 0.16);
+    border-radius: 6px;
+    background-color: rgba(0, 0, 0, 0.12);
     cursor: pointer;
-    transition: all 150ms ease;
+    transition:
+      transform 260ms cubic-bezier(0.32, 0.72, 0, 1),
+      border-color 260ms cubic-bezier(0.32, 0.72, 0, 1),
+      background-color 260ms cubic-bezier(0.32, 0.72, 0, 1);
 
     &:hover {
-      border-color: $light-orange;
-      background-color: rgba(51, 51, 51, 0.5);
+      transform: translateY(-1px);
+      border-color: rgba($light-orange, 0.48);
+      background-color: rgba($light-orange, 0.07);
     }
 
     &.selected {
-      border-color: $burnt-orange;
+      border-color: rgba($burnt-orange, 0.86);
       border-left: 3px solid $burnt-orange;
-      background-color: rgba(51, 51, 51, 0.6);
+      background-color: rgba($light-orange, 0.1);
     }
   }
 
@@ -144,30 +309,24 @@
   .plan-content {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .plan-content h4 {
-    font-family: 'Bebas Neue', cursive;
-    letter-spacing: 0.1em;
-    font-size: 1.1rem;
-    color: $light-orange;
-    margin: 0;
-    text-transform: uppercase;
+    gap: 0.55rem;
   }
 
   .plan-content .price {
-    font-size: 1.5rem;
+    margin: 0;
+    font-size: clamp(1.35rem, 3vw, 1.8rem);
     font-weight: bold;
     color: $main-font-colour;
+    line-height: 1.1;
 
     span {
       font-size: 0.8rem;
-      color: rgba(245, 245, 245, 0.7);
+      color: rgba($main-font-colour, 0.7);
     }
   }
 
   .plan-content .discount {
+    margin: 0;
     color: $success;
     font-weight: bold;
   }
@@ -175,16 +334,16 @@
   .plan-content .plan-features {
     list-style: none;
     padding: 0;
-    margin: 0;
-    color: rgba(245, 245, 245, 0.8);
+    margin: 0.2rem 0 0;
+    color: rgba($main-font-colour, 0.82);
 
     li {
-      padding: 0.25rem 0;
+      padding: 0.25rem 0 0.25rem 1.35rem;
       position: relative;
-      padding-left: 1.5rem;
+      line-height: 1.45;
 
       &::before {
-        content: '•';
+        content: '▸';
         position: absolute;
         left: 0;
         color: $burnt-orange;
@@ -193,34 +352,97 @@
     }
   }
 
-  /* Responsive adjustments for plan options */
-  @media (max-width: 812px) {
+  .btn {
+    align-self: flex-start;
+    min-width: min(100%, 13rem);
+    min-height: 48px;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border-color: rgba($light-orange, 0.46);
+    background: rgba($light-orange, 0.08);
+    letter-spacing: 0.08em;
+    text-align: center;
+    transition:
+      transform 260ms cubic-bezier(0.32, 0.72, 0, 1),
+      border-color 260ms cubic-bezier(0.32, 0.72, 0, 1),
+      color 260ms cubic-bezier(0.32, 0.72, 0, 1),
+      background-color 260ms cubic-bezier(0.32, 0.72, 0, 1);
+
+    &:focus {
+      outline: 2px solid $burnt-orange;
+      outline-offset: 4px;
+    }
+
+    &.not-disabled:hover {
+      transform: translateY(-1px);
+      background: rgba($light-orange, 0.14);
+    }
+
+    &.not-disabled:active {
+      transform: translateY(1px) scale(0.99);
+    }
+  }
+}
+
+@media (max-width: 960px) {
+  .registrationView-wrapper {
+    .registration-layout {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+}
+
+@media (max-width: 812px) {
+  .registrationView-wrapper {
+    padding: 0.8rem;
+
+    .registration-hero {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      padding-bottom: 1.5rem;
+
+      &::after {
+        justify-self: start;
+        width: clamp(4rem, 28vw, 7rem);
+      }
+    }
+
+    h1 {
+      max-width: 13ch;
+    }
+
+    .registration-proposition {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .registration-form-panel {
+      padding: 1rem;
+    }
+
     .plan-options {
       grid-template-columns: 1fr;
     }
   }
+}
 
-  @media (max-width: 812px) {
-    padding: 0.75rem;
-
-    .registration-container {
-      gap: 1.5rem;
-    }
-
-    .fieldSet {
-      padding: 1rem;
+@media (max-width: 480px) {
+  .registrationView-wrapper {
+    .btn {
+      width: 100%;
     }
   }
+}
 
-  @media (max-width: 480px) {
-    padding: 0.5rem;
-
-    .registration-container {
-      gap: 1rem;
-    }
-
-    .fieldSet {
-      padding: 0.75rem;
+@media (prefers-reduced-motion: reduce) {
+  .registrationView-wrapper {
+    .btn,
+    .plan-option,
+    .input-field-wrapper input[type='text'],
+    .input-field-wrapper input[type='email'],
+    .input-field-wrapper input[type='password'] {
+      transition: none;
     }
   }
 }

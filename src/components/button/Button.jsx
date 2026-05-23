@@ -7,17 +7,29 @@ const Button = ({
   disabled = false,
   title,
   onClick,
-  type,
+  type = 'button',
+  className = '',
+  children,
+  ...rest
 }) => {
+  const buttonClassName = [
+    'btn',
+    disabled ? 'disabled' : 'not-disabled',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <button
       type={type}
       onClick={onClick}
-      className={disabled ? 'btn disabled' : 'btn not-disabled'}
+      className={buttonClassName}
       title={title}
       disabled={disabled}
+      {...rest}
     >
-      {text}
+      {children || text}
     </button>
   );
 };
@@ -28,6 +40,8 @@ Button.propTypes = {
   title: PropTypes.string,
   disabled: PropTypes.bool,
   onClick: PropTypes.func,
+  className: PropTypes.string,
+  children: PropTypes.node,
 };
 
 export default Button;

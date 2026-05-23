@@ -3,6 +3,9 @@ import {
   PROFILE_ADMIN_FAILURE,
   PROFILE_ADMIN_REQUEST,
   PROFILE_ADMIN_SUCCESS,
+  PROFILE_AI_DRAFT_FAILURE,
+  PROFILE_AI_DRAFT_REQUEST,
+  PROFILE_AI_DRAFT_SUCCESS,
   PROFILE_BY_ID_FAILURE,
   PROFILE_BY_ID_REQUEST,
   PROFILE_BY_ID_SUCCESS,
@@ -274,6 +277,48 @@ export const updateOnboardingTutorialAction =
     } catch (error) {
       dispatch({
         type: PROFILE_ONBOARDING_TUTORIAL_UPDATE_FAILURE,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
+
+export const profileAIDraftAction =
+  ({ input, currentProfile = {} }) => async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: PROFILE_AI_DRAFT_REQUEST,
+      });
+
+      const {
+        userLogin: { userInfo },
+      } = getState();
+
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      const { data } = await axios.post(
+        `/api/profile/ai-draft`,
+        {
+          input,
+          currentProfile,
+        },
+        config,
+      );
+
+      dispatch({
+        type: PROFILE_AI_DRAFT_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: PROFILE_AI_DRAFT_FAILURE,
         payload:
           error.response && error.response.data.message
             ? error.response.data.message

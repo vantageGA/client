@@ -3,6 +3,10 @@ import {
   PROFILE_ADMIN_REQUEST,
   PROFILE_ADMIN_RESET,
   PROFILE_ADMIN_SUCCESS,
+  PROFILE_AI_DRAFT_FAILURE,
+  PROFILE_AI_DRAFT_REQUEST,
+  PROFILE_AI_DRAFT_RESET,
+  PROFILE_AI_DRAFT_SUCCESS,
   PROFILE_BY_ID_FAILURE,
   PROFILE_BY_ID_REQUEST,
   PROFILE_BY_ID_SUCCESS,
@@ -46,6 +50,16 @@ import {
   PROFILE_VERIFY_QUALIFICATION_SUCCESS,
 } from '../constants/profileConstants';
 
+const replaceProfileById = (profiles, updatedProfile) => {
+  if (!Array.isArray(profiles) || !updatedProfile?._id) {
+    return profiles;
+  }
+
+  return profiles.map((profile) =>
+    profile?._id === updatedProfile._id ? { ...profile, ...updatedProfile } : profile,
+  );
+};
+
 // Get all profiles - with pagination support
 export const profilesReducer = (state = { profiles: [], page: 1, pages: 1, total: 0 }, action) => {
   switch (action.type) {
@@ -59,6 +73,11 @@ export const profilesReducer = (state = { profiles: [], page: 1, pages: 1, total
         page: action.payload.page,
         pages: action.payload.pages,
         total: action.payload.total
+      };
+    case PROFILE_UPDATE_SUCCESS:
+      return {
+        ...state,
+        profiles: replaceProfileById(state.profiles, action.payload),
       };
     case PROFILE_FAILURE:
       return { ...state, loading: false, error: action.payload };
@@ -82,6 +101,11 @@ export const profilesAdminReducer = (state = { profilesAdmin: [], page: 1, pages
         pages: action.payload.pages,
         total: action.payload.total
       };
+    case PROFILE_UPDATE_SUCCESS:
+      return {
+        ...state,
+        profilesAdmin: replaceProfileById(state.profilesAdmin, action.payload),
+      };
     case PROFILE_ADMIN_FAILURE:
       return { ...state, loading: false, error: action.payload };
     case PROFILE_ADMIN_RESET:
@@ -97,6 +121,8 @@ export const profileByIdReducer = (state = {}, action) => {
       return { ...state, loading: true };
     case PROFILE_BY_ID_SUCCESS:
       return { ...state, loading: false, profile: action.payload };
+    case PROFILE_UPDATE_SUCCESS:
+      return { ...state, loading: false, profile: action.payload };
     case PROFILE_BY_ID_FAILURE:
       return { ...state, loading: false, error: action.payload };
     default:
@@ -109,6 +135,8 @@ export const profileOfLoggedInUserReducer = (state = {}, action) => {
     case PROFILE_OF_LOGGED_IN_USER_REQUEST:
       return { ...state, loading: true };
     case PROFILE_OF_LOGGED_IN_USER_SUCCESS:
+      return { ...state, loading: false, profile: action.payload };
+    case PROFILE_UPDATE_SUCCESS:
       return { ...state, loading: false, profile: action.payload };
     case PROFILE_OF_LOGGED_IN_USER_FAILURE:
       return { ...state, loading: false, error: action.payload };
@@ -179,6 +207,29 @@ export const profileOnboardingTutorialUpdateReducer = (state = {}, action) => {
     case PROFILE_ONBOARDING_TUTORIAL_UPDATE_FAILURE:
       return { ...state, loading: false, error: action.payload };
     case PROFILE_ONBOARDING_TUTORIAL_UPDATE_RESET:
+      return {};
+    default:
+      return { ...state };
+  }
+};
+
+export const profileAIDraftReducer = (state = {}, action) => {
+  switch (action.type) {
+    case PROFILE_AI_DRAFT_REQUEST:
+      return { ...state, loading: true, error: null };
+    case PROFILE_AI_DRAFT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: true,
+        draft: action.payload?.draft || {},
+        missingFields: action.payload?.missingFields || [],
+        warnings: action.payload?.warnings || [],
+        error: null,
+      };
+    case PROFILE_AI_DRAFT_FAILURE:
+      return { ...state, loading: false, error: action.payload };
+    case PROFILE_AI_DRAFT_RESET:
       return {};
     default:
       return { ...state };

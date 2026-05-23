@@ -26,6 +26,7 @@ const mockedActions = vi.hoisted(() => ({
   updateOnboardingTutorialAction: vi.fn(() => ({
     type: 'PROFILE_ONBOARDING_TUTORIAL_UPDATE_ACTION',
   })),
+  profileAIDraftAction: vi.fn(() => ({ type: 'PROFILE_AI_DRAFT_ACTION' })),
   qualificationDocumentsAction: vi.fn(() => ({
     type: 'QUALIFICATION_DOCUMENTS_ACTION',
   })),
@@ -65,6 +66,7 @@ vi.mock('../../store/actions/profileActions', () => ({
   profileUpdateAction: mockedActions.profileUpdateAction,
   profileImagesAction: mockedActions.profileImagesAction,
   updateOnboardingTutorialAction: mockedActions.updateOnboardingTutorialAction,
+  profileAIDraftAction: mockedActions.profileAIDraftAction,
 }));
 
 vi.mock('../../store/actions/imageUploadActions', () => ({
@@ -198,6 +200,13 @@ const renderView = (stateOverrides = {}) => {
       error: null,
       onboardingTutorial: null,
     },
+    profileAIDraft: {
+      loading: false,
+      error: null,
+      draft: {},
+      missingFields: [],
+      warnings: [],
+    },
     profileImages: {
       error: null,
       profileImages: [],
@@ -254,6 +263,10 @@ const renderView = (stateOverrides = {}) => {
     profileOnboardingTutorialUpdate: {
       ...baseState.profileOnboardingTutorialUpdate,
       ...(stateOverrides.profileOnboardingTutorialUpdate || {}),
+    },
+    profileAIDraft: {
+      ...baseState.profileAIDraft,
+      ...(stateOverrides.profileAIDraft || {}),
     },
     profileImages: {
       ...baseState.profileImages,
@@ -334,6 +347,126 @@ describe('ProfileEditView', () => {
     expect(within(summaryFieldset).getByText('Live description preview')).toBeTruthy();
     expect(within(summaryFieldset).getByText('Live specialisation preview')).toBeTruthy();
     expect(within(summaryFieldset).getByText('Live qualifications preview')).toBeTruthy();
+  });
+
+  it('requests an AI profile draft with natural language input and current form context', () => {
+    renderView();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Profile Draft Assistant' }));
+    fireEvent.change(
+      screen.getByLabelText(/Describe your professional background/),
+      {
+        target: {
+          value:
+            'I am a Level 3 personal trainer in Manchester specialising in strength training and weight management.',
+        },
+      },
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Generate draft' }));
+
+    expect(mockedActions.profileAIDraftAction).toHaveBeenCalledTimes(1);
+    expect(mockedActions.profileAIDraftAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input:
+          'I am a Level 3 personal trainer in Manchester specialising in strength training and weight management.',
+        currentProfile: expect.objectContaining({
+          location: 'Guildford, Surrey',
+          telephoneNumber: '07123 456789',
+          keywords: ['fitness', 'strength', 'nutrition', 'mobility', 'coaching'],
+        }),
+      }),
+    );
+  });
+
+  it('applies an AI profile draft to the form without saving automatically', () => {
+    renderView({
+      profileAIDraft: {
+        loading: false,
+        error: null,
+        draft: {
+          location: 'Manchester City Centre',
+          telephoneNumber: '07123456789',
+          websiteUrl: 'https://example.com',
+          faceBook: 'examplefitness',
+          instagram: 'examplefit',
+          description: 'Strength coach supporting busy professionals.',
+          specialisation: 'Strength training and weight management.',
+          qualifications: 'Level 3 Personal Training.',
+          specialisationOne: 'Strength',
+          specialisationTwo: 'Weight Management',
+          specialisationThree: 'Mobility',
+          specialisationFour: 'Conditioning',
+          keywords: ['personal training', 'strength', 'weight management'],
+        },
+        missingFields: [],
+        warnings: ['Please verify all qualification and experience claims before saving.'],
+      },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Profile Draft Assistant' }));
+    expect(screen.getByText('Generated Draft')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Apply draft to form' }));
+
+    const summaryFieldset = screen.getByText('Profile Summary').closest('fieldset');
+    expect(within(summaryFieldset).getByText('Manchester City Centre')).toBeTruthy();
+    expect(
+      within(summaryFieldset).getByText('Strength coach supporting busy professionals.'),
+    ).toBeTruthy();
+    expect(
+      within(summaryFieldset).getByText('Level 3 Personal Training.'),
+    ).toBeTruthy();
+    expect(screen.getByText('Draft changes are local until saved.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Save draft changes' })).toBeTruthy();
+    expect(mockedActions.profileUpdateAction).not.toHaveBeenCalled();
+  });
+
+  it('saves an applied AI profile draft through the existing profile update flow', () => {
+    renderView({
+      profileAIDraft: {
+        loading: false,
+        error: null,
+        draft: {
+          location: 'Manchester City Centre',
+          telephoneNumber: '07123456789',
+          websiteUrl: 'https://example.com',
+          faceBook: 'examplefitness',
+          instagram: 'examplefit',
+          description: 'Strength coach supporting busy professionals.',
+          specialisation: 'Strength training and weight management.',
+          qualifications: 'Level 3 Personal Training.',
+          specialisationOne: 'Strength',
+          specialisationTwo: 'Weight Management',
+          specialisationThree: 'Mobility',
+          specialisationFour: 'Conditioning',
+          keywords: ['personal training', 'strength', 'weight management'],
+        },
+        missingFields: [],
+        warnings: [],
+      },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Profile Draft Assistant' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Apply draft to form' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save draft changes' }));
+
+    expect(mockedActions.profileUpdateAction).toHaveBeenCalledTimes(1);
+    expect(mockedActions.profileUpdateAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        location: 'Manchester City Centre',
+        telephoneNumber: '07123456789',
+        websiteUrl: 'https://example.com',
+        faceBook: 'examplefitness',
+        instagram: 'examplefit',
+        specialisationOne: 'Strength',
+        specialisationTwo: 'Weight Management',
+        specialisationThree: 'Mobility',
+        specialisationFour: 'Conditioning',
+        keyWordSearchOne: 'personal training',
+        keyWordSearchTwo: 'strength',
+        keyWordSearchThree: 'weight management',
+      }),
+    );
   });
 
   it('renders pending qualification status in the profile summary', () => {

@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import {
+  profileByIdReducer,
   profileImagesPublicReducer,
   profileOnboardingTutorialUpdateReducer,
+  profileOfLoggedInUserReducer,
+  profilesAdminReducer,
+  profilesReducer,
   profileUpdateReducer,
 } from './profileReducers';
 import {
@@ -12,7 +16,14 @@ import {
   PROFILE_ONBOARDING_TUTORIAL_UPDATE_REQUEST,
   PROFILE_ONBOARDING_TUTORIAL_UPDATE_SUCCESS,
   PROFILE_UPDATE_FAILURE,
+  PROFILE_UPDATE_SUCCESS,
 } from '../constants/profileConstants';
+
+const updatedProfile = {
+  _id: 'profile-1',
+  name: 'Updated Name',
+  location: 'Updated Location',
+};
 
 describe('profileOnboardingTutorialUpdateReducer', () => {
   it('handles request state', () => {
@@ -60,6 +71,88 @@ describe('profileUpdateReducer', () => {
     );
     expect(state.errorCode).toBe('ONBOARDING_TUTORIAL_REQUIRED');
     expect(state.errorStatus).toBe(403);
+  });
+});
+
+describe('profile cache reducers', () => {
+  it('updates the public profile-by-id cache after a successful profile save', () => {
+    const state = profileByIdReducer(
+      {
+        profile: {
+          _id: 'profile-1',
+          name: 'Old Name',
+          location: 'Old Location',
+        },
+      },
+      {
+        type: PROFILE_UPDATE_SUCCESS,
+        payload: updatedProfile,
+      },
+    );
+
+    expect(state.profile).toEqual(updatedProfile);
+    expect(state.loading).toBe(false);
+  });
+
+  it('updates the logged-in profile cache after a successful profile save', () => {
+    const state = profileOfLoggedInUserReducer(
+      {
+        profile: {
+          _id: 'profile-1',
+          name: 'Old Name',
+        },
+      },
+      {
+        type: PROFILE_UPDATE_SUCCESS,
+        payload: updatedProfile,
+      },
+    );
+
+    expect(state.profile).toEqual(updatedProfile);
+    expect(state.loading).toBe(false);
+  });
+
+  it('replaces matching profiles in public and admin lists after a profile save', () => {
+    const publicState = profilesReducer(
+      {
+        profiles: [
+          { _id: 'profile-1', name: 'Old Name', rating: 4 },
+          { _id: 'profile-2', name: 'Other Name' },
+        ],
+        page: 1,
+        pages: 1,
+        total: 2,
+      },
+      {
+        type: PROFILE_UPDATE_SUCCESS,
+        payload: updatedProfile,
+      },
+    );
+    const adminState = profilesAdminReducer(
+      {
+        profilesAdmin: [
+          { _id: 'profile-1', name: 'Old Name', rating: 4 },
+          { _id: 'profile-2', name: 'Other Name' },
+        ],
+        page: 1,
+        pages: 1,
+        total: 2,
+      },
+      {
+        type: PROFILE_UPDATE_SUCCESS,
+        payload: updatedProfile,
+      },
+    );
+
+    expect(publicState.profiles[0]).toEqual({
+      _id: 'profile-1',
+      name: 'Updated Name',
+      rating: 4,
+      location: 'Updated Location',
+    });
+    expect(publicState.profiles[1].name).toBe('Other Name');
+    expect(adminState.profilesAdmin[0].name).toBe('Updated Name');
+    expect(adminState.profilesAdmin[1].name).toBe('Other Name');
   });
 });
 

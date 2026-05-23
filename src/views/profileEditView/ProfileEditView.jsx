@@ -9,6 +9,7 @@ import {
   profileUpdateAction,
   profileImagesAction,
   updateOnboardingTutorialAction,
+  profileAIDraftAction,
 } from '../../store/actions/profileActions';
 import {
   deleteQualificationDocumentAction,
@@ -23,6 +24,7 @@ import {
   PROFILE_UPDATE_RESET,
   PROFILE_ONBOARDING_TUTORIAL_UPDATE_RESET,
   PROFILE_OF_LOGGED_IN_USER_RESET,
+  PROFILE_AI_DRAFT_RESET,
 } from '../../store/constants/profileConstants';
 import {
   QUALIFICATION_DOCUMENT_DELETE_RESET,
@@ -91,6 +93,21 @@ const ACCEPTED_QUALIFICATION_DOCUMENT_MIME_TYPES = new Set([
 ]);
 const QUALIFICATION_DOCUMENT_ACCEPT_ATTRIBUTE =
   'application/pdf,image/jpeg,image/png';
+const PROFILE_AI_DRAFT_MIN_CHARACTERS = 40;
+
+const escapeHtml = (value = '') =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+const toRichTextParagraph = (value) => {
+  if (typeof value !== 'string' || !value.trim()) return '';
+
+  return `<p>${escapeHtml(value.trim())}</p>`;
+};
 
 const formatQualificationDocumentStatus = (status) => {
   switch (status) {
@@ -244,6 +261,15 @@ const ProfileEditView = () => {
     onboardingTutorial: tutorialUpdateData,
   } = profileOnboardingTutorialUpdateState;
 
+  const profileAIDraftState = useSelector((state) => state.profileAIDraft || {});
+  const {
+    loading: profileAIDraftLoading,
+    error: profileAIDraftError,
+    draft: profileAIDraft = {},
+    missingFields: profileAIDraftMissingFields = [],
+    warnings: profileAIDraftWarnings = [],
+  } = profileAIDraftState;
+
   // PROFILE images
   const profileImagesState = useSelector((state) => state.profileImages);
   const { error: profileImagesError, profileImages } = profileImagesState;
@@ -308,6 +334,8 @@ const ProfileEditView = () => {
       id: '',
       type: '',
     });
+  const [profileDraftInput, setProfileDraftInput] = useState('');
+  const [profileDraftApplied, setProfileDraftApplied] = useState(false);
 
   const [keyWordSearchOne, setkeyWordSearchOne] = useState('');
   const [keyWordSearchTwo, setkeyWordSearchTwo] = useState('');
@@ -330,6 +358,7 @@ const ProfileEditView = () => {
   // Refs
   const fileInputRef = useRef(null);
   const descriptionEditorRef = useRef(null);
+  const profileDraftInputRef = useRef(null);
   const qualificationDocumentInputRef = useRef(null);
   const qualificationDocumentReplaceInputRef = useRef(null);
 
@@ -409,6 +438,7 @@ const ProfileEditView = () => {
   // Watch profileUpdate state for success/error
   useEffect(() => {
     if (updateSuccess) {
+      setProfileDraftApplied(false);
       showNotification('Profile updated successfully', 'success');
       dispatch({ type: PROFILE_UPDATE_RESET });
     }
@@ -431,6 +461,22 @@ const ProfileEditView = () => {
     }));
     dispatch({ type: PROFILE_ONBOARDING_TUTORIAL_UPDATE_RESET });
   }, [tutorialUpdateData, dispatch]);
+
+  useEffect(() => {
+    if (!profileAIDraftError) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      showNotification(profileAIDraftError, 'error');
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [profileAIDraftError]);
+
+  useEffect(() => () => {
+    dispatch({ type: PROFILE_AI_DRAFT_RESET });
+  }, [dispatch]);
 
   useEffect(() => {
     if (!pendingFocusId) return;
@@ -566,9 +612,31 @@ const ProfileEditView = () => {
     dispatch(createProfileAction());
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const buildProfileUpdatePayload = (overrides = {}) => ({
+    name,
+    email,
+    faceBook,
+    instagram,
+    websiteUrl,
+    profileImage,
+    description,
+    specialisation,
+    qualifications,
+    location,
+    telephoneNumber,
+    keyWordSearchOne,
+    keyWordSearchTwo,
+    keyWordSearchThree,
+    keyWordSearchFour,
+    keyWordSearchFive,
+    specialisationOne,
+    specialisationTwo,
+    specialisationThree,
+    specialisationFour,
+    ...overrides,
+  });
 
+  const saveProfileUpdatePayload = (payload) => {
     if (!onboardingTutorial?.isCompleted) {
       showNotification(
         'Complete the onboarding tutorial before saving your profile.',
@@ -578,21 +646,23 @@ const ProfileEditView = () => {
     }
 
     // Validate all required fields before processing
-    if (!name || name.trim().length === 0) {
+    if (!payload.name || payload.name.trim().length === 0) {
       setOpenSection('basics');
       setPendingFocusId('profile-name');
       showNotification('Name is required', 'error');
       return;
     }
 
-    if (!emailRegEx.test(email)) {
+    if (!emailRegEx.test(payload.email)) {
       setOpenSection('basics');
       setPendingFocusId('profile-email');
       showNotification('Valid email address is required', 'error');
       return;
     }
 
-    const normalizedTelephoneNumber = normalizeTelephoneNumber(telephoneNumber);
+    const normalizedTelephoneNumber = normalizeTelephoneNumber(
+      payload.telephoneNumber || '',
+    );
 
     if (!telephoneNumberRegEx.test(normalizedTelephoneNumber)) {
       setOpenSection('telephone');
@@ -601,17 +671,17 @@ const ProfileEditView = () => {
       return;
     }
 
-    if (stripHtml(description).length < 10) {
+    if (stripHtml(payload.description || '').length < 10) {
       setOpenSection('description');
       setPendingFocusId('profile-description');
       showNotification(
-        `Description must be at least 10 characters (${stripHtml(description).length} entered)`,
+        `Description must be at least 10 characters (${stripHtml(payload.description || '').length} entered)`,
         'error',
       );
       return;
     }
 
-    const specialisationTextLength = stripHtml(specialisation).length;
+    const specialisationTextLength = stripHtml(payload.specialisation || '').length;
     if (specialisationTextLength > SPECIALISATION_MAX_CHARACTERS) {
       setOpenSection('specialisation');
       showNotification(
@@ -621,7 +691,7 @@ const ProfileEditView = () => {
       return;
     }
 
-    if (location.length < 10) {
+    if ((payload.location || '').length < 10) {
       setOpenSection('location');
       setPendingFocusId('location');
       showNotification('Location must be at least 10 characters', 'error');
@@ -630,13 +700,13 @@ const ProfileEditView = () => {
 
     // Validate keywords
     const keywords = [
-      keyWordSearchOne,
-      keyWordSearchTwo,
-      keyWordSearchThree,
-      keyWordSearchFour,
-      keyWordSearchFive,
+      payload.keyWordSearchOne,
+      payload.keyWordSearchTwo,
+      payload.keyWordSearchThree,
+      payload.keyWordSearchFour,
+      payload.keyWordSearchFive,
     ];
-    const invalidKeywords = keywords.filter((k) => k.length < 3);
+    const invalidKeywords = keywords.filter((k) => (k || '').length < 3);
     if (invalidKeywords.length > 0) {
       setOpenSection('keywords');
       setPendingFocusId('keyword-one');
@@ -646,12 +716,12 @@ const ProfileEditView = () => {
 
     // Validate specializations
     const specializations = [
-      specialisationOne,
-      specialisationTwo,
-      specialisationThree,
-      specialisationFour,
+      payload.specialisationOne,
+      payload.specialisationTwo,
+      payload.specialisationThree,
+      payload.specialisationFour,
     ];
-    const invalidSpecs = specializations.filter((s) => s.length < 3);
+    const invalidSpecs = specializations.filter((s) => (s || '').length < 3);
     if (invalidSpecs.length > 0) {
       setOpenSection('spec-keywords');
       setPendingFocusId('specialisation-one');
@@ -666,28 +736,15 @@ const ProfileEditView = () => {
     // Keywords are now handled server-side automatically
     dispatch(
       profileUpdateAction({
-        name,
-        email,
-        faceBook,
-        instagram,
-        websiteUrl,
-        profileImage,
-        description,
-        specialisation,
-        qualifications,
-        location,
+        ...payload,
         telephoneNumber: normalizedTelephoneNumber,
-        keyWordSearchOne,
-        keyWordSearchTwo,
-        keyWordSearchThree,
-        keyWordSearchFour,
-        keyWordSearchFive,
-        specialisationOne,
-        specialisationTwo,
-        specialisationThree,
-        specialisationFour,
       }),
     );
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    saveProfileUpdatePayload(buildProfileUpdatePayload());
   };
 
   const handleTutorialUpdate = (tutorialPayload) => {
@@ -782,6 +839,140 @@ const ProfileEditView = () => {
     setTouched((prev) => ({ ...prev, [field]: true }));
   };
 
+  const buildProfileDraftContext = () => ({
+    location,
+    telephoneNumber,
+    websiteUrl,
+    faceBook,
+    instagram,
+    description: stripHtml(description || ''),
+    specialisation: stripHtml(specialisation || ''),
+    qualifications: stripHtml(qualifications || ''),
+    specialisationOne,
+    specialisationTwo,
+    specialisationThree,
+    specialisationFour,
+    keywords: [
+      keyWordSearchOne,
+      keyWordSearchTwo,
+      keyWordSearchThree,
+      keyWordSearchFour,
+      keyWordSearchFive,
+    ].filter(Boolean),
+  });
+
+  const handleGenerateProfileDraft = () => {
+    const trimmedInput = profileDraftInput.trim();
+
+    if (trimmedInput.length < PROFILE_AI_DRAFT_MIN_CHARACTERS) {
+      setOpenSection('profile-draft-assistant');
+      profileDraftInputRef.current?.focus();
+      showNotification(
+        `Profile draft input must be at least ${PROFILE_AI_DRAFT_MIN_CHARACTERS} characters`,
+        'error',
+      );
+      return;
+    }
+
+    setProfileDraftApplied(false);
+    dispatch(
+      profileAIDraftAction({
+        input: trimmedInput,
+        currentProfile: buildProfileDraftContext(),
+      }),
+    );
+  };
+
+  const applyDraftValue = (value, setter) => {
+    if (typeof value === 'string' && value.trim()) {
+      setter(value.trim());
+    }
+  };
+
+  const buildAppliedDraftPayload = () => {
+    const draftKeywords = Array.isArray(profileAIDraft.keywords)
+      ? profileAIDraft.keywords
+      : [];
+
+    return buildProfileUpdatePayload({
+      location: profileAIDraft.location?.trim() || location,
+      telephoneNumber: profileAIDraft.telephoneNumber?.trim() || telephoneNumber,
+      websiteUrl: profileAIDraft.websiteUrl?.trim() || websiteUrl,
+      faceBook: profileAIDraft.faceBook?.trim() || faceBook,
+      instagram: profileAIDraft.instagram?.trim() || instagram,
+      description:
+        toRichTextParagraph(profileAIDraft.description) || description,
+      specialisation:
+        toRichTextParagraph(profileAIDraft.specialisation) || specialisation,
+      qualifications:
+        toRichTextParagraph(profileAIDraft.qualifications) || qualifications,
+      specialisationOne:
+        profileAIDraft.specialisationOne?.trim() || specialisationOne,
+      specialisationTwo:
+        profileAIDraft.specialisationTwo?.trim() || specialisationTwo,
+      specialisationThree:
+        profileAIDraft.specialisationThree?.trim() || specialisationThree,
+      specialisationFour:
+        profileAIDraft.specialisationFour?.trim() || specialisationFour,
+      keyWordSearchOne: draftKeywords[0]?.trim() || keyWordSearchOne,
+      keyWordSearchTwo: draftKeywords[1]?.trim() || keyWordSearchTwo,
+      keyWordSearchThree: draftKeywords[2]?.trim() || keyWordSearchThree,
+      keyWordSearchFour: draftKeywords[3]?.trim() || keyWordSearchFour,
+      keyWordSearchFive: draftKeywords[4]?.trim() || keyWordSearchFive,
+    });
+  };
+
+  const handleApplyProfileDraft = () => {
+    applyDraftValue(profileAIDraft.location, setLocation);
+    applyDraftValue(profileAIDraft.telephoneNumber, setTelephoneNumber);
+    applyDraftValue(profileAIDraft.websiteUrl, setWebsiteUrl);
+    applyDraftValue(profileAIDraft.faceBook, setFaceBook);
+    applyDraftValue(profileAIDraft.instagram, setInstagram);
+    applyDraftValue(
+      toRichTextParagraph(profileAIDraft.description),
+      setDescription,
+    );
+    applyDraftValue(
+      toRichTextParagraph(profileAIDraft.specialisation),
+      setSpecialisation,
+    );
+    applyDraftValue(
+      toRichTextParagraph(profileAIDraft.qualifications),
+      setQualifications,
+    );
+    applyDraftValue(profileAIDraft.specialisationOne, setSpecialisationOne);
+    applyDraftValue(profileAIDraft.specialisationTwo, setSpecialisationTwo);
+    applyDraftValue(profileAIDraft.specialisationThree, setSpecialisationThree);
+    applyDraftValue(profileAIDraft.specialisationFour, setSpecialisationFour);
+
+    const draftKeywords = Array.isArray(profileAIDraft.keywords)
+      ? profileAIDraft.keywords
+      : [];
+
+    [
+      setkeyWordSearchOne,
+      setkeyWordSearchTwo,
+      setkeyWordSearchThree,
+      setkeyWordSearchFour,
+      setkeyWordSearchFive,
+    ].forEach((setter, index) => {
+      if (draftKeywords[index]) {
+        setter(draftKeywords[index]);
+      }
+    });
+
+    setProfileDraftApplied(true);
+    showNotification(
+      'Profile draft applied. Use Save draft changes to publish it.',
+      'success',
+    );
+  };
+
+  const handleSaveAppliedProfileDraft = (event) => {
+    event.preventDefault();
+    saveProfileUpdatePayload(buildAppliedDraftPayload());
+  };
+
   // Validation helpers
   const isNameValid = name && name.length > 0;
   const isEmailValid = emailRegEx.test(email);
@@ -829,6 +1020,28 @@ const ProfileEditView = () => {
   const qualificationDocumentSizeInMb = selectedQualificationDocument
     ? (selectedQualificationDocument.size / (1024 * 1024)).toFixed(2)
     : null;
+  const profileDraftTextLength = profileDraftInput.trim().length;
+  const profileDraftFields = [
+    ['Location', profileAIDraft.location],
+    ['Telephone', profileAIDraft.telephoneNumber],
+    ['Website', profileAIDraft.websiteUrl],
+    ['Facebook', profileAIDraft.faceBook],
+    ['Instagram', profileAIDraft.instagram],
+    ['Description', profileAIDraft.description],
+    ['Specialisation', profileAIDraft.specialisation],
+    ['Qualifications', profileAIDraft.qualifications],
+    ['Specialisation 1', profileAIDraft.specialisationOne],
+    ['Specialisation 2', profileAIDraft.specialisationTwo],
+    ['Specialisation 3', profileAIDraft.specialisationThree],
+    ['Specialisation 4', profileAIDraft.specialisationFour],
+    [
+      'Keywords',
+      Array.isArray(profileAIDraft.keywords)
+        ? profileAIDraft.keywords.join(', ')
+        : '',
+    ],
+  ].filter(([, value]) => typeof value === 'string' && value.trim().length > 0);
+  const hasProfileAIDraft = profileDraftFields.length > 0;
 
   const validateQualificationDocumentFile = (file) => {
     if (!file) {
@@ -1097,6 +1310,123 @@ const ProfileEditView = () => {
                     }
                   />
                 ) : null}
+              </FormSectionAccordion>
+              <FormSectionAccordion
+                title="Profile Draft Assistant"
+                isOpen={openSection === 'profile-draft-assistant'}
+                onToggle={() =>
+                  setOpenSection((current) =>
+                    current === 'profile-draft-assistant'
+                      ? ''
+                      : 'profile-draft-assistant',
+                  )
+                }
+              >
+                <div className="ai-profile-draft-panel">
+                  <div className="textarea-wrapper">
+                    <div className="input-border-header">
+                      <label htmlFor="profile-draft-input">
+                        Describe your professional background, services,
+                        location, qualifications, and specialisms.
+                      </label>
+                      <span className="small-text character-count">
+                        {profileDraftTextLength} characters
+                      </span>
+                    </div>
+                    <textarea
+                      ref={profileDraftInputRef}
+                      id="profile-draft-input"
+                      value={profileDraftInput}
+                      onChange={(event) => setProfileDraftInput(event.target.value)}
+                      name="profileDraftInput"
+                      placeholder="I am a Level 3 personal trainer in Manchester..."
+                      aria-describedby="profile-draft-warning"
+                    />
+                    <span id="profile-draft-warning" className="field-hint">
+                      Review all generated details before saving.
+                    </span>
+                  </div>
+
+                  <div className="ai-profile-draft-actions">
+                    <Button
+                      type="button"
+                      text={
+                        profileAIDraftLoading
+                          ? 'Generating draft...'
+                          : 'Generate draft'
+                      }
+                      title="Generate profile draft"
+                      disabled={profileAIDraftLoading}
+                      onClick={handleGenerateProfileDraft}
+                    />
+                    {hasProfileAIDraft ? (
+                      <Button
+                        type="button"
+                        text="Apply draft to form"
+                        title="Apply generated draft to the profile form"
+                        disabled={profileAIDraftLoading}
+                        onClick={handleApplyProfileDraft}
+                      />
+                    ) : null}
+                    {profileDraftApplied ? (
+                      <Button
+                        type="button"
+                        text="Save draft changes"
+                        title="Save applied draft changes"
+                        disabled={saveDisabled || profileAIDraftLoading}
+                        onClick={handleSaveAppliedProfileDraft}
+                      />
+                    ) : null}
+                  </div>
+
+                  {profileDraftApplied ? (
+                    <p className="field-hint" role="status">
+                      Draft changes are local until saved.
+                    </p>
+                  ) : null}
+
+                  {profileAIDraftLoading ? <LoadingSpinner /> : null}
+
+                  {profileAIDraftError ? (
+                    <p className="validation-error" role="alert">
+                      {profileAIDraftError}
+                    </p>
+                  ) : null}
+
+                  {hasProfileAIDraft ? (
+                    <div
+                      className="ai-profile-draft-preview"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      <h4>Generated Draft</h4>
+                      <dl>
+                        {profileDraftFields.map(([label, value]) => (
+                          <React.Fragment key={label}>
+                            <dt>{label}</dt>
+                            <dd>{value}</dd>
+                          </React.Fragment>
+                        ))}
+                      </dl>
+                      {profileAIDraftWarnings.length > 0 ? (
+                        <div className="ai-profile-draft-notes">
+                          <h5>Review Notes</h5>
+                          <ul>
+                            {profileAIDraftWarnings.map((warning) => (
+                              <li key={warning}>{warning}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null}
+                      {profileAIDraftMissingFields.length > 0 ? (
+                        <p className="small-text">
+                          Missing:{' '}
+                          {profileAIDraftMissingFields.join(', ')}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
               </FormSectionAccordion>
               <FormSectionAccordion
                 title="Profile Basics"
