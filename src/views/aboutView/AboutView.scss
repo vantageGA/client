@@ -13,10 +13,7 @@
     inset: 0;
     pointer-events: none;
     background:
-      radial-gradient(circle at 20% 12%, rgba($light-orange, 0.1), transparent 24rem),
-      linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
-    background-size: auto, 28px 28px, 28px 28px;
+      radial-gradient(circle at 20% 12%, rgba($light-orange, 0.1), transparent 24rem);
   }
 
   .about-panel {
@@ -164,7 +161,7 @@
     top: calc($header-height + 1rem);
     align-self: start;
 
-    span {
+    > span {
       display: block;
       margin-bottom: 0.65rem;
       color: rgba($main-font-colour, 0.45);

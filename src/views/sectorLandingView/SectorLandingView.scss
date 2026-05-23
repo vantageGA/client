@@ -2,104 +2,288 @@
 @use '../../scssMixIn.scss' as *;
 
 .sector-landing-wrapper {
-  max-width: 1200px;
+  position: relative;
+  max-width: min(1680px, calc(100vw - 2rem));
   margin: 0 auto;
-  padding: 2rem;
+  padding: clamp(1.25rem, 4vw, 3.5rem);
 
-  .fieldSet {
-    padding: 1.5rem;
-    background-color: $panel-bg-colour;
-    border-radius: 4px;
-    border: 1px solid $border-colour-light;
-    border-left: 1px solid $light-orange;
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 18% 10%, rgba($light-orange, 0.1), transparent 24rem);
+  }
 
-    legend {
-      font-family: 'Bebas Neue', cursive;
-      letter-spacing: 0.1em;
-      font-size: 1.5rem;
-      color: $light-orange;
-      padding: 0 0.5rem;
+  .sector-panel {
+    position: relative;
+    padding: 0;
+  }
+
+  .sector-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 0.72fr) minmax(14rem, 0.28fr);
+    gap: clamp(0.75rem, 2vw, 2rem);
+    align-items: end;
+    padding-bottom: clamp(1.75rem, 4vw, 3rem);
+    border-bottom: 1px solid rgba($border-colour, 0.16);
+
+    &::after {
+      content: '';
+      justify-self: end;
+      width: clamp(5rem, 15vw, 11rem);
+      aspect-ratio: 1;
+      background-image: url('../../assets/logo/logo.svg');
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      opacity: 0.14;
     }
   }
 
-  p {
-    margin-bottom: 1rem;
-    line-height: 1.6;
+  .sector-kicker {
+    width: fit-content;
+    margin: 0 0 clamp(0.75rem, 2vw, 1.15rem);
+    padding: 0.35rem 0.55rem;
+    color: $light-orange;
+    background-color: rgba(51, 51, 51, 0.72);
+    border-left: 2px solid $burnt-orange;
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    letter-spacing: 0.2em;
+    line-height: 1;
+    text-transform: uppercase;
   }
 
-  h3 {
+  h1 {
+    max-width: 14ch;
+    margin: 0;
+    color: $main-font-colour;
     font-family: 'Bebas Neue', cursive;
-    letter-spacing: 0.1em;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
+    font-size: clamp(2.1rem, 5.8vw, 4.8rem);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .sector-intro {
+    position: relative;
+    max-width: 82ch;
+    margin: clamp(1.5rem, 4vw, 3rem) 0 clamp(1rem, 3vw, 2rem)
+      clamp(0rem, 8vw, 5rem);
+    padding-left: clamp(1rem, 2vw, 1.5rem);
+    border-left: 1px solid rgba($light-orange, 0.46);
+  }
+
+  p {
+    max-width: 82ch;
+    margin: 0 0 1rem;
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  h2 {
+    margin: 0;
     color: $light-orange;
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(1.45rem, 3vw, 2.15rem);
+    letter-spacing: 0.13em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .sector-sections {
+    position: relative;
+  }
+
+  .content-section {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.34fr) minmax(0, 0.66fr);
+    gap: clamp(1.25rem, 4vw, 4rem);
+    margin: 0;
+    padding: clamp(1.75rem, 4vw, 3rem) 0;
+    background-color: transparent;
+    border-bottom: 1px solid rgba($border-colour, 0.14);
+
+    &:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  .content-section-feature {
+    .section-copy {
+      padding: clamp(1rem, 2vw, 1.4rem);
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba($border-colour, 0.13);
+      border-left-color: rgba($light-orange, 0.48);
+      border-radius: 6px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+  }
+
+  .section-heading {
+    position: sticky;
+    top: calc($header-height + 1rem);
+    align-self: start;
+
+    > span {
+      display: block;
+      margin-bottom: 0.65rem;
+      color: rgba($main-font-colour, 0.45);
+      font-family: 'Bebas Neue', cursive;
+      font-size: 0.95rem;
+      letter-spacing: 0.22em;
+    }
+  }
+
+  .section-copy {
+    min-width: 0;
   }
 
   ul {
     list-style: none;
+    margin: 0;
     padding-left: 0;
-    margin: 0.75rem 0;
+    columns: 2;
+    column-gap: clamp(1.5rem, 4vw, 4rem);
 
     li {
-      margin-bottom: 0.75rem;
-      padding-left: 1.5em;
       position: relative;
-      line-height: 1.6;
+      break-inside: avoid;
+      margin-bottom: 0.85rem;
+      padding-left: 1.45em;
+      line-height: 1.55;
 
       &::before {
         content: '▸';
         position: absolute;
         left: 0;
         color: $burnt-orange;
-        font-weight: bold;
+        font-weight: 700;
       }
     }
   }
 
-  .content-section {
-    margin: 0;
-    padding: 0;
-    background-color: transparent;
-    border-radius: 4px;
-  }
-
   .cta-section {
-    margin: 0;
-    padding: 1.5rem;
-    background-color: transparent;
-    border-radius: 4px;
-    text-align: left;
+    .cta-copy {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: clamp(1rem, 3vw, 2rem);
+      align-items: center;
+      padding: clamp(1rem, 2vw, 1.4rem);
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba($border-colour, 0.13);
+      border-left-color: rgba($light-orange, 0.48);
+      border-radius: 6px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+      img {
+        width: clamp(3rem, 7vw, 5.5rem);
+        height: auto;
+        opacity: 0.38;
+      }
+    }
 
     .cta-buttons {
       display: flex;
-      gap: 1rem;
-      justify-content: center;
       flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: flex-start;
+    }
+
+    .btn {
+      min-width: min(100%, 14rem);
+      min-height: 2.7rem;
+      margin: 0;
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba($light-orange, 0.42);
+      border-radius: 4px;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      opacity: 1;
+      transition:
+        transform 260ms cubic-bezier(0.32, 0.72, 0, 1),
+        border-color 260ms cubic-bezier(0.32, 0.72, 0, 1),
+        color 260ms cubic-bezier(0.32, 0.72, 0, 1),
+        background-color 260ms cubic-bezier(0.32, 0.72, 0, 1);
+
+      &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        border-color: $light-orange;
+        color: $light-orange;
+        background-color: rgba($light-orange, 0.08);
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(1px) scale(0.99);
+      }
+
+      &:focus-visible {
+        outline: 2px solid $burnt-orange;
+        outline-offset: 4px;
+      }
     }
   }
 }
 
 @media (max-width: 812px) {
   .sector-landing-wrapper {
-    padding: 0.75rem;
+    padding: 0.8rem;
 
-    .fieldSet {
-      padding: 1rem;
+    .sector-hero,
+    .content-section {
+      grid-template-columns: 1fr;
+      gap: 1rem;
     }
 
-    .content-section,
-    .cta-section {
-      padding: 1rem;
+    .sector-hero::after {
+      justify-self: start;
+      width: 5.5rem;
+      opacity: 0.12;
+    }
+
+    .sector-intro {
+      margin-left: 0;
+    }
+
+    .section-heading {
+      position: relative;
+      top: auto;
+    }
+
+    ul {
+      columns: 1;
     }
 
     .cta-section {
+      .cta-copy {
+        grid-template-columns: 1fr;
+      }
+
       .cta-buttons {
-        flex-direction: column;
-        gap: 0.75rem;
+        display: grid;
+        grid-template-columns: 1fr;
+      }
 
-        button {
-          width: 100%;
-        }
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sector-landing-wrapper {
+    .cta-section .btn {
+      transition: none;
+
+      &:hover {
+        transform: none;
       }
     }
   }

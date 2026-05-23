@@ -1,10 +1,27 @@
 @use '../../index.scss' as *;
 
 .bodyVantage-wrapper {
-  background-color: rgba(51, 51, 51, 0.8);
+  display: inline-flex;
+  align-items: baseline;
+  max-width: 100%;
+  padding: 0.08em 0.18em 0.02em;
+  color: $main-font-colour;
+  background-color: rgba(51, 51, 51, 0.78);
+  border-left: 1px solid rgba($light-orange, 0.72);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  line-height: 0.95;
+  vertical-align: baseline;
+  white-space: nowrap;
+
   .bodyVantage-text {
-    font-family: 'Bebas Neue', cursive;   
-      padding: 2px 2px;
-    letter-spacing: 0.2em;
+    display: inline-block;
+    color: inherit;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 0.94em;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    line-height: 0.95;
+    text-transform: uppercase;
   }
 }

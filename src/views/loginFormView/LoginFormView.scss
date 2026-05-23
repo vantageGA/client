@@ -14,10 +14,7 @@
     inset: 0;
     pointer-events: none;
     background:
-      radial-gradient(circle at 20% 12%, rgba($light-orange, 0.1), transparent 24rem),
-      linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
-    background-size: auto, 28px 28px, 28px 28px;
+      radial-gradient(circle at 20% 12%, rgba($light-orange, 0.1), transparent 24rem);
   }
 
   .login-panel {
@@ -80,7 +77,7 @@
     letter-spacing: 0.02em;
     text-wrap: balance;
 
-    span {
+    > span {
       color: $light-orange;
     }
   }
@@ -105,7 +102,7 @@
   .section-heading {
     margin-bottom: 1.25rem;
 
-    span {
+    > span {
       display: block;
       margin-bottom: 0.65rem;
       color: rgba($main-font-colour, 0.45);

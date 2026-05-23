@@ -11,6 +11,7 @@ import Card from '../../components/card/Card';
 import BodyVantage from '../../components/bodyVantage/BodyVantage';
 import Button from '../../components/button/Button';
 import PageMeta from '../../components/seo/PageMeta';
+import logo from '../../assets/logo/logo.svg';
 import {
   buildBreadcrumbJsonLd,
   organizationJsonLd,
@@ -249,7 +250,10 @@ const HomeView = () => {
           buildBreadcrumbJsonLd([{ name: 'Home', path: '/' }]),
         ]}
       />
-      <section className="home-hero-section" aria-label="Professional Search">
+      <section
+        className={`home-hero-section${keyword.length > 0 ? ' is-searching' : ''}`}
+        aria-label="Professional Search"
+      >
         {error && (
           <div role="alert" aria-live="assertive">
             <Message message={error} />
@@ -269,63 +273,71 @@ const HomeView = () => {
           }}
           className="input-wrapper"
         >
-          {keyword.length > 0 ? null : (
-            <>
-              <div className="home-hero-copy">
-                <h1>Verified Professionals. Trusted by Clients.</h1>
-              </div>
-            </>
-          )}
-
-          <div
-            className="search-input-position"
-            id="verified-professional-directory"
-          >
-            <SearchInput
-              id="professional-search"
-              type="search"
-              value={keyword}
-              handleSearch={handleSearch}
-              placeholder="Search 'barber', 'hairdresser', 'personal trainer' or a location"
-              ariaLabel="Search for verified professionals by specialty or location"
-              ariaDescribedBy="search-hint"
-            />
-            <div id="search-hint" className="sr-only">
-              Enter keywords like barber, hairdresser, personal trainer, beauty professional or location names
-            </div>
+          <div className="home-landing-inner">
             {keyword.length > 0 ? (
-              <div
-                className="keyword-length"
-                role="status"
-                aria-live="polite"
-                aria-atomic="true"
-              >
-                {isSearchPending ? (
-                  'Searching...'
-                ) : (
-                  <>
-                    <span className="keyword-length-highlight">
-                      {total || 0}
-                    </span>{' '}
-                    {total === 1 ? 'profile' : 'profiles'} found that match your search criteria.
-                  </>
-                )}
+              <header className="home-results-header">
+                <p className="home-kicker">Directory Search</p>
+                <h1>Search verified professionals</h1>
+              </header>
+            ) : (
+              <div className="home-search-led-hero">
+                <div className="home-hero-copy">
+                  <h1>Verified Professionals. Trusted by Clients.</h1>
+                  <p>
+                    <BodyVantage /> is the UK's professional registration and
+                    verification platform for fitness, beauty, and wellbeing
+                    professionals.
+                  </p>
+                </div>
               </div>
-            ) : null}
-          </div>
+            )}
 
-          {keyword.length > 0 ? null : (
-            <>
-              <div className="home-hero-copy">
-                <p>
-                  <BodyVantage /> is the UK's professional registration and
-                  verification platform for fitness, beauty, and wellbeing
-                  professionals.
-                </p>
-                <p>
-                  From personal trainers to barbers and hairdressers, we help
-                  qualified professionals stand out and build trust instantly.
-                </p>
+            <div
+              className="search-input-position"
+              id="verified-professional-directory"
+            >
+              <SearchInput
+                id="professional-search"
+                type="search"
+                value={keyword}
+                handleSearch={handleSearch}
+                placeholder="Search 'barber', 'hairdresser', 'personal trainer' or a location"
+                ariaLabel="Search for verified professionals by specialty or location"
+                ariaDescribedBy="search-hint"
+              />
+              <div id="search-hint" className="sr-only">
+                Enter keywords like barber, hairdresser, personal trainer, beauty professional or location names
+              </div>
+              {keyword.length > 0 ? (
+                <div
+                  className="keyword-length"
+                  role="status"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  {isSearchPending ? (
+                    'Searching...'
+                  ) : (
+                    <>
+                      <span className="keyword-length-highlight">
+                        {total || 0}
+                      </span>{' '}
+                      {total === 1 ? 'profile' : 'profiles'} found that match your search criteria.
+                    </>
+                  )}
+                </div>
+              ) : null}
+            </div>
+
+            {keyword.length > 0 ? null : (
+              <div className="home-landing-panel">
+                <div className="home-search-support">
+                  <img src={logo} alt="" aria-hidden="true" />
+                  <p>
+                    From personal trainers to barbers and hairdressers, we help
+                    qualified professionals stand out and build trust instantly.
+                  </p>
+                </div>
                 <nav
                   className="home-sector-links"
                   aria-label="Browse professional sectors"
@@ -343,6 +355,7 @@ const HomeView = () => {
                     disabled={false}
                     onClick={() => navigate('/pre-registration')}
                     title="Get registered with Body Vantage"
+                    className="home-primary-action"
                   />
                   <Button
                     type="button"
@@ -350,13 +363,13 @@ const HomeView = () => {
                     disabled={false}
                     onClick={() => navigate('/login')}
                     title="Log in to verify your qualifications"
+                    className="home-secondary-action"
                   />
                 </div>
               </div>
-            </>
-          )}
+            )}
 
-          <div className="home-view">
+            <div className="home-view">
             {keyword.length > 0 && (
               <div className="card-wrapper">
                 {loading || isSearchPending ? (
@@ -423,6 +436,7 @@ const HomeView = () => {
                 </button>
               </div>
             )}
+            </div>
           </div>
         </div>
       </section>
