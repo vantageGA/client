@@ -39,7 +39,9 @@
 
     &::after {
       content: '';
-      justify-self: end;
+      position: absolute;
+      right: 0;
+      bottom: $page-hero-bottom-space;
       width: $page-hero-mark-size;
       aspect-ratio: 1;
       background-image: url('../../assets/logo/logo.svg');
@@ -260,20 +262,22 @@
 
 @media (max-width: 812px) {
   .about-wrapper {
-    padding: 0.8rem;
+    padding: 0.55rem 0.65rem;
 
     .about-hero,
     .content-section {
       grid-template-columns: 1fr;
-      gap: 1rem;
+      gap: 0.65rem;
     }
 
     .about-hero {
-      padding-bottom: 1rem;
+      padding-bottom: 0.35rem;
 
       &::after {
-        justify-self: start;
-        width: clamp(4rem, 28vw, 7rem);
+        right: 0;
+        bottom: 0.1rem;
+        width: $page-hero-mark-mobile-size;
+        opacity: 0.09;
       }
     }
 
@@ -283,7 +287,9 @@
 
     .about-intro {
       grid-template-columns: 1fr;
-      gap: 0.75rem;
+      gap: 0.45rem;
+      margin-top: 0.45rem;
+      padding: 0.45rem 0 0;
     }
 
     .section-heading {
@@ -295,7 +301,7 @@
     }
 
     .content-section {
-      padding: 1.5rem 0;
+      padding: 1rem 0;
     }
   }
 }

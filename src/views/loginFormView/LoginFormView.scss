@@ -40,7 +40,9 @@
 
     &::after {
       content: '';
-      justify-self: end;
+      position: absolute;
+      right: 0;
+      bottom: $page-hero-bottom-space;
       width: $page-hero-mark-size;
       aspect-ratio: 1;
       background-image: url('../../assets/logo/logo.svg');
@@ -199,7 +201,7 @@
     display: flex;
     justify-content: flex-start;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.65rem;
     margin-top: 1.25rem;
     padding-left: clamp(1rem, 4vw, 2rem);
 
@@ -234,25 +236,35 @@
   }
 
   @media (max-width: 812px) {
-    padding: 0.8rem;
+    padding: 0.55rem 0.65rem;
 
     .login-hero,
     .login-layout {
       grid-template-columns: 1fr;
-      gap: 1rem;
+      gap: 0.65rem;
     }
 
     .login-hero {
-      padding-bottom: 1rem;
+      padding-bottom: 0.35rem;
 
       &::after {
-        justify-self: start;
-        width: clamp(4rem, 28vw, 7rem);
+        right: 0;
+        bottom: 0.1rem;
+        width: $page-hero-mark-mobile-size;
+        opacity: 0.09;
       }
     }
 
     h1 {
       max-width: 13ch;
+    }
+
+    .login-layout {
+      padding-top: 0.45rem;
+    }
+
+    .login-context {
+      padding-top: 0.35rem;
     }
 
     .login-form-panel {
