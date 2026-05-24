@@ -4,7 +4,7 @@
 .home-hero-section {
   position: relative;
   isolation: isolate;
-  min-height: calc(100vh - (#{$header-height} + #{$footer-height}));
+  min-height: min(36rem, calc(100dvh - (#{$header-height} + #{$footer-height})));
   overflow: hidden;
 
   &::before {
@@ -33,8 +33,8 @@
 .input-wrapper {
   position: relative;
   display: flex;
-  min-height: calc(100vh - (#{$header-height} + #{$footer-height}));
-  padding: clamp(1.25rem, 4vw, 3.5rem);
+  min-height: min(36rem, calc(100dvh - (#{$header-height} + #{$footer-height})));
+  padding: $page-shell-padding;
   color: $main-font-colour;
 }
 
@@ -43,16 +43,16 @@
   z-index: 1;
   display: grid;
   align-content: center;
-  gap: clamp(0.85rem, 2vw, 1.6rem);
+  gap: $page-hero-gap;
   width: 100%;
-  max-width: min(1680px, calc(100vw - 2rem));
+  max-width: min($page-shell-max-width, calc(100vw - (#{$page-shell-gutter} * 2)));
   margin: 0 auto;
 }
 
 .home-search-led-hero {
   display: grid;
   justify-items: center;
-  padding-top: clamp(0.25rem, 1vw, 0.8rem);
+  padding-top: 0;
   text-align: center;
 }
 
@@ -67,7 +67,7 @@
     margin: 0;
     color: $main-font-colour;
     font-family: 'Bebas Neue', cursive;
-    font-size: clamp(1.9rem, 4.4vw, 4.25rem);
+    font-size: clamp(1.75rem, 3.7vw, 3.45rem);
     line-height: 0.96;
     letter-spacing: 0.02em;
     text-transform: uppercase;
@@ -86,7 +86,7 @@
 
 .home-kicker {
   width: fit-content;
-  margin: 0 0 clamp(0.8rem, 2vw, 1.15rem);
+  margin: 0 0 $page-hero-kicker-space;
   padding: 0.35rem 0.55rem;
   color: $light-orange;
   background-color: rgba(51, 51, 51, 0.74);
@@ -171,7 +171,7 @@
 .home-landing-panel {
   display: grid;
   justify-items: center;
-  gap: clamp(0.9rem, 2vw, 1.35rem);
+  gap: $page-hero-gap;
   max-width: 84rem;
   margin: 0 auto;
   text-align: center;

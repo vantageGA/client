@@ -292,6 +292,11 @@ This file summarizes local documentation and skills for agents working in
 - Layout:
   - `$header-height: 80px`
   - `$footer-height: 40px`
+  - `$page-shell-max-width: 1680px`
+  - `$page-shell-gutter: clamp(1rem, 5vw, 7.5rem)`
+  - `$page-shell-padding`: shared public/member page shell padding with tighter vertical rhythm and larger responsive desktop gutters.
+  - `$page-hero-*`: shared hero gap, bottom space, mark size, kicker spacing, and title size tokens for refreshed public/member pages.
+  - `$page-intro-*`: shared intro summary band spacing and label sizing.
 
 ## Known Tech Debt / Priority Fixes (from docs)
 - ProfileEditView (trainer edit):
@@ -356,6 +361,13 @@ This file summarizes local documentation and skills for agents working in
   `isVisible`.
 - Deprecated `success` boolean is still supported but should be replaced.
 - Updated views include reset/registration/reviewer/admin/contact components.
+
+## Recent Public/Member UI Refinements
+- Refreshed public/member pages use shared shell tokens from `src/styles/_theme.scss` for large-screen gutters, vertical page padding, hero sizing, and intro spacing.
+- The intended visual direction is open dark/gold layout, not boxed sections. Avoid reintroducing page-level frames, hero bottom borders, footer top divider lines, or decorative horizontal separators between content sections.
+- Hero sections should stay compact. Home uses a capped hero height, and shared hero title/logo sizes are intentionally reduced for better cross-device consistency.
+- Intro copy on About, Pre-registration, and sector landing pages should align to the page grid as editorial summary bands, not float as indented left-border callouts.
+- Contact, Login, Registration, FAQ, and Forgot Password context/support copy should remain quiet and unboxed; avoid skinny left-rule/top-rule callout treatments unless a future design pass explicitly reintroduces them.
 
 ## UI/UX Review Summaries
 

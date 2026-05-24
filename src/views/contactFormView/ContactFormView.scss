@@ -3,10 +3,10 @@
 
 .contact-form-view-wrapper {
   position: relative;
-  max-width: min(1680px, calc(100vw - 2rem));
+  max-width: min($page-shell-max-width, calc(100vw - (#{$page-shell-gutter} * 2)));
   width: 100%;
   margin: 0 auto;
-  padding: clamp(1.25rem, 4vw, 3.5rem);
+  padding: $page-shell-padding;
 
   &::before {
     content: '';
@@ -39,15 +39,14 @@
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 0.72fr) minmax(14rem, 0.28fr);
-    gap: clamp(0.75rem, 2vw, 2rem);
+    gap: $page-hero-gap;
     align-items: end;
-    padding-bottom: clamp(1.75rem, 4vw, 3rem);
-    border-bottom: 1px solid rgba($border-colour, 0.16);
+    padding-bottom: $page-hero-bottom-space;
 
     &::after {
       content: '';
       justify-self: end;
-      width: clamp(5rem, 15vw, 11rem);
+      width: $page-hero-mark-size;
       aspect-ratio: 1;
       background-image: url('../../assets/logo/logo.svg');
       background-position: center;
@@ -61,7 +60,7 @@
     grid-column: 1;
     align-self: start;
     width: fit-content;
-    margin-bottom: clamp(0.75rem, 2vw, 1.15rem);
+    margin-bottom: $page-hero-kicker-space;
     padding: 0.35rem 0.55rem;
     color: $light-orange;
     background-color: rgba(51, 51, 51, 0.72);
@@ -77,7 +76,7 @@
     grid-column: 1;
     max-width: 14ch;
     color: $main-font-colour;
-    font-size: clamp(2.1rem, 5.8vw, 4.8rem);
+    font-size: $page-hero-title-size;
     line-height: 0.9;
     letter-spacing: 0.02em;
     text-wrap: balance;
@@ -98,7 +97,7 @@
     display: grid;
     grid-template-columns: minmax(16rem, 0.36fr) minmax(0, 0.64fr);
     gap: clamp(1.5rem, 5vw, 4.5rem);
-    padding-top: clamp(1.75rem, 4vw, 3rem);
+    padding-top: $page-content-top-space;
   }
 
   .section-heading {
@@ -119,9 +118,8 @@
     min-width: 0;
 
     .value-proposition {
-      margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
-      padding-left: clamp(1rem, 2vw, 1.5rem);
-      border-left: 1px solid rgba($light-orange, 0.46);
+      margin-bottom: clamp(1.1rem, 3vw, 1.8rem);
+      padding-top: $page-intro-block-space;
 
       p {
         max-width: 34rem;
@@ -374,7 +372,6 @@
   .social-links-section {
     margin-top: clamp(1.25rem, 4vw, 2rem);
     padding-top: clamp(1.25rem, 4vw, 2rem);
-    border-top: 1px solid rgba($border-colour, 0.14);
 
     .social-heading {
       font-size: clamp(1.25rem, 3vw, 1.8rem);
@@ -427,7 +424,7 @@
     }
 
     .contact-hero {
-      padding-bottom: 1.5rem;
+      padding-bottom: 1rem;
 
       &::after {
         justify-self: start;

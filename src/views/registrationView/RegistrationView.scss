@@ -3,10 +3,10 @@
 
 .registrationView-wrapper {
   position: relative;
-  max-width: min(1680px, calc(100vw - 2rem));
+  max-width: min($page-shell-max-width, calc(100vw - (#{$page-shell-gutter} * 2)));
   width: 100%;
   margin: 0 auto;
-  padding: clamp(1.25rem, 4vw, 3.5rem);
+  padding: $page-shell-padding;
 
   &::before {
     content: '';
@@ -34,15 +34,14 @@
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 0.72fr) minmax(14rem, 0.28fr);
-    gap: clamp(0.75rem, 2vw, 2rem);
+    gap: $page-hero-gap;
     align-items: end;
-    padding-bottom: clamp(1.75rem, 4vw, 3rem);
-    border-bottom: 1px solid rgba($border-colour, 0.16);
+    padding-bottom: $page-hero-bottom-space;
 
     &::after {
       content: '';
       justify-self: end;
-      width: clamp(5rem, 15vw, 11rem);
+      width: $page-hero-mark-size;
       aspect-ratio: 1;
       background-image: url('../../assets/logo/logo.svg');
       background-position: center;
@@ -56,7 +55,7 @@
     grid-column: 1;
     align-self: start;
     width: fit-content;
-    margin-bottom: clamp(0.75rem, 2vw, 1.15rem);
+    margin-bottom: $page-hero-kicker-space;
     padding: 0.35rem 0.55rem;
     color: $light-orange;
     background-color: rgba(51, 51, 51, 0.72);
@@ -72,7 +71,7 @@
     grid-column: 1;
     max-width: 14ch;
     color: $main-font-colour;
-    font-size: clamp(2.1rem, 5.8vw, 4.8rem);
+    font-size: $page-hero-title-size;
     line-height: 0.9;
     letter-spacing: 0.02em;
     text-wrap: balance;
@@ -110,7 +109,7 @@
     display: grid;
     grid-template-columns: minmax(17rem, 0.4fr) minmax(0, 0.6fr);
     gap: clamp(1.5rem, 5vw, 4.5rem);
-    padding-top: clamp(1.75rem, 4vw, 3rem);
+    padding-top: $page-content-top-space;
   }
 
   .section-heading {
@@ -132,8 +131,7 @@
 
   .registration-proposition {
     min-width: 0;
-    padding-left: clamp(1rem, 2vw, 1.5rem);
-    border-left: 1px solid rgba($light-orange, 0.46);
+    padding-top: $page-intro-block-space;
   }
 
   .membership-proposition {
@@ -262,7 +260,6 @@
   .subscription-plan-section {
     margin: 1rem 0 0;
     padding-top: 1.25rem;
-    border-top: 1px solid rgba($border-colour, 0.14);
   }
 
   .plan-options {
@@ -397,7 +394,7 @@
     .registration-hero {
       grid-template-columns: 1fr;
       gap: 1rem;
-      padding-bottom: 1.5rem;
+      padding-bottom: 1rem;
 
       &::after {
         justify-self: start;

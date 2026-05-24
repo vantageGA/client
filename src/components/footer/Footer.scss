@@ -4,28 +4,13 @@
 footer {
   position: relative;
   min-height: $footer-height;
-  padding: clamp(1rem, 3vw, 1.6rem) clamp(1rem, 4vw, 3.5rem);
+  padding: clamp(1rem, 3vw, 1.6rem) $page-shell-padding;
   font-family: 'Comfortaa', cursive;
   color: $main-font-colour;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent),
     transparent;
   overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: clamp(1rem, 4vw, 3.5rem);
-    right: clamp(1rem, 4vw, 3.5rem);
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      rgba($burnt-orange, 0.72),
-      rgba($border-colour, 0.18),
-      transparent
-    );
-  }
 
   &::after {
     content: '';
@@ -50,7 +35,7 @@ footer {
     align-items: center;
     gap: clamp(1.25rem, 4vw, 3rem);
     width: 100%;
-    max-width: min(1680px, calc(100vw - 2rem));
+    max-width: min($page-shell-max-width, calc(100vw - (#{$page-shell-gutter} * 2)));
     margin: 0 auto;
   }
 

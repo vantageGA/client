@@ -3,9 +3,9 @@
 
 .sector-landing-wrapper {
   position: relative;
-  max-width: min(1680px, calc(100vw - 2rem));
+  max-width: min($page-shell-max-width, calc(100vw - (#{$page-shell-gutter} * 2)));
   margin: 0 auto;
-  padding: clamp(1.25rem, 4vw, 3.5rem);
+  padding: $page-shell-padding;
 
   &::before {
     content: '';
@@ -25,15 +25,14 @@
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 0.72fr) minmax(14rem, 0.28fr);
-    gap: clamp(0.75rem, 2vw, 2rem);
+    gap: $page-hero-gap;
     align-items: end;
-    padding-bottom: clamp(1.75rem, 4vw, 3rem);
-    border-bottom: 1px solid rgba($border-colour, 0.16);
+    padding-bottom: $page-hero-bottom-space;
 
     &::after {
       content: '';
       justify-self: end;
-      width: clamp(5rem, 15vw, 11rem);
+      width: $page-hero-mark-size;
       aspect-ratio: 1;
       background-image: url('../../assets/logo/logo.svg');
       background-position: center;
@@ -62,7 +61,7 @@
     margin: 0;
     color: $main-font-colour;
     font-family: 'Bebas Neue', cursive;
-    font-size: clamp(2.1rem, 5.8vw, 4.8rem);
+    font-size: $page-hero-title-size;
     line-height: 0.9;
     letter-spacing: 0.02em;
     text-transform: uppercase;
@@ -71,11 +70,27 @@
 
   .sector-intro {
     position: relative;
-    max-width: 82ch;
-    margin: clamp(1.5rem, 4vw, 3rem) 0 clamp(1rem, 3vw, 2rem)
-      clamp(0rem, 8vw, 5rem);
-    padding-left: clamp(1rem, 2vw, 1.5rem);
-    border-left: 1px solid rgba($light-orange, 0.46);
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.34fr) minmax(0, 0.66fr);
+    gap: clamp(1.25rem, 4vw, 4rem);
+    max-width: none;
+    margin: $page-content-top-space 0 0;
+    padding: $page-intro-block-space 0;
+
+    &::before {
+      content: 'Overview';
+      color: rgba($main-font-colour, 0.45);
+      font-family: 'Bebas Neue', cursive;
+      font-size: $page-intro-label-size;
+      letter-spacing: 0.22em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    p {
+      max-width: 76ch;
+      margin: 0;
+    }
   }
 
   p {
@@ -106,7 +121,6 @@
     margin: 0;
     padding: clamp(1.75rem, 4vw, 3rem) 0;
     background-color: transparent;
-    border-bottom: 1px solid rgba($border-colour, 0.14);
 
     &:last-child {
       border-bottom: 0;
@@ -248,7 +262,8 @@
     }
 
     .sector-intro {
-      margin-left: 0;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
     }
 
     .section-heading {
