@@ -366,6 +366,7 @@ This file summarizes local documentation and skills for agents working in
 - Refreshed public/member pages use shared shell tokens from `src/styles/_theme.scss` for large-screen gutters, vertical page padding, hero sizing, and intro spacing.
 - The intended visual direction is open dark/gold layout, not boxed sections. Avoid reintroducing page-level frames, hero bottom borders, footer top divider lines, or decorative horizontal separators between content sections.
 - Hero sections should stay compact. Home uses a capped hero height, shared hero title/logo sizes are intentionally reduced, and decorative hero marks should stay out of normal mobile flow so they do not wrap below headings or delay access to forms.
+- Mobile spacing is intentionally tight on refreshed pages. Preserve the reduced mobile wrapper padding, hero/content gaps, hero bottom padding, first content spacing, and context/intro padding so forms and useful content appear without excessive scrolling.
 - Intro copy on About, Pre-registration, and sector landing pages should align to the page grid as editorial summary bands, not float as indented left-border callouts.
 - Contact, Login, Registration, FAQ, and Forgot Password context/support copy should remain quiet and unboxed; avoid skinny left-rule/top-rule callout treatments unless a future design pass explicitly reintroduces them.
 

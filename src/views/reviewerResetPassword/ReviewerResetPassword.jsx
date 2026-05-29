@@ -166,7 +166,7 @@ const ReviewerResetPassword = () => {
             )}
 
             <Button
-              
+              type="submit"
               text="Reset password"
               className="btn"
               disabled={

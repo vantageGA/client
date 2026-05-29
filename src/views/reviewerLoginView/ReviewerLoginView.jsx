@@ -227,7 +227,7 @@ const ReviewerLoginView = () => {
                   />
 
                   <Button
-                    
+                    type="submit"
                     text="Login"
                     className="btn"
                     disabled={
@@ -488,7 +488,7 @@ const ReviewerLoginView = () => {
                       )}
                     </div>
                     <Button
-                      
+                      type="submit"
                       text="Submit"
                       className="btn"
                       disabled={

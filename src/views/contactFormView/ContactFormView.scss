@@ -300,7 +300,7 @@
   textarea:-webkit-autofill:hover,
   textarea:-webkit-autofill:focus,
   textarea:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+    -webkit-box-shadow: 0 0 0 1000px rgba($main-bg-colour, 0.96) inset !important;
     -webkit-text-fill-color: $main-font-colour !important;
     caret-color: $main-font-colour !important;
     transition: background-color 5000s ease-in-out 0s;

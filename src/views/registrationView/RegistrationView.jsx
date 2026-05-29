@@ -296,6 +296,7 @@ const RegistrationView = () => {
 
                 <Button
                   text={checkoutLoading ? 'Processing...' : 'Subscribe Now'}
+                  type="submit"
                   className="btn"
                   disabled={
                     checkoutLoading ||

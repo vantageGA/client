@@ -85,7 +85,7 @@ const ReviewerForgotPassword = () => {
           />
 
           <Button
-            
+            type="submit"
             text="Send reset link"
             className="btn"
             disabled={!isValidEmail(email)}
