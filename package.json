@@ -8,6 +8,7 @@
     "generate:sitemap": "node scripts/generate-sitemap.js",
     "prebuild": "node scripts/generate-sitemap.js",
     "build": "vite build",
+    "postbuild": "bash copy_paste.sh",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest"
