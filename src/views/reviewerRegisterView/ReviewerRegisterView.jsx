@@ -98,7 +98,6 @@ const ReviewerRegisterView = () => {
               type="text"
               name="name"
               required
-              autoFocus
               className={
                 touched.name && !isValidName(name) && name.length > 0
                   ? 'invalid'

@@ -1434,9 +1434,6 @@ const ProfileEditView = () => {
                 onToggle={() => {
                   const nextSection = openSection === 'basics' ? '' : 'basics';
                   setOpenSection(nextSection);
-                  if (nextSection === 'basics') {
-                    setPendingFocusId('profile-name');
-                  }
                 }}
               >
                 {showHelp ? (

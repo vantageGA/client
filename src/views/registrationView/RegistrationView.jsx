@@ -130,7 +130,6 @@ const RegistrationView = () => {
                     type="text"
                     name="name"
                     required
-                    autoFocus
                     hint="2-100 characters, letters, spaces, hyphens and apostrophes only"
                     className={
                       touched.name && !isValidName(name) && name.length > 0

@@ -319,9 +319,6 @@ const UserProfileEditView = () => {
                 onToggle={() => {
                   const nextSection = openSection === 'basics' ? '' : 'basics';
                   setOpenSection(nextSection);
-                  if (nextSection === 'basics') {
-                    setPendingFocusId('user-name');
-                  }
                 }}
               >
                 <InputField
