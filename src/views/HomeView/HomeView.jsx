@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { profilesAction } from '../../store/actions/profileActions';
@@ -17,6 +17,65 @@ import {
   organizationJsonLd,
   websiteJsonLd,
 } from '../../config/seo';
+
+const normalizeSearchText = (value = '') =>
+  value
+    .toString()
+    .toLowerCase()
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/[^\w\s'-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const getFieldRank = (value, searchTerm, exactScore, prefixScore, containsScore) => {
+  const fieldValue = normalizeSearchText(value);
+
+  if (!fieldValue || !searchTerm) {
+    return 0;
+  }
+
+  if (fieldValue === searchTerm) {
+    return exactScore;
+  }
+
+  if (fieldValue.startsWith(searchTerm) || fieldValue.includes(` ${searchTerm}`)) {
+    return prefixScore;
+  }
+
+  if (fieldValue.includes(searchTerm)) {
+    return containsScore;
+  }
+
+  return 0;
+};
+
+const getProfileSearchRank = (profile, searchTerm) => {
+  const keywordRank = (profile?.keywords || []).reduce(
+    (rank, keywordValue) =>
+      Math.max(rank, getFieldRank(keywordValue, searchTerm, 80, 68, 45)),
+    0,
+  );
+
+  const specialisationRank = [
+    profile?.specialisation,
+    profile?.specialisationOne,
+    profile?.specialisationTwo,
+    profile?.specialisationThree,
+    profile?.specialisationFour,
+  ].reduce(
+    (rank, specialisationValue) =>
+      Math.max(rank, getFieldRank(specialisationValue, searchTerm, 65, 55, 35)),
+    0,
+  );
+
+  return (
+    getFieldRank(profile?.name, searchTerm, 120, 100, 70) +
+    keywordRank +
+    specialisationRank +
+    getFieldRank(profile?.location, searchTerm, 50, 42, 24) +
+    getFieldRank(profile?.description, searchTerm, 18, 14, 8)
+  );
+};
 
 const HomeView = () => {
   const dispatch = useDispatch();
@@ -197,9 +256,41 @@ const HomeView = () => {
 
   const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-  const visibleProfiles = profiles || [];
   const isSearching = keyword.trim().length > 0;
   const isSearchPending = keyword.trim() !== debouncedKeyword;
+
+  const visibleProfiles = useMemo(() => {
+    const profileList = profiles || [];
+    const searchTerm = normalizeSearchText(debouncedKeyword);
+
+    if (!searchTerm) {
+      return profileList;
+    }
+
+    return [...profileList].sort((profileA, profileB) => {
+      const rankDifference =
+        getProfileSearchRank(profileB, searchTerm) -
+        getProfileSearchRank(profileA, searchTerm);
+
+      if (rankDifference !== 0) {
+        return rankDifference;
+      }
+
+      const scoreDifference = (profileB?.score || 0) - (profileA?.score || 0);
+
+      if (scoreDifference !== 0) {
+        return scoreDifference;
+      }
+
+      const ratingDifference = (profileB?.rating || 0) - (profileA?.rating || 0);
+
+      if (ratingDifference !== 0) {
+        return ratingDifference;
+      }
+
+      return (profileB?.numReviews || 0) - (profileA?.numReviews || 0);
+    });
+  }, [profiles, debouncedKeyword]);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pages) {
@@ -304,6 +395,7 @@ const HomeView = () => {
                 placeholder="Search 'barber', 'hairdresser', 'personal trainer' or a location"
                 ariaLabel="Search for verified professionals by specialty or location"
                 ariaDescribedBy="search-hint"
+                autoFocus
               />
               <div id="search-hint" className="sr-only">
                 Enter keywords like barber, hairdresser, personal trainer, beauty professional or location names

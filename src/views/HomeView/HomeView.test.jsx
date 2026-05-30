@@ -26,7 +26,7 @@ vi.mock('../../components/loadingSpinner/LoadingSpinner', () => ({
 }));
 
 vi.mock('../../components/card/Card', () => ({
-  default: ({ name }) => <div>{name}</div>,
+  default: ({ name }) => <div data-testid="profile-card">{name}</div>,
 }));
 
 vi.mock('../../components/bodyVantage/BodyVantage', () => ({
@@ -47,9 +47,9 @@ const LocationControls = () => {
   );
 };
 
-const renderHome = () =>
+const renderHome = (initialSearch = 'trainer') =>
   render(
-    <MemoryRouter initialEntries={['/?search=trainer']}>
+    <MemoryRouter initialEntries={[`/?search=${initialSearch}`]}>
       <Routes>
         <Route
           path="/"
@@ -89,6 +89,7 @@ describe('HomeView', () => {
     );
 
     expect(input.value).toBe('trainer');
+    expect(input).toHaveFocus();
 
     fireEvent.click(screen.getByRole('button', { name: 'Set barber' }));
 
@@ -100,5 +101,39 @@ describe('HomeView', () => {
         search: 'barber',
       });
     });
+  });
+
+  it('prioritises matching profile names over the API result order', () => {
+    const dispatch = vi.fn();
+    useDispatch.mockReturnValue(dispatch);
+    useSelector.mockReturnValue({
+      loading: false,
+      error: null,
+      profiles: [
+        {
+          _id: 'profile-one',
+          name: 'Body Conditioning Studio',
+          description: 'General training and wellbeing profile.',
+          rating: 5,
+          numReviews: 20,
+        },
+        {
+          _id: 'profile-two',
+          name: 'Peter Williams',
+          description: 'Personal trainer.',
+          rating: 0,
+          numReviews: 0,
+        },
+      ],
+      page: 1,
+      pages: 1,
+      total: 2,
+    });
+
+    renderHome('Peter');
+
+    const cards = screen.getAllByTestId('profile-card');
+
+    expect(cards[0]).toHaveTextContent('Peter Williams');
   });
 });

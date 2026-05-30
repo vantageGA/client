@@ -12,6 +12,7 @@ const SearchInput = ({
   id,
   ariaLabel,
   ariaDescribedBy,
+  autoFocus = false,
 }) => {
   return (
     <>
@@ -25,6 +26,7 @@ const SearchInput = ({
           value={value}
           aria-label={ariaLabel}
           aria-describedby={ariaDescribedBy}
+          autoFocus={autoFocus}
         />
         <span className="bar"></span>
         <label htmlFor={id}>{label}</label>
@@ -34,11 +36,16 @@ const SearchInput = ({
 };
 
 SearchInput.propTypes = {
-  text: PropTypes.string,
   type: PropTypes.string,
   value: PropTypes.string,
   placeholder: PropTypes.string,
-  onChange: PropTypes.func,
+  handleSearch: PropTypes.func,
+  className: PropTypes.string,
+  label: PropTypes.string,
+  id: PropTypes.string,
+  ariaLabel: PropTypes.string,
+  ariaDescribedBy: PropTypes.string,
+  autoFocus: PropTypes.bool,
 };
 
 export default SearchInput;
