@@ -102,6 +102,7 @@ const ReviewerResetPassword = () => {
               required
               hint={PASSWORD_REQUIREMENTS_TEXT}
               onBlur={() => handleBlur('password')}
+              autoFocus
               className={
                 touched.password && !isValidPassword(password) && password.length > 0
                   ? 'invalid'

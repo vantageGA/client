@@ -19,19 +19,21 @@ const InputField = ({
   required,
   'aria-invalid': ariaInvalid,
   'aria-describedby': ariaDescribedby,
+  autoFocus = false,
 }) => {
   const inputFocus = useRef(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [onlyPassword, setOnlyPassword] = useState(true);
+  const onlyPassword = type === 'password';
 
   useEffect(() => {
-    if (inputFocus.current.type === 'name') {
+    if (!inputFocus.current) {
+      return;
+    }
+
+    if (autoFocus) {
       inputFocus.current.focus();
     }
-    if (inputFocus.current.type !== 'password') {
-      setOnlyPassword(false);
-    }
-  }, [inputFocus]);
+  }, [autoFocus]);
 
   const handleShowHidePw = () => {
     if (inputFocus.current.type === 'password') {
@@ -80,6 +82,7 @@ const InputField = ({
         onBlur={onBlur}
         required={required}
         aria-invalid={ariaInvalid}
+        autoFocus={autoFocus}
         aria-describedby={
           [hint && hintId, error && errorId, ariaDescribedby]
             .filter(Boolean)
@@ -108,6 +111,7 @@ InputField.propTypes = {
   error: PropTypes.string,
   hint: PropTypes.string,
   onChange: PropTypes.func,
+  autoFocus: PropTypes.bool,
 };
 
 export default InputField;

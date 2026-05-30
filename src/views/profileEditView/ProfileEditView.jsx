@@ -1431,9 +1431,13 @@ const ProfileEditView = () => {
               <FormSectionAccordion
                 title="Profile Basics"
                 isOpen={openSection === 'basics'}
-                onToggle={() =>
-                  setOpenSection((current) => (current === 'basics' ? '' : 'basics'))
-                }
+                onToggle={() => {
+                  const nextSection = openSection === 'basics' ? '' : 'basics';
+                  setOpenSection(nextSection);
+                  if (nextSection === 'basics') {
+                    setPendingFocusId('profile-name');
+                  }
+                }}
               >
                 {showHelp ? (
                   <InfoComponent description="Name that the public will see." />

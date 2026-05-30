@@ -69,6 +69,7 @@ const ReviewerForgotPassword = () => {
             required
             onChange={(e) => setEmail(e.target.value)}
             onBlur={handleBlur}
+            autoFocus
             className={
               touched.email && !isValidEmail(email) && email.length > 0
                 ? 'invalid'

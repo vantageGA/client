@@ -138,6 +138,7 @@ const ContactFormView = ({ type }) => {
                       error={showNameError ? 'Full Name must contain at least 2 characters.' : null}
                       onChange={(e) => setName(e.target.value)}
                       onBlur={() => handleBlur('name')}
+                      autoFocus
                       aria-invalid={showNameError}
                     />
                   </div>

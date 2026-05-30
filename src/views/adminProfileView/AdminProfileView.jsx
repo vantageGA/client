@@ -437,6 +437,7 @@ const AdminProfileViewContent = () => {
                 handleSearch={handleSearch}
                 label="SEARCH A NAME"
                 id="profile-search"
+                autoFocus
               />
               <Button
 

@@ -187,6 +187,7 @@ const ReviewerLoginView = () => {
                     hint="Example: user@domain.com"
                     onChange={(e) => setEmail(e.target.value)}
                     onBlur={() => handleBlur('email')}
+                    autoFocus
                     className={
                       touched.email && !isValidEmail(email) && email.length > 0
                         ? 'invalid'

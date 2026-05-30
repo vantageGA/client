@@ -101,6 +101,7 @@ const LoginFormView = () => {
                   required
                   onChange={(e) => setEmail(e.target.value)}
                   onBlur={() => handleBlur('email')}
+                  autoFocus
                   className={
                     touched.email && email.length > 0 && !isValidEmail(email)
                       ? 'invalid'

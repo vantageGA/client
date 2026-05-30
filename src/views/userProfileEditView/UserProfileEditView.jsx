@@ -316,9 +316,13 @@ const UserProfileEditView = () => {
               <FormSectionAccordion
                 title="Account Basics"
                 isOpen={openSection === 'basics'}
-                onToggle={() =>
-                  setOpenSection((current) => (current === 'basics' ? '' : 'basics'))
-                }
+                onToggle={() => {
+                  const nextSection = openSection === 'basics' ? '' : 'basics';
+                  setOpenSection(nextSection);
+                  if (nextSection === 'basics') {
+                    setPendingFocusId('user-name');
+                  }
+                }}
               >
                 <InputField
                   id="user-name"
