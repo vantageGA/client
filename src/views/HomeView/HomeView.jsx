@@ -27,6 +27,54 @@ const normalizeSearchText = (value = '') =>
     .replace(/\s+/g, ' ')
     .trim();
 
+const SEARCH_STOP_WORDS = new Set([
+  'a',
+  'an',
+  'and',
+  'area',
+  'around',
+  'at',
+  'by',
+  'for',
+  'from',
+  'in',
+  'local',
+  'me',
+  'my',
+  'near',
+  'nearby',
+  'of',
+  'the',
+  'to',
+  'with',
+]);
+
+const parseSearchText = (value = '') => {
+  const normalized = normalizeSearchText(value);
+  const terms = [
+    ...new Set(
+      normalized
+        .split(' ')
+        .filter((term) => term.length >= 2 && !SEARCH_STOP_WORDS.has(term)),
+    ),
+  ];
+  const phrases = [];
+
+  if (terms.length > 1) {
+    phrases.push(terms.join(' '));
+  }
+
+  for (let idx = 0; idx < terms.length - 1; idx += 1) {
+    phrases.push(`${terms[idx]} ${terms[idx + 1]}`);
+  }
+
+  return {
+    normalized,
+    terms,
+    phrases: [...new Set(phrases)],
+  };
+};
+
 const getFieldRank = (value, searchTerm, exactScore, prefixScore, containsScore) => {
   const fieldValue = normalizeSearchText(value);
 
@@ -49,32 +97,45 @@ const getFieldRank = (value, searchTerm, exactScore, prefixScore, containsScore)
   return 0;
 };
 
-const getProfileSearchRank = (profile, searchTerm) => {
-  const keywordRank = (profile?.keywords || []).reduce(
-    (rank, keywordValue) =>
-      Math.max(rank, getFieldRank(keywordValue, searchTerm, 80, 68, 45)),
+const getBestRank = (values, searchTerm, exactScore, prefixScore, containsScore) =>
+  values.reduce(
+    (rank, value) =>
+      Math.max(rank, getFieldRank(value, searchTerm, exactScore, prefixScore, containsScore)),
     0,
   );
 
-  const specialisationRank = [
+const getProfileSearchRank = (profile, searchParts) => {
+  const keywordValues = profile?.keywords || [];
+  const specialisationValues = [
     profile?.specialisation,
     profile?.specialisationOne,
     profile?.specialisationTwo,
     profile?.specialisationThree,
     profile?.specialisationFour,
-  ].reduce(
-    (rank, specialisationValue) =>
-      Math.max(rank, getFieldRank(specialisationValue, searchTerm, 65, 55, 35)),
+  ];
+
+  const termRank = searchParts.terms.reduce(
+    (rank, term) =>
+      rank +
+      getFieldRank(profile?.name, term, 95, 76, 42) +
+      getBestRank(keywordValues, term, 82, 66, 42) +
+      getBestRank(specialisationValues, term, 76, 60, 38) +
+      getFieldRank(profile?.location, term, 72, 58, 36) +
+      getFieldRank(profile?.description, term, 12, 8, 4),
     0,
   );
 
-  return (
-    getFieldRank(profile?.name, searchTerm, 120, 100, 70) +
-    keywordRank +
-    specialisationRank +
-    getFieldRank(profile?.location, searchTerm, 50, 42, 24) +
-    getFieldRank(profile?.description, searchTerm, 18, 14, 8)
+  const phraseRank = searchParts.phrases.reduce(
+    (rank, phrase) =>
+      rank +
+      getFieldRank(profile?.name, phrase, 115, 95, 70) +
+      getBestRank(keywordValues, phrase, 120, 96, 70) +
+      getBestRank(specialisationValues, phrase, 110, 88, 62) +
+      getFieldRank(profile?.description, phrase, 26, 20, 12),
+    0,
   );
+
+  return termRank + phraseRank;
 };
 
 const HomeView = () => {
@@ -261,16 +322,16 @@ const HomeView = () => {
 
   const visibleProfiles = useMemo(() => {
     const profileList = profiles || [];
-    const searchTerm = normalizeSearchText(debouncedKeyword);
+    const searchParts = parseSearchText(debouncedKeyword);
 
-    if (!searchTerm) {
+    if (searchParts.terms.length === 0) {
       return profileList;
     }
 
     return [...profileList].sort((profileA, profileB) => {
       const rankDifference =
-        getProfileSearchRank(profileB, searchTerm) -
-        getProfileSearchRank(profileA, searchTerm);
+        getProfileSearchRank(profileB, searchParts) -
+        getProfileSearchRank(profileA, searchParts);
 
       if (rankDifference !== 0) {
         return rankDifference;

@@ -136,4 +136,42 @@ describe('HomeView', () => {
 
     expect(cards[0]).toHaveTextContent('Peter Williams');
   });
+
+  it('prioritises natural service and location searches over generic matches', () => {
+    const dispatch = vi.fn();
+    useDispatch.mockReturnValue(dispatch);
+    useSelector.mockReturnValue({
+      loading: false,
+      error: null,
+      profiles: [
+        {
+          _id: 'profile-one',
+          name: 'Central Wellness',
+          description: 'General wellbeing services across the London area.',
+          location: 'London',
+          rating: 5,
+          numReviews: 20,
+        },
+        {
+          _id: 'profile-two',
+          name: 'Lean Strength Coaching',
+          description: 'Weight loss coaching and sustainable body composition plans.',
+          keywords: ['weight loss', 'fat loss'],
+          specialisationOne: 'Weight Loss',
+          location: 'London',
+          rating: 0,
+          numReviews: 0,
+        },
+      ],
+      page: 1,
+      pages: 1,
+      total: 2,
+    });
+
+    renderHome('Weight loss London area');
+
+    const cards = screen.getAllByTestId('profile-card');
+
+    expect(cards[0]).toHaveTextContent('Lean Strength Coaching');
+  });
 });
