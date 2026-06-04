@@ -8,11 +8,22 @@ import {
   STRIPE_SUBSCRIPTION_FAILURE,
 } from '../constants/stripeConstants';
 
-export const createCheckoutSessionAction = (userData) => async (dispatch) => {
+export const createCheckoutSessionAction = (userData) => async (dispatch, getState) => {
   try {
     dispatch({ type: STRIPE_CHECKOUT_REQUEST });
 
-    const { data } = await axios.post('/api/checkout-session', userData);
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(userInfo?.token ? { Authorization: `Bearer ${userInfo.token}` } : {}),
+      },
+    };
+
+    const { data } = await axios.post('/api/checkout-session', userData, config);
     
     dispatch({ type: STRIPE_CHECKOUT_SUCCESS, payload: data });
     window.location.href = data.url;

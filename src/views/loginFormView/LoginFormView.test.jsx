@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import LoginFormView from './LoginFormView';
+import LoginFormView, { hasActiveSubscription } from './LoginFormView';
 
 const mockedLoginAction = vi.hoisted(() =>
   vi.fn((email, password) => ({
@@ -38,6 +38,54 @@ afterEach(() => {
 });
 
 describe('LoginFormView', () => {
+  it('treats failed or expired subscriptions as inactive for login routing', () => {
+    expect(
+      hasActiveSubscription({
+        isAdmin: false,
+        isSubscribed: true,
+        paymentStatus: 'failed',
+        currentPeriodEnd: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      }),
+    ).toBe(false);
+
+    expect(
+      hasActiveSubscription({
+        isAdmin: false,
+        isSubscribed: true,
+        paymentStatus: 'active',
+        currentPeriodEnd: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+      }),
+    ).toBe(false);
+
+    expect(
+      hasActiveSubscription({
+        isAdmin: false,
+        isSubscribed: true,
+        paymentStatus: 'pending',
+        currentPeriodEnd: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      }),
+    ).toBe(false);
+  });
+
+  it('treats active subscriptions and admin users as active for login routing', () => {
+    expect(
+      hasActiveSubscription({
+        isAdmin: false,
+        isSubscribed: true,
+        paymentStatus: 'active',
+        currentPeriodEnd: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      }),
+    ).toBe(true);
+
+    expect(
+      hasActiveSubscription({
+        isAdmin: true,
+        isSubscribed: false,
+        paymentStatus: 'pending',
+      }),
+    ).toBe(true);
+  });
+
   it('submits valid credentials when the login button is clicked', () => {
     const dispatch = vi.fn();
     useDispatch.mockReturnValue(dispatch);

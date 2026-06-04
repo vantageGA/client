@@ -11,7 +11,7 @@ const SubscriptionOptions = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
-  const { loading } = useSelector((state) => state.stripeCheckout);
+  const { loading, error: checkoutError } = useSelector((state) => state.stripeCheckout);
   const { userInfo } = useSelector((state) => state.userLogin);
 
   // Redirect to registration if user is not logged in
@@ -51,7 +51,7 @@ const SubscriptionOptions = () => {
 
   return (
     <div className="subscription-wrapper">
-      {error && <Message message={error} variant="error" />}
+      {(error || checkoutError) && <Message message={error || checkoutError} variant="error" />}
 
       <fieldset className="fieldSet">
         <legend>Choose Your Subscription</legend>
