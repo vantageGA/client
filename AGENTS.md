@@ -342,6 +342,14 @@ This file summarizes local documentation and skills for agents working in
 - Review submission must send `acceptConditions: true` as a strict boolean.
 - Always null-guard arrays before `filter/map` (e.g., `(profiles || []).filter(...)`).
 
+### Subscription / Login / Checkout Handoff (June 2026)
+- Source of truth: `../docs/subscription-login-checkout-handoff.md`.
+- Login is authentication only. `LoginFormView` must route successful member login to `/user-profile-edit`, not `/subscribe`.
+- Subscription access is enforced by backend paid-action middleware, not by the login page.
+- `createCheckoutSessionAction` starts Stripe checkout and does not hydrate login state before payment succeeds.
+- `/subscribe/success?session_id=...` dispatches `verifyCheckoutSessionAction(sessionId)`, which calls `GET /api/checkout-session/:sessionId`, stores the returned user in Redux/localStorage, and lets the user continue after payment.
+- If a paid customer is still blocked, inspect Mongo for `stripeCustomerId` or `stripeSubscriptionId`; automatic Stripe reconciliation needs at least one.
+
 ### Frontend Security Implementation
 - Validation utilities added at `src/utils/validation.js` (email, name, password,
   password strength, password match) aligned with backend rules.

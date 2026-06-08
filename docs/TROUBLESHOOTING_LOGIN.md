@@ -1,5 +1,33 @@
 # Troubleshooting Login "Not authorised as an ADMIN" Error
 
+## Current Login and Subscription Rule
+
+Login is authentication only.
+
+Expected behavior:
+
+- `POST /api/users/login` succeeds for confirmed users with valid credentials.
+- The client routes successful member login to `/user-profile-edit`.
+- The login page must not redirect to `/subscribe`.
+- Unpaid users are blocked later when they try to use paid professional-profile actions; the API returns `402`.
+
+If a user lands on `/subscribe` immediately after login:
+
+1. Confirm the client bundle includes the current `LoginFormView.jsx` behavior: successful `userInfo` calls `navigate('/user-profile-edit')`.
+2. Search the client for login redirects:
+   ```bash
+   rg "navigate\\('/subscribe'|navigate\\(\"/subscribe\"|hasActiveSubscription" src -n
+   ```
+   The only expected `navigate('/subscribe')` is the explicit membership CTA component.
+3. Hard refresh the browser or clear cached dev-server state.
+4. Confirm the login response is `200` and stored in `localStorage.userInfo`.
+
+Subscription checkout and paid-customer recovery notes are in:
+
+```text
+../../docs/subscription-login-checkout-handoff.md
+```
+
 ## Quick Fix - Try This First
 
 ### Clear Browser Storage
@@ -156,6 +184,11 @@ db.users.findOne({ email: "user@example.com" })
 Check:
 - Is `isAdmin` false or missing?
 - Is `isConfirmed` false or missing?
+- If the user has paid, do they have `stripeCustomerId` or `stripeSubscriptionId`?
+
+Paid users missing both Stripe IDs cannot be automatically reconciled from login.
+Run the subscription audit/backfill flow from `api/scripts/auditSubscriptions.js`
+and repair the Mongo record by matching Stripe customer email when needed.
 
 ## Verify Route Configuration
 

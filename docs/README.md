@@ -25,6 +25,7 @@ Entry points for frontend changes, UX reviews, and migrations.
 - FRONTEND_MIGRATION_COMPLETE.md: Full migration documentation.
 - FRONTEND_SECURITY_IMPLEMENTATION.md: Frontend security updates.
 - QUICK_REFERENCE.md: Frontend API change reference.
+- ../../docs/subscription-login-checkout-handoff.md: Current subscription/login/checkout behavior and continuation notes from the June 2026 regression fix.
 
 ## Troubleshooting
 - BUG_FIX_LOGIN_ADMIN_ERROR.md: Login admin error fix notes.

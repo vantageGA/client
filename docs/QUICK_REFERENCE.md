@@ -2,6 +2,29 @@
 
 ## Redux Action Updates
 
+### Subscription Checkout
+```javascript
+// Start Stripe hosted checkout. This redirects to Stripe and must not hydrate
+// user login state before payment succeeds.
+dispatch(createCheckoutSessionAction({
+  plan: 'monthly',
+  email,
+  name,
+  password,
+}));
+
+// On /subscribe/success?session_id=..., verify the Stripe session and hydrate
+// login state after payment succeeds.
+dispatch(verifyCheckoutSessionAction(sessionId));
+```
+
+Important behavior:
+
+- Login is authentication only. A successful member login routes to `/user-profile-edit`.
+- Login should not route users to `/subscribe`.
+- Subscription checks are enforced by API middleware on paid professional-profile actions.
+- If a paid customer is still blocked, check Mongo for `stripeCustomerId` or `stripeSubscriptionId`; Stripe reconciliation needs at least one of those IDs.
+
 ### Get All Profiles (Public)
 ```javascript
 // OLD
@@ -211,6 +234,7 @@ const MyComponent = () => {
 | Get Public Images | `GET /api/profile-images/:id` | `GET /api/profile-images-public/:id` |
 | Get Profiles | `GET /api/profiles` | `GET /api/profiles?page=1&limit=20` |
 | Get Admin Profiles | `GET /api/profiles/admin` | `GET /api/profiles/admin?page=1&limit=50` |
+| Verify Checkout Session | N/A | `GET /api/checkout-session/:sessionId` |
 
 ## Common Pitfalls to Avoid
 
