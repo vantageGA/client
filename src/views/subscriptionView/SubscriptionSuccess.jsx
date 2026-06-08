@@ -1,28 +1,33 @@
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { verifyCheckoutSessionAction } from '../../store/actions/stripeActions';
 import { getUserDetailsAction } from '../../store/actions/userActions';
 import Button from '../../components/button/Button';
+import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
+import Message from '../../components/message/Message';
 import './SubscriptionView.scss';
 
 const SubscriptionSuccess = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { verifying, error } = useSelector((state) => state.stripeCheckout);
 
   useEffect(() => {
-    // Refresh user details to get subscription status
-    dispatch(getUserDetailsAction());
-
-    // Get session id from URL if present (for verification if needed)
     const sessionId = searchParams.get('session_id');
     if (sessionId) {
-      // Session ID available for verification if needed
+      dispatch(verifyCheckoutSessionAction(sessionId));
+    } else {
+      dispatch(getUserDetailsAction());
     }
   }, [dispatch, searchParams]);
 
   return (
     <div className="subscription-wrapper">
+      {verifying ? <LoadingSpinner /> : null}
+      {error ? <Message message={error} variant="error" /> : null}
+
       <fieldset className="fieldSet success-fieldset">
         <legend>Subscription Successful</legend>
 

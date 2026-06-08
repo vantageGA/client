@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import LoginFormView, { hasActiveSubscription } from './LoginFormView';
+import LoginFormView from './LoginFormView';
 
 const mockedLoginAction = vi.hoisted(() =>
   vi.fn((email, password) => ({
@@ -11,6 +11,16 @@ const mockedLoginAction = vi.hoisted(() =>
     payload: { email, password },
   })),
 );
+const mockedNavigate = vi.hoisted(() => vi.fn());
+
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal();
+
+  return {
+    ...actual,
+    useNavigate: () => mockedNavigate,
+  };
+});
 
 vi.mock('react-redux', () => ({
   useDispatch: vi.fn(),
@@ -38,52 +48,24 @@ afterEach(() => {
 });
 
 describe('LoginFormView', () => {
-  it('treats failed or expired subscriptions as inactive for login routing', () => {
-    expect(
-      hasActiveSubscription({
-        isAdmin: false,
-        isSubscribed: true,
-        paymentStatus: 'failed',
-        currentPeriodEnd: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-      }),
-    ).toBe(false);
-
-    expect(
-      hasActiveSubscription({
-        isAdmin: false,
-        isSubscribed: true,
-        paymentStatus: 'active',
-        currentPeriodEnd: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-      }),
-    ).toBe(false);
-
-    expect(
-      hasActiveSubscription({
-        isAdmin: false,
-        isSubscribed: true,
-        paymentStatus: 'pending',
-        currentPeriodEnd: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-      }),
-    ).toBe(false);
-  });
-
-  it('treats active subscriptions and admin users as active for login routing', () => {
-    expect(
-      hasActiveSubscription({
-        isAdmin: false,
-        isSubscribed: true,
-        paymentStatus: 'active',
-        currentPeriodEnd: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-      }),
-    ).toBe(true);
-
-    expect(
-      hasActiveSubscription({
-        isAdmin: true,
+  it('routes logged-in users to account editing instead of the subscription page', () => {
+    useDispatch.mockReturnValue(vi.fn());
+    useSelector.mockReturnValue({
+      loading: false,
+      error: null,
+      userInfo: {
+        _id: 'user-1',
+        name: 'Paid Member',
+        email: 'member@example.com',
         isSubscribed: false,
         paymentStatus: 'pending',
-      }),
-    ).toBe(true);
+      },
+    });
+
+    renderLogin();
+
+    expect(mockedNavigate).toHaveBeenCalledWith('/user-profile-edit');
+    expect(mockedNavigate).not.toHaveBeenCalledWith('/subscribe');
   });
 
   it('submits valid credentials when the login button is clicked', () => {

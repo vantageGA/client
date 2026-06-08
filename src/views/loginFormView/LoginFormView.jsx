@@ -11,33 +11,6 @@ import { loginAction } from '../../store/actions/userActions';
 import { isValidEmail } from '../../utils/validation';
 import './LoginFormView.scss';
 
-export const hasActiveSubscription = (userInfo) => {
-  if (!userInfo) {
-    return false;
-  }
-
-  if (userInfo.isAdmin) {
-    return true;
-  }
-
-  if (userInfo.isSubscribed !== true) {
-    return false;
-  }
-
-  if (userInfo.paymentStatus && userInfo.paymentStatus !== 'active') {
-    return false;
-  }
-
-  if (
-    userInfo.currentPeriodEnd &&
-    new Date(userInfo.currentPeriodEnd).getTime() <= Date.now()
-  ) {
-    return false;
-  }
-
-  return true;
-};
-
 const LoginFormView = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -56,11 +29,7 @@ const LoginFormView = () => {
 
   useEffect(() => {
     if (userInfo && userInfo !== undefined) {
-      if (hasActiveSubscription(userInfo)) {
-        navigate('/user-profile-edit');
-      } else {
-        navigate('/subscribe');
-      }
+      navigate('/user-profile-edit');
     }
   }, [userInfo, navigate]);
 

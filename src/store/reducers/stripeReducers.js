@@ -2,6 +2,9 @@ import {
   STRIPE_CHECKOUT_REQUEST,
   STRIPE_CHECKOUT_SUCCESS,
   STRIPE_CHECKOUT_FAILURE,
+  STRIPE_CHECKOUT_VERIFY_REQUEST,
+  STRIPE_CHECKOUT_VERIFY_SUCCESS,
+  STRIPE_CHECKOUT_VERIFY_FAILURE,
   STRIPE_SUBSCRIPTION_REQUEST,
   STRIPE_SUBSCRIPTION_SUCCESS,
   STRIPE_SUBSCRIPTION_FAILURE,
@@ -15,6 +18,12 @@ export const stripeCheckoutReducer = (state = {}, action) => {
       return { ...state, loading: false, success: true, error: null };
     case STRIPE_CHECKOUT_FAILURE:
       return { ...state, loading: false, error: action.payload };
+    case STRIPE_CHECKOUT_VERIFY_REQUEST:
+      return { ...state, verifying: true, error: null };
+    case STRIPE_CHECKOUT_VERIFY_SUCCESS:
+      return { ...state, verifying: false, verified: true, error: null };
+    case STRIPE_CHECKOUT_VERIFY_FAILURE:
+      return { ...state, verifying: false, error: action.payload };
     default:
       return state;
   }
