@@ -311,7 +311,7 @@ describe('ProfileEditView', () => {
     cleanup();
   });
 
-  it('disables native form validation and normalizes telephone numbers before update', async () => {
+  it('disables native form validation and saves profile basics without unrelated fields', async () => {
     const { container } = renderView();
 
     const forms = container.querySelectorAll('form');
@@ -320,12 +320,144 @@ describe('ProfileEditView', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Profile Basics' }));
     fireEvent.click(screen.getByRole('button', { name: 'Save profile basics' }));
 
+    const payload = mockedActions.profileUpdateAction.mock.calls[0][0];
+
     expect(mockedActions.profileUpdateAction).toHaveBeenCalledTimes(1);
-    expect(mockedActions.profileUpdateAction).toHaveBeenCalledWith(
-      expect.objectContaining({
-        telephoneNumber: '07123456789',
-      }),
+    expect(payload).toEqual({
+      name: 'Ben Smith',
+      email: 'ben@example.com',
+      faceBook: '',
+      instagram: '',
+      websiteUrl: '',
+    });
+    expect(payload).not.toHaveProperty('telephoneNumber');
+    expect(payload).not.toHaveProperty('profileImage');
+  });
+
+  it('saves description without moving focus to an incomplete location field', () => {
+    renderView({
+      profileOfLoggedInUser: {
+        loading: false,
+        error: null,
+        profile: buildProfile({
+          location: '',
+          telephoneNumber: '',
+        }),
+      },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Description' }));
+    fireEvent.change(screen.getByTestId('profile-description'), {
+      target: { value: 'Updated profile description for clients.' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save description' }));
+
+    const payload = mockedActions.profileUpdateAction.mock.calls[0][0];
+
+    expect(mockedActions.profileUpdateAction).toHaveBeenCalledTimes(1);
+    expect(payload).toEqual({
+      description: 'Updated profile description for clients.',
+    });
+    expect(payload).not.toHaveProperty('location');
+    expect(payload).not.toHaveProperty('telephoneNumber');
+    expect(payload).not.toHaveProperty('profileImage');
+    expect(screen.queryByText('Location must be at least 10 characters')).toBeNull();
+  });
+
+  it('saves keywords without requiring telephone number completion first', () => {
+    renderView({
+      profileOfLoggedInUser: {
+        loading: false,
+        error: null,
+        profile: buildProfile({
+          telephoneNumber: '',
+          keyWordSearchOne: '',
+          keyWordSearchTwo: '',
+          keyWordSearchThree: '',
+          keyWordSearchFour: '',
+          keyWordSearchFive: '',
+        }),
+      },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Search Keyword(s)' }));
+    fireEvent.change(screen.getByLabelText(/Keyword 1/), {
+      target: { value: 'Pilates' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save keywords' }));
+
+    const payload = mockedActions.profileUpdateAction.mock.calls[0][0];
+
+    expect(mockedActions.profileUpdateAction).toHaveBeenCalledTimes(1);
+    expect(payload).toEqual({
+      keyWordSearchOne: 'Pilates',
+      keyWordSearchTwo: '',
+      keyWordSearchThree: '',
+      keyWordSearchFour: '',
+      keyWordSearchFive: '',
+    });
+    expect(payload).not.toHaveProperty('telephoneNumber');
+    expect(screen.queryByText('Valid UK contact number is required')).toBeNull();
+  });
+
+  it('saves contact number directly from the contact number section', () => {
+    renderView({
+      profileOfLoggedInUser: {
+        loading: false,
+        error: null,
+        profile: buildProfile({
+          telephoneNumber: '',
+        }),
+      },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Contact Number' }));
+    fireEvent.change(screen.getByLabelText(/Contact Number/), {
+      target: { value: '07123 456789' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save contact number' }));
+
+    const payload = mockedActions.profileUpdateAction.mock.calls[0][0];
+
+    expect(mockedActions.profileUpdateAction).toHaveBeenCalledTimes(1);
+    expect(payload).toEqual({
+      telephoneNumber: '07123456789',
+    });
+  });
+
+  it('saves specialisation keywords from their own accordion', () => {
+    renderView({
+      profileOfLoggedInUser: {
+        loading: false,
+        error: null,
+        profile: buildProfile({
+          specialisationOne: '',
+          specialisationTwo: '',
+          specialisationThree: '',
+          specialisationFour: '',
+        }),
+      },
+    });
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Specialisation Keyword(s)' }),
     );
+    fireEvent.change(screen.getByLabelText(/Specialisation 1/), {
+      target: { value: 'Pilates' },
+    });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save specialisation keywords' }),
+    );
+
+    const payload = mockedActions.profileUpdateAction.mock.calls[0][0];
+
+    expect(mockedActions.profileUpdateAction).toHaveBeenCalledTimes(1);
+    expect(payload).toEqual({
+      specialisationOne: 'Pilates',
+      specialisationTwo: '',
+      specialisationThree: '',
+      specialisationFour: '',
+    });
   });
 
   it('shows live preview updates for Quill-backed fields', () => {
@@ -347,6 +479,89 @@ describe('ProfileEditView', () => {
     expect(within(summaryFieldset).getByText('Live description preview')).toBeTruthy();
     expect(within(summaryFieldset).getByText('Live specialisation preview')).toBeTruthy();
     expect(within(summaryFieldset).getByText('Live qualifications preview')).toBeTruthy();
+  });
+
+  it('shows specialisation keywords in the profile summary', () => {
+    renderView();
+
+    const summaryFieldset = screen.getByText('Profile Summary').closest('fieldset');
+
+    expect(
+      within(summaryFieldset).getByText('Specialisation Keyword(s)'),
+    ).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Strength')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Mobility')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Nutrition')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Recovery')).toBeTruthy();
+  });
+
+  it('shows every persistent editable profile field in the profile summary', () => {
+    renderView({
+      profileOfLoggedInUser: {
+        loading: false,
+        error: null,
+        profile: buildProfile({
+          faceBook: 'bodyvantage-facebook',
+          instagram: 'bodyvantage-instagram',
+          websiteUrl: 'bodyvantage.co.uk',
+        }),
+      },
+    });
+
+    const summaryFieldset = screen.getByText('Profile Summary').closest('fieldset');
+
+    expect(within(summaryFieldset).getByText('Name')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Ben Smith')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('ben@example.com')).toBeTruthy();
+    expect(within(summaryFieldset).getAllByText('Contact Number').length).toBeGreaterThan(0);
+    expect(within(summaryFieldset).getAllByText('07123 456789').length).toBeGreaterThan(0);
+    expect(within(summaryFieldset).getByText('bodyvantage.co.uk')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Facebook')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Instagram')).toBeTruthy();
+    expect(
+      within(summaryFieldset).getByText('Experienced trainer working across Surrey.'),
+    ).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Guildford, Surrey')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Search Keyword(s)')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('fitness')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('strength')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('nutrition')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('mobility')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('coaching')).toBeTruthy();
+    expect(
+      within(summaryFieldset).getByText('Strength and conditioning coaching.'),
+    ).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Specialisation Keyword(s)')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Strength')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Mobility')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Nutrition')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Recovery')).toBeTruthy();
+    expect(within(summaryFieldset).getByText('Level 3 Personal Trainer.')).toBeTruthy();
+  });
+
+  it('orders profile summary output sections to match the editable input order', () => {
+    renderView();
+
+    const summaryFieldset = screen.getByText('Profile Summary').closest('fieldset');
+    const headingTexts = within(summaryFieldset)
+      .getAllByRole('heading', { level: 3 })
+      .map((heading) => heading.textContent);
+    const expectedOrder = [
+      'Profile Summary',
+      'Description',
+      'Search Keyword(s)',
+      'Specialisation Keyword(s)',
+      'Specialisation',
+      'Qualifications',
+      'Location',
+      'Contact Number',
+    ];
+
+    expectedOrder.reduce((previousIndex, headingText) => {
+      const currentIndex = headingTexts.indexOf(headingText);
+      expect(currentIndex).toBeGreaterThan(previousIndex);
+      return currentIndex;
+    }, -1);
   });
 
   it('requests an AI profile draft with natural language input and current form context', () => {

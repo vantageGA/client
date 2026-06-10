@@ -109,6 +109,15 @@ const toRichTextParagraph = (value) => {
   return `<p>${escapeHtml(value.trim())}</p>`;
 };
 
+const toExternalUrl = (value = '') => {
+  const trimmedValue = value.trim();
+  if (!trimmedValue) return '';
+
+  return /^https?:\/\//i.test(trimmedValue)
+    ? trimmedValue
+    : `https://${trimmedValue}`;
+};
+
 const formatQualificationDocumentStatus = (status) => {
   switch (status) {
     case 'approved':
@@ -361,6 +370,7 @@ const ProfileEditView = () => {
   const profileDraftInputRef = useRef(null);
   const qualificationDocumentInputRef = useRef(null);
   const qualificationDocumentReplaceInputRef = useRef(null);
+  const hydratedProfileIdRef = useRef(null);
 
   // Notification state for centralized message management
   const [notification, setNotification] = useState({
@@ -396,7 +406,8 @@ const ProfileEditView = () => {
       dispatch(profileOfLoggedInUserAction());
     }
 
-    if (profile) {
+    if (profile && hydratedProfileIdRef.current !== profile._id) {
+      hydratedProfileIdRef.current = profile._id;
       setName(profile.name ?? '');
       setEmail(profile.email ?? '');
       setFaceBook(profile.faceBook ?? '');
@@ -434,6 +445,12 @@ const ProfileEditView = () => {
 
     dispatch(qualificationDocumentsAction());
   }, [dispatch, profile?._id]);
+
+  useEffect(() => {
+    if (!profile?._id) return;
+
+    setProfileImage(profile.profileImage ?? '');
+  }, [profile?._id, profile?.profileImage]);
 
   // Watch profileUpdate state for success/error
   useEffect(() => {
@@ -636,69 +653,183 @@ const ProfileEditView = () => {
     ...overrides,
   });
 
-  const saveProfileUpdatePayload = (payload) => {
+  const buildProfileSectionUpdatePayload = (section) => {
+    switch (section) {
+      case 'basics':
+        return {
+          name,
+          email,
+          faceBook,
+          instagram,
+          websiteUrl,
+        };
+      case 'description':
+        return { description };
+      case 'keywords':
+        return {
+          keyWordSearchOne,
+          keyWordSearchTwo,
+          keyWordSearchThree,
+          keyWordSearchFour,
+          keyWordSearchFive,
+        };
+      case 'spec-keywords':
+        return {
+          specialisationOne,
+          specialisationTwo,
+          specialisationThree,
+          specialisationFour,
+        };
+      case 'specialisation':
+        return { specialisation };
+      case 'qualifications':
+        return { qualifications };
+      case 'location':
+        return { location };
+      case 'telephone':
+        return { telephoneNumber };
+      default:
+        return buildProfileUpdatePayload();
+    }
+  };
+
+  const keywordFieldNames = [
+    'keyWordSearchOne',
+    'keyWordSearchTwo',
+    'keyWordSearchThree',
+    'keyWordSearchFour',
+    'keyWordSearchFive',
+  ];
+
+  const removeInvalidNonSectionFields = (payload, section) => {
+    const sanitizedPayload = { ...payload };
+    const hasTelephoneNumberField = Object.prototype.hasOwnProperty.call(
+      sanitizedPayload,
+      'telephoneNumber',
+    );
+    const normalizedTelephoneNumber = hasTelephoneNumberField
+      ? normalizeTelephoneNumber(sanitizedPayload.telephoneNumber || '')
+      : '';
+
+    if (!emailRegEx.test(sanitizedPayload.email || '') && section !== 'basics') {
+      delete sanitizedPayload.email;
+    }
+
+    if (
+      (!sanitizedPayload.name || sanitizedPayload.name.trim().length < 2) &&
+      section !== 'basics'
+    ) {
+      delete sanitizedPayload.name;
+    }
+
+    if (hasTelephoneNumberField) {
+      if (normalizedTelephoneNumber) {
+        if (telephoneNumberRegEx.test(normalizedTelephoneNumber)) {
+          sanitizedPayload.telephoneNumber = normalizedTelephoneNumber;
+        } else if (section !== 'telephone') {
+          delete sanitizedPayload.telephoneNumber;
+        }
+      } else {
+        sanitizedPayload.telephoneNumber = '';
+      }
+    }
+
+    keywordFieldNames.forEach((fieldName) => {
+      const value = sanitizedPayload[fieldName] || '';
+      if (value && value.trim().length < 3 && section !== 'keywords') {
+        delete sanitizedPayload[fieldName];
+      }
+    });
+
+    if (!sanitizedPayload.profileImage) {
+      delete sanitizedPayload.profileImage;
+    }
+
+    return sanitizedPayload;
+  };
+
+  const getInvalidEnteredField = (values, minLength = 3) =>
+    values.find((value) => value && value.trim().length < minLength);
+
+  const validateProfileUpdatePayload = (payload, section = 'all') => {
     if (!onboardingTutorial?.isCompleted) {
       showNotification(
         'Complete the onboarding tutorial before saving your profile.',
         'warning',
       );
-      return;
+      return false;
     }
 
-    // Validate all required fields before processing
-    if (!payload.name || payload.name.trim().length === 0) {
+    if (
+      (section === 'all' || section === 'basics') &&
+      (!payload.name || payload.name.trim().length === 0)
+    ) {
       setOpenSection('basics');
       setPendingFocusId('profile-name');
       showNotification('Name is required', 'error');
-      return;
+      return false;
     }
 
-    if (!emailRegEx.test(payload.email)) {
+    if (
+      (section === 'all' || section === 'basics') &&
+      !emailRegEx.test(payload.email)
+    ) {
       setOpenSection('basics');
       setPendingFocusId('profile-email');
       showNotification('Valid email address is required', 'error');
-      return;
+      return false;
     }
 
     const normalizedTelephoneNumber = normalizeTelephoneNumber(
       payload.telephoneNumber || '',
     );
 
-    if (!telephoneNumberRegEx.test(normalizedTelephoneNumber)) {
+    if (
+      (section === 'all' || section === 'telephone') &&
+      !telephoneNumberRegEx.test(normalizedTelephoneNumber)
+    ) {
       setOpenSection('telephone');
       setPendingFocusId('profile-telephone');
-      showNotification('Valid UK telephone number is required', 'error');
-      return;
+      showNotification('Valid UK contact number is required', 'error');
+      return false;
     }
 
-    if (stripHtml(payload.description || '').length < 10) {
+    if (
+      (section === 'all' || section === 'description') &&
+      stripHtml(payload.description || '').length < 10
+    ) {
       setOpenSection('description');
       setPendingFocusId('profile-description');
       showNotification(
         `Description must be at least 10 characters (${stripHtml(payload.description || '').length} entered)`,
         'error',
       );
-      return;
+      return false;
     }
 
     const specialisationTextLength = stripHtml(payload.specialisation || '').length;
-    if (specialisationTextLength > SPECIALISATION_MAX_CHARACTERS) {
+    if (
+      (section === 'all' || section === 'specialisation') &&
+      specialisationTextLength > SPECIALISATION_MAX_CHARACTERS
+    ) {
       setOpenSection('specialisation');
       showNotification(
         `Specialisation must not exceed ${SPECIALISATION_MAX_CHARACTERS} characters (${specialisationTextLength} entered)`,
         'error',
       );
-      return;
+      return false;
     }
 
-    if ((payload.location || '').length < 10) {
+    if (
+      (section === 'all' || section === 'location') &&
+      (payload.location || '').length < 10
+    ) {
       setOpenSection('location');
       setPendingFocusId('location');
       showNotification('Location must be at least 10 characters', 'error');
-      return;
+      return false;
     }
 
-    // Validate keywords
     const keywords = [
       payload.keyWordSearchOne,
       payload.keyWordSearchTwo,
@@ -706,45 +837,71 @@ const ProfileEditView = () => {
       payload.keyWordSearchFour,
       payload.keyWordSearchFive,
     ];
-    const invalidKeywords = keywords.filter((k) => (k || '').length < 3);
-    if (invalidKeywords.length > 0) {
+    const hasKeyword = keywords.some((keyword) => keyword && keyword.trim());
+    const invalidKeyword = getInvalidEnteredField(keywords);
+    if (
+      (section === 'all' || section === 'keywords') &&
+      (!hasKeyword || invalidKeyword)
+    ) {
       setOpenSection('keywords');
       setPendingFocusId('keyword-one');
-      showNotification('All keyword fields must be at least 3 characters', 'error');
-      return;
+      showNotification(
+        hasKeyword
+          ? 'Entered keyword fields must be at least 3 characters'
+          : 'Add at least one search keyword',
+        'error',
+      );
+      return false;
     }
 
-    // Validate specializations
     const specializations = [
       payload.specialisationOne,
       payload.specialisationTwo,
       payload.specialisationThree,
       payload.specialisationFour,
     ];
-    const invalidSpecs = specializations.filter((s) => (s || '').length < 3);
-    if (invalidSpecs.length > 0) {
+    const hasSpecialisationKeyword = specializations.some(
+      (specialization) => specialization && specialization.trim(),
+    );
+    const invalidSpec = getInvalidEnteredField(specializations);
+    if (
+      (section === 'all' || section === 'spec-keywords') &&
+      (!hasSpecialisationKeyword || invalidSpec)
+    ) {
       setOpenSection('spec-keywords');
       setPendingFocusId('specialisation-one');
       showNotification(
-        'All specialisation fields must be at least 3 characters',
+        hasSpecialisationKeyword
+          ? 'Entered specialisation fields must be at least 3 characters'
+          : 'Add at least one specialisation keyword',
         'error',
       );
+      return false;
+    }
+
+    return true;
+  };
+
+  const saveProfileUpdatePayload = (payload, section = 'all') => {
+    if (!validateProfileUpdatePayload(payload, section)) {
       return;
     }
 
+    const sanitizedPayload = removeInvalidNonSectionFields(payload, section);
+
     // Dispatch UPDATE PROFILE Action
     // Keywords are now handled server-side automatically
-    dispatch(
-      profileUpdateAction({
-        ...payload,
-        telephoneNumber: normalizedTelephoneNumber,
-      }),
-    );
+    dispatch(profileUpdateAction(sanitizedPayload));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     saveProfileUpdatePayload(buildProfileUpdatePayload());
+  };
+
+  const handleSectionSave = (event, section) => {
+    event.preventDefault();
+    saveProfileUpdatePayload(buildProfileSectionUpdatePayload(section), section);
   };
 
   const handleTutorialUpdate = (tutorialPayload) => {
@@ -970,7 +1127,7 @@ const ProfileEditView = () => {
 
   const handleSaveAppliedProfileDraft = (event) => {
     event.preventDefault();
-    saveProfileUpdatePayload(buildAppliedDraftPayload());
+    saveProfileUpdatePayload(buildAppliedDraftPayload(), 'all');
   };
 
   // Validation helpers
@@ -1042,6 +1199,19 @@ const ProfileEditView = () => {
     ],
   ].filter(([, value]) => typeof value === 'string' && value.trim().length > 0);
   const hasProfileAIDraft = profileDraftFields.length > 0;
+  const searchKeywordValues = [
+    keyWordSearchOne,
+    keyWordSearchTwo,
+    keyWordSearchThree,
+    keyWordSearchFour,
+    keyWordSearchFive,
+  ].filter((value) => value?.trim());
+  const specialisationKeywordValues = [
+    specialisationOne,
+    specialisationTwo,
+    specialisationThree,
+    specialisationFour,
+  ].filter((value) => value?.trim());
 
   const validateQualificationDocumentFile = (file) => {
     if (!file) {
@@ -1508,12 +1678,12 @@ const ProfileEditView = () => {
                   className={websiteUrl.length > 0 ? 'entered' : ''}
                 />
                 <Button
-                  type="submit"
-                  
+                  type="button"
                   text="Save profile basics"
                   className="btn sticky-save"
                   title="Save profile basics"
                   disabled={saveDisabled}
+                  onClick={(event) => handleSectionSave(event, 'basics')}
                 />
               </FormSectionAccordion>
               <FormSectionAccordion
@@ -1540,12 +1710,12 @@ const ProfileEditView = () => {
                   className={stripHtml(description || '').length < 10 ? 'invalid' : 'entered'}
                 />
                 <Button
-                  type="submit"
-                  
+                  type="button"
                   text="Save description"
                   className="btn sticky-save"
                   title="Save description"
                   disabled={saveDisabled}
+                  onClick={(event) => handleSectionSave(event, 'description')}
                 />
               </FormSectionAccordion>
               <FormSectionAccordion
@@ -1683,12 +1853,12 @@ const ProfileEditView = () => {
                   aria-invalid={touched.keyWordSearchFive && keyWordSearchFive?.length < 3}
                 />
                 <Button
-                  type="submit"
-                  
+                  type="button"
                   text="Save keywords"
                   className="btn sticky-save"
                   title="Save keywords"
                   disabled={saveDisabled}
+                  onClick={(event) => handleSectionSave(event, 'keywords')}
                 />
                 <hr className="style-one" />
                 <div className="info-message">
@@ -1811,6 +1981,14 @@ const ProfileEditView = () => {
                   }
                   aria-invalid={touched.specialisationFour && specialisationFour?.length < 3}
                 />
+                <Button
+                  type="button"
+                  text="Save specialisation keywords"
+                  className="btn sticky-save"
+                  title="Save specialisation keywords"
+                  disabled={saveDisabled}
+                  onClick={(event) => handleSectionSave(event, 'spec-keywords')}
+                />
               </FormSectionAccordion>
               <FormSectionAccordion
                 title="Specialisation"
@@ -1849,12 +2027,12 @@ const ProfileEditView = () => {
                   ) : null}
                 </div>
                 <Button
-                  type="submit"
-                  
+                  type="button"
                   text="Save specialisation"
                   className="btn sticky-save"
                   title="Save specialisation"
                   disabled={saveDisabled}
+                  onClick={(event) => handleSectionSave(event, 'specialisation')}
                 />
               </FormSectionAccordion>
               <FormSectionAccordion
@@ -2156,12 +2334,12 @@ const ProfileEditView = () => {
                   ) : null}
                 </div>
                 <Button
-                  type="submit"
-                  
+                  type="button"
                   text="Save qualifications"
                   className="btn sticky-save"
                   title="Save qualifications"
                   disabled={saveDisabled}
+                  onClick={(event) => handleSectionSave(event, 'qualifications')}
                 />
               </FormSectionAccordion>
               <FormSectionAccordion
@@ -2195,16 +2373,16 @@ const ProfileEditView = () => {
                   )}
                 </div>
                 <Button
-                  type="submit"
-                  
+                  type="button"
                   text="Save location"
                   className="btn sticky-save"
                   title="Save location"
                   disabled={saveDisabled}
+                  onClick={(event) => handleSectionSave(event, 'location')}
                 />
               </FormSectionAccordion>
               <FormSectionAccordion
-                title="Telephone Number"
+                title="Contact Number"
                 isOpen={openSection === 'telephone'}
                 onToggle={() =>
                   setOpenSection((current) =>
@@ -2214,7 +2392,7 @@ const ProfileEditView = () => {
               >
                 <InputField
                   id="profile-telephone"
-                  label="Telephone Number"
+                  label="Contact Number"
                   value={telephoneNumber}
                   onChange={(e) => setTelephoneNumber(e.target.value)}
                   onBlur={() => handleBlur('telephoneNumber')}
@@ -2234,31 +2412,71 @@ const ProfileEditView = () => {
                     showTelephoneError ? 'profile-telephone-error' : undefined
                   }
                 />
+                <Button
+                  type="button"
+                  text="Save contact number"
+                  className="btn sticky-save"
+                  title="Save contact number"
+                  disabled={saveDisabled}
+                  onClick={(event) => handleSectionSave(event, 'telephone')}
+                />
               </FormSectionAccordion>
             </form>
           </fieldset>
 
           {/* This is the display */}
 
-          <fieldset className="fieldSet item">
+          <fieldset className="fieldSet item profile-output-panel">
             <legend>Profile</legend>
             <h3>Profile Summary</h3>
 
-            <div className="summary-wrapper">
-              <div>
-                <p>Name: {name}</p>
-                <p>
-                  Email:{' '}
-                  <a href={`mailto: ${email}`} target="_blank" rel="noreferrer">
-                    {email}
-                  </a>
-                </p>
-                <p>Mobile: {telephoneNumber}</p>
-                {!faceBook && !instagram ? (
-                  <p>Social media not set.</p>
-                ) : (
-                  <>
-                    <div>
+            <div className="summary-wrapper profile-summary-card">
+              <div className="profile-summary-copy">
+                <dl className="profile-summary-details">
+                  <div className="profile-summary-detail">
+                    <dt>Name</dt>
+                    <dd>{name || 'Not set.'}</dd>
+                  </div>
+                  <div className="profile-summary-detail">
+                    <dt>Email</dt>
+                    <dd>
+                      {email ? (
+                        <a href={`mailto: ${email}`} target="_blank" rel="noreferrer">
+                          {email}
+                        </a>
+                      ) : (
+                        'Not set.'
+                      )}
+                    </dd>
+                  </div>
+                  <div className="profile-summary-detail">
+                    <dt>Contact Number</dt>
+                    <dd>{telephoneNumber || 'Not set.'}</dd>
+                  </div>
+                  <div className="profile-summary-detail">
+                    <dt>Website</dt>
+                    <dd>
+                      {websiteUrl ? (
+                        <a
+                          href={toExternalUrl(websiteUrl)}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {websiteUrl}
+                        </a>
+                      ) : (
+                        'Not set.'
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="profile-summary-socials">
+                  <p className="profile-output-label">Social links</p>
+                  {!faceBook && !instagram ? (
+                    <p className="profile-output-muted">Not set.</p>
+                  ) : (
+                    <div className="profile-output-social-links">
                       {faceBook ? (
                         <FaceBookComponent faceBookUserName={faceBook} />
                       ) : null}
@@ -2267,65 +2485,74 @@ const ProfileEditView = () => {
                         <InstagramComponent instagramUserName={instagram} />
                       ) : null}
                     </div>
-                  </>
-                )}
-
-                <p>Create: {moment(profile?.createdAt).fromNow()}</p>
-                <p>Updated: {moment(profile?.updatedAt).fromNow()}</p>
-              </div>
-              {profileImageLoading ? <LoadingSpinner /> : null}
-              {profileImage ? (
-                <img src={profileImage} alt={name} className="image" />
-              ) : (
-                <p>No profile image</p>
-              )}
-              <form onSubmit={handleProfileImageUpdate}>
-                <div className="file-input-wrapper">
-                  <label htmlFor="profileImage">Change Profile Image</label>
-                  <input
-                    ref={fileInputRef}
-                    id="profileImage"
-                    type="file"
-                    name="profileImage"
-                    onChange={uploadFileHandler}
-                    accept="image/jpeg,image/png,image/webp"
-                    aria-describedby="image-requirements"
-                  />
-                  <span id="image-requirements" className="field-hint">
-                    Supported formats: JPG, PNG, WebP. Maximum size: 5MB
-                  </span>
+                  )}
                 </div>
-                {previewImage ? (
-                  <div className="image-preview-wrapper">
-                    <p>Image Preview</p>
-                    <img
-                      src={previewImage}
-                      alt="Profile preview"
-                      style={{ width: '120px' }}
-                    />
-                    <div className="button-group">
-                      <Button
-                        
-                        text="Upload Image"
-                        className="btn"
-                        type="submit"
-                        disabled={profileImageLoading || saveDisabled}
-                      />
-                      <Button
-                        
-                        text="Cancel"
-                        className="btn"
-                        type="button"
-                        onClick={handleCancelImageUpload}
-                        disabled={profileImageLoading}
-                      />
-                    </div>
+
+                <dl className="profile-summary-timestamps">
+                  <div>
+                    <dt>Created</dt>
+                    <dd>{moment(profile?.createdAt).fromNow()}</dd>
                   </div>
-                ) : null}
-              </form>
+                  <div>
+                    <dt>Updated</dt>
+                    <dd>{moment(profile?.updatedAt).fromNow()}</dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div className="profile-summary-media">
+                {profileImageLoading ? <LoadingSpinner /> : null}
+                {profileImage ? (
+                  <img src={profileImage} alt={name} className="image" />
+                ) : (
+                  <div className="profile-image-empty">No profile image</div>
+                )}
+                <form className="profile-image-upload" onSubmit={handleProfileImageUpdate}>
+                  <div className="file-input-wrapper">
+                    <label htmlFor="profileImage">Change Profile Image</label>
+                    <input
+                      ref={fileInputRef}
+                      id="profileImage"
+                      type="file"
+                      name="profileImage"
+                      onChange={uploadFileHandler}
+                      accept="image/jpeg,image/png,image/webp"
+                      aria-describedby="image-requirements"
+                    />
+                    <span id="image-requirements" className="field-hint">
+                      Supported formats: JPG, PNG, WebP. Maximum size: 5MB
+                    </span>
+                  </div>
+                  {previewImage ? (
+                    <div className="image-preview-wrapper">
+                      <p>Image Preview</p>
+                      <img
+                        src={previewImage}
+                        alt="Profile preview"
+                        style={{ width: '120px' }}
+                      />
+                      <div className="button-group">
+                        <Button
+                          text="Upload Image"
+                          className="btn"
+                          type="submit"
+                          disabled={profileImageLoading || saveDisabled}
+                        />
+                        <Button
+                          text="Cancel"
+                          className="btn"
+                          type="button"
+                          onClick={handleCancelImageUpload}
+                          disabled={profileImageLoading}
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+                </form>
+              </div>
             </div>
 
-            <h3>ALL your Profile Images</h3>
+            <h3>Profile Images</h3>
             <div className="profile-images-wrapper">
               {profileImagesError ? (
                 <p>There was an error loading images</p>
@@ -2354,32 +2581,67 @@ const ProfileEditView = () => {
               )}
             </div>
             <h3>Description</h3>
-            <div className="summary-wrapper">
-              <p
-                dangerouslySetInnerHTML={{
-                  __html: sanitize(description),
-                }}
-              ></p>
+            <div className="summary-wrapper profile-output-section profile-output-rich-text">
+              {stripHtml(description || '') ? (
+                <div
+                  className="profile-output-html"
+                  dangerouslySetInnerHTML={{
+                    __html: sanitize(description),
+                  }}
+                ></div>
+              ) : (
+                <p className="profile-output-muted">No description set.</p>
+              )}
             </div>
-            <h3>Location</h3>
-            <div className="summary-wrapper">
-              <p>{location}</p>
+            <h3>Search Keyword(s)</h3>
+            <div className="summary-wrapper profile-output-section">
+              {searchKeywordValues.length > 0 ? (
+                <ul className="summary-chip-list">
+                  {searchKeywordValues.map((value) => (
+                    <li key={value}>{value}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No search keywords set.</p>
+              )}
+            </div>
+            <h3>Specialisation Keyword(s)</h3>
+            <div className="summary-wrapper profile-output-section">
+              {specialisationKeywordValues.length > 0 ? (
+                <ul className="summary-chip-list">
+                  {specialisationKeywordValues.map((value) => (
+                    <li key={value}>{value}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No specialisation keywords set.</p>
+              )}
             </div>
             <h3>Specialisation</h3>
-            <div className="summary-wrapper">
-              <p
-                dangerouslySetInnerHTML={{
-                  __html: sanitize(specialisation),
-                }}
-              ></p>
+            <div className="summary-wrapper profile-output-section profile-output-rich-text">
+              {stripHtml(specialisation || '') ? (
+                <div
+                  className="profile-output-html"
+                  dangerouslySetInnerHTML={{
+                    __html: sanitize(specialisation),
+                  }}
+                ></div>
+              ) : (
+                <p className="profile-output-muted">No specialisation set.</p>
+              )}
             </div>
             <h3>Qualifications</h3>
-            <div className="summary-wrapper">
-              <p
-                dangerouslySetInnerHTML={{
-                  __html: sanitize(qualifications),
-                }}
-              ></p>
+            <div className="summary-wrapper profile-output-section profile-output-rich-text">
+              {stripHtml(qualifications || '') ? (
+                <div
+                  className="profile-output-html"
+                  dangerouslySetInnerHTML={{
+                    __html: sanitize(qualifications),
+                  }}
+                ></div>
+              ) : (
+                <p className="profile-output-muted">No qualifications set.</p>
+              )}
               <div
                 className="qualification-summary-status"
                 role="status"
@@ -2402,8 +2664,16 @@ const ProfileEditView = () => {
                 </p>
               </div>
             </div>
+            <h3>Location</h3>
+            <div className="summary-wrapper profile-output-section">
+              <p>{location || 'Location not set.'}</p>
+            </div>
+            <h3>Contact Number</h3>
+            <div className="summary-wrapper profile-output-section">
+              <p>{telephoneNumber || 'Contact number not set.'}</p>
+            </div>
             <h3>Rating</h3>
-            <div className="summary-wrapper">
+            <div className="summary-wrapper profile-output-section">
               <Rating
                 value={profile?.rating}
                 text={`  from ${profile?.numReviews} reviews`}

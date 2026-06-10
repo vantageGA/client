@@ -89,6 +89,7 @@ export const profileImageUploadAction =
       });
 
       dispatch(profileOfLoggedInUserAction());
+      dispatch(profileImagesAction());
     } catch (error) {
       dispatch({
         type: PROFILE_IMAGE_UPLOAD_FAILURE,
